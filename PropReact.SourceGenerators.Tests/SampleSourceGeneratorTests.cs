@@ -30,7 +30,7 @@
 //         var compilation = CSharpCompilation.Create(nameof(SampleSourceGeneratorTests));
 //
 //         // Run generators. Don't forget to use the new compilation rather than the previous one.
-//         driver.RunGeneratorsAndUpdateCompilation(compilation, out var newCompilation, out _);
+//         driver.RunGeneratorsAndUpdateCompilation(compilation, out var newCompilation, out var diagnostics);
 //
 //         // Retrieve all files in the compilation.
 //         var generatedFiles = newCompilation.SyntaxTrees

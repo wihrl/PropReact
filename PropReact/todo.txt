@@ -16,6 +16,3 @@ allow watching without values Prop.Watch(x => x.1.2.3, () => {...}) - avoids all
 
 
 
-
-
-
