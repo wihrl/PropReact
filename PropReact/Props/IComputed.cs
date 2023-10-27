@@ -3,8 +3,8 @@
 /// <summary>
 /// Computed property. Value is updated whenever a dependency changes.
 /// </summary>
-public interface ICompProp<TValue> : IValueOwner
+public interface IComputed<TValue> : IValueProp<TValue>
 {
-    TValue V { get; }
+    TValue Value { get; }
     internal void Set(TValue value);
 }

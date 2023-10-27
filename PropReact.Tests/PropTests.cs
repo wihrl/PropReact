@@ -12,18 +12,18 @@ public class BasicTests
         var disposable = Prop.Watch(Hierarchy, x => x.Name, x => changes++);
         Assert.Equal(0, changes);
 
-        Hierarchy.Id.V = 2;
+        Hierarchy.Id.Value = 2;
         Assert.Equal(0, changes);
 
-        Hierarchy.Name.V = "asdf";
+        Hierarchy.Name.Value = "asdf";
         Assert.Equal(1, changes);
 
-        Hierarchy.Name.V = "asdf2";
+        Hierarchy.Name.Value = "asdf2";
         Assert.Equal(2, changes);
 
         disposable.Dispose();
 
-        Hierarchy.Name.V = "asdf3";
+        Hierarchy.Name.Value = "asdf3";
         Assert.Equal(2, changes);
     }
 
@@ -32,24 +32,24 @@ public class BasicTests
     {
         int changes = 0;
 
-        var disposable = Prop.Watch(Hierarchy, x => x.Nested1.V.Nested2.V.Value1, x => changes++);
+        var disposable = Prop.Watch(Hierarchy, x => x.Nested1.Value.Nested2.Value.Value1, x => changes++);
         Assert.Equal(0, changes);
 
-        Hierarchy.Id.V = 2;
+        Hierarchy.Id.Value = 2;
         Assert.Equal(0, changes);
 
-        Hierarchy.Nested1.V.Nested2.V.Value1.V = 2;
+        Hierarchy.Nested1.Value.Nested2.Value.Value1.Value = 2;
         Assert.Equal(1, changes);
 
-        Hierarchy.Nested1.V = new();
+        Hierarchy.Nested1.Value = new();
         Assert.Equal(2, changes);
 
-        Hierarchy.Nested1.V.Nested2.V.Value1.V = 3;
+        Hierarchy.Nested1.Value.Nested2.Value.Value1.Value = 3;
         Assert.Equal(3, changes);
 
         disposable.Dispose();
 
-        Hierarchy.Nested1.V.Nested2.V.Value1.V = 4;
+        Hierarchy.Nested1.Value.Nested2.Value.Value1.Value = 4;
         Assert.Equal(3, changes);
     }
 
@@ -58,14 +58,14 @@ public class BasicTests
     {
         int changes = 0;
 
-        var disposable = Prop.Watch(Hierarchy, x => new { V1 = x.Name.V, V2 = x.Name.V }, x => changes++);
+        var disposable = Prop.Watch(Hierarchy, x => new { V1 = x.Name.Value, V2 = x.Name.Value }, x => changes++);
 
-        Hierarchy.Name.V = "asdf";
+        Hierarchy.Name.Value = "asdf";
         Assert.Equal(1, changes);
 
         disposable.Dispose();
 
-        Hierarchy.Name.V = "asdf3";
+        Hierarchy.Name.Value = "asdf3";
         Assert.Equal(1, changes);
     }
 
@@ -74,7 +74,7 @@ public class BasicTests
     {
         Assert.Throws<ArgumentException>(() =>
         {
-            Prop.Watch(Hierarchy, x => x.Nested1NoPropMutable.Value1.V, x => { });
+            Prop.Watch(Hierarchy, x => x.Nested1NoPropMutable.Value1.Value, x => { });
         });
     }
 
@@ -83,19 +83,19 @@ public class BasicTests
     {
         Assert.Throws<ArgumentException>(() =>
         {
-            Prop.Watch(Hierarchy, x => x.Nested1Field.V, x => { });
+            Prop.Watch(Hierarchy, x => x.Nested1Field.Value, x => { });
         });
     }
 
     [Fact]
     public void NavigableProp()
     {
-        Assert.Equal(Hierarchy, Hierarchy.NestedNavigable.V.NavProp.V);
+        Assert.Equal(Hierarchy, Hierarchy.NestedNavigable.Value.NavProp.V);
         
         var newNested = new Nested1();
-        Hierarchy.NestedNavigable.V = newNested;
+        Hierarchy.NestedNavigable.Value = newNested;
         
-        Assert.Equal(Hierarchy, Hierarchy.NestedNavigable.V.NavProp.V);
+        Assert.Equal(Hierarchy, Hierarchy.NestedNavigable.Value.NavProp.V);
     }
 }
 

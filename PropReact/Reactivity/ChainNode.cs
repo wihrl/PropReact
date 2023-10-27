@@ -3,7 +3,7 @@
 namespace PropReact.Reactivity;
 
 // todo: Support property.list.property (list.count, ...) (only sub to list if it is at the end)
-internal class ChainNode : IChangeObserver
+internal class ChainNode : IPropObserver<>
 {
     internal List<ChainNode> _next = new();
     public readonly IMember Member;
@@ -47,8 +47,8 @@ internal class ChainNode : IChangeObserver
         if (oldValue == newValue)
             return;
 
-        (oldValue as IValueOwner)?.Unsub(this);
-        (newValue as IValueOwner)?.Sub(this);
+        (oldValue as IProp<>)?.Unsub(this);
+        (newValue as IProp<>)?.Sub(this);
 
         if (_isCollection)
         {

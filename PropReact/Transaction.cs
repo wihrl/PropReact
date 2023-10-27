@@ -68,9 +68,9 @@ public sealed class Transaction : IDisposable
         action();
     }
 
-    public static void Set<T>(IProp<T> prop, T value)
+    public static void Set<T>(IMutable<T> mutable, T value)
     {
         using var _ = Begin();
-        prop.V = value;
+        mutable.Value = value;
     }
 }

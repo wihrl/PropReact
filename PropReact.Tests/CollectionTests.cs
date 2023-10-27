@@ -15,7 +15,7 @@ public class CollectionTests
         Hierarchy.Items1.Add(new());
         Assert.Equal(1, changes);
 
-        Hierarchy.Items1[0].Value1.V = "asdf";
+        Hierarchy.Items1[0].Value1.Value = "asdf";
         Assert.Equal(2, changes);
 
         Hierarchy.Items1.Add(new());
@@ -39,7 +39,7 @@ public class CollectionTests
         Hierarchy.Items1[0].Items2.Add(new());
         Assert.Equal(2, changes);
         
-        Hierarchy.Items1[0].Items2[0].Value2.V = 2;
+        Hierarchy.Items1[0].Items2[0].Value2.Value = 2;
         Assert.Equal(3, changes);
         
         // todo: remove, replace, map, same values, ...

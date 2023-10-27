@@ -6,8 +6,7 @@ using PropReact.Properties;
 
 namespace PropReact.Blazor;
 
-public class ReactiveComponent<TComponent> : ComponentBase, IValueOwner
-    where TComponent : ReactiveComponent<TComponent>
+public class ReactiveComponent<TComponent> : ComponentBase, IProp<> where TComponent : ReactiveComponent<TComponent>
 {
     private readonly List<IDisposable> _disposables = new();
     private readonly Dictionary<int, object> _lambdas = new();
@@ -104,12 +103,12 @@ public class ReactiveComponent<TComponent> : ComponentBase, IValueOwner
         base.OnParametersSet();
     }
 
-    void IValueOwner.Sub(IChangeObserver changeObserver)
+    void IProp<>.Sub(IChangeObserver changeObserver)
     {
         // todo: implement, add prop to ichangeobserver to send notifications on ParametersSet()....
     }
 
-    void IValueOwner.Unsub(IChangeObserver changeObserver)
+    void IProp<>.Unsub(IChangeObserver changeObserver)
     {
     }
 
@@ -163,7 +162,7 @@ public class ReactiveComponent<TComponent> : ComponentBase, IValueOwner
                 if (backingField is null)
                     throw new Exception("Parameter backing field not found. Expected: " + backingFieldName);
 
-                var valueProp = backingField.FieldType.GetProperty(nameof(IProp<int>.V));
+                var valueProp = backingField.FieldType.GetProperty(nameof(IMutable<int>.Value));
                 if(valueProp is null)
                     throw new Exception("Invalid backing field. (" + backingFieldName + ")");
                 

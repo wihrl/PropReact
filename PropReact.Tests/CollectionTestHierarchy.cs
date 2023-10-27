@@ -12,14 +12,14 @@ public class CollectionTestHierarchy
     {
         public Guid Id { get; set; } = Guid.NewGuid();
 
-        public IProp<string> Value1 { get; } = Prop.Make("");
-        public IProp<int> Value2 { get; } = Prop.Make(0);
+        public IMutable<string> Value1 { get; } = Prop.Make("");
+        public IMutable<int> Value2 { get; } = Prop.Make(0);
         public IListProp<Item2> Items2 { get; } = Prop.MakeList<Item2>();
 
         public class Item2
         {
-            public IProp<string> Value1 { get; } = Prop.Make("");
-            public IProp<int> Value2 { get; } = Prop.Make(0);
+            public IMutable<string> Value1 { get; } = Prop.Make("");
+            public IMutable<int> Value2 { get; } = Prop.Make(0);
         }
     }
 }

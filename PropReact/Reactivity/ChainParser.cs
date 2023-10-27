@@ -42,7 +42,7 @@ partial class PropChain
 
             // prevent dangling
             if (!member.IsReadOnly &&
-                !member.DeclaringType.IsAssignableTo(typeof(IValueOwner)) &&
+                !member.DeclaringType.IsAssignableTo(typeof(IProp<>)) &&
                 member.MemberInfo.CustomAttributes.All(x => x.AttributeType.Name != "InjectAttribute"))
                 throw new ArgumentException(
                     "Selector expression cannot contain mutable non-reactive properties unless marked with [Immutable].");
