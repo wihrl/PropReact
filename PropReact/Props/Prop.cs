@@ -1,7 +1,5 @@
 ﻿using System.Linq.Expressions;
-using PropReact.Collections;
 using PropReact.Properties;
-using PropReact.Reactivity;
 
 namespace PropReact;
 
@@ -14,85 +12,160 @@ namespace PropReact;
 /// readonly IMapProp<int, Foo> Foo;
 /// Prop.Make(out Foo);
 /// ]]>
-/// This also forces you to init all props in the constructor, which is necessary for certain types anyway. 
+/// This also forces you to init all props in the constructor, which is necessary for certain prop types anyway. 
 /// </summary>
 public static class Prop
 {
-    // todo: !!! turn this into ref struct to prevent having to specify (this) all the time, could also differentiate
-    // between objects that implement ICompositeDisposable and just returning IDisposable
-    // new PropBuilder() vs new PropBuilder<>(this)
-    
-    // todo: cache chains, use expression as key? - would be problematic because of disposing (need for ChainInstance)
-    public static IDisposable Watch<TOwner, TValue>(TOwner owner, Expression<Func<TOwner, TValue>> selector,
-        Action<TValue> action, Func<TOwner, TValue>? getter = null) where TOwner : notnull
-    {
-        getter ??= selector.Compile();
-        return PropChain.Parse(owner, selector, () => action(getter(owner)));
-    }
-
-    public static IComputed<TResult> Computed<TOwner, TValue, TResult>(TOwner owner,
-        Expression<Func<TOwner, TValue>> selector,
-        Func<TValue, TResult> compute) where TOwner : ICompositeDisposable
-    {
-        // todo: make lazy (only update if someone is observing the value) (cannot do because of transactions)
-        IComputed<TResult> comp = new ComputedValueProp<TResult>(default!);
-        owner.AddDisposable(Watch(owner, selector, x => comp.Set(compute(x))));
-        return comp;
-    }
-
-    public static IComputed<TValue> Computed<TOwner, TValue>(TOwner owner,
-        Expression<Func<TOwner, TValue>> selector) where TOwner : ICompositeDisposable
-    {
-        IComputed<TValue> comp = new ComputedValueProp<TValue>(default!);
-        owner.AddDisposable(Watch(owner, selector, x => comp.Set(x)));
-        return comp;
-    }
-
-    // todo: add variants with multiple values on the same line
-    // public static void Make<TValue>(out IListProp<TValue> value) => value = new ListProp<TValue>(null);
-    //
-    // public static void Make<TOwner, TValue>(out IProp<TValue> prop, TValue initialValue,
-    //     Func<TValue, INavProp<TOwner?>> navGetter) where TOwner : notnull
-    //     => prop = new MutableProp<TValue>(initialValue, new NavSetter<TValue, TOwner>(owner, navGetter));
-    //
-    // public static void Make<TOwner, TValue>(out IListProp<TValue> list, TOwner owner) where TOwner : notnull
-    //     => list = new ListProp<TValue>(new NavSetter<TValue, TOwner>(owner, navGetter));
-    //
-    // public static void Make<TKey, TValue>(out IMapProp<TKey, TValue> value, Func<TValue, TKey> keySelector)
-    //     where TKey : notnull => value = new MapProp<TKey, TValue>(keySelector, null);
-
     #region Mutable props
 
-    public static void Make<TValue>(out IMutable<TValue?> value) => value = new MutableValueProp<TValue?>(default);
-    public static void Make<TValue>(out IMutable<TValue> value, TValue initialValue) =>
-        value = new MutableValueProp<TValue>(initialValue);
-    
-    public static void MakeMany<TValue1, TValue2>(out IMutable<TValue1?> value1, out IMutable<TValue2?> value2)
+    #region Simple
+
+    public static void Make<T1>(out IMutable<T1?> prop) => prop = new MutableValueProp<T1?>(default);
+
+    public static void Make<T1, T2>(out IMutable<T1?> prop1, out IMutable<T2?> prop2)
     {
-        Make(out value1);
-        Make(out value2);
-    } // todo: ...
+        Make(out prop1);
+        Make(out prop2);
+    }
+
+    public static void Make<T1, T2, T3>(out IMutable<T1?> prop1, out IMutable<T2?> prop2, out IMutable<T3?> prop3)
+    {
+        Make(out prop1);
+        Make(out prop2);
+        Make(out prop3);
+    }
+
+    public static void Make<T1, T2, T3, T4>(out IMutable<T1?> prop1, out IMutable<T2?> prop2,
+        out IMutable<T3?> prop3, out IMutable<T4?> prop4)
+    {
+        Make(out prop1);
+        Make(out prop2);
+        Make(out prop3);
+        Make(out prop4);
+    }
+
+    #endregion
+
+    #region With defaults
+
+    public static void Make<T1>(out IMutable<T1> prop1, T1 val1) => prop1 = new MutableValueProp<T1>(val1);
+
+    public static void Make<T1, T2>(out IMutable<T1> prop1, T1 val1, out IMutable<T2> prop2, T2 val2)
+    {
+        Make(out prop1, val1);
+        Make(out prop2, val2);
+    }
+
+    public static void Make<T1, T2, T3>(
+        out IMutable<T1> prop1, T1 val1,
+        out IMutable<T2> prop2, T2 val2,
+        out IMutable<T3> prop3, T3 val3)
+    {
+        Make(out prop1, val1);
+        Make(out prop2, val2);
+        Make(out prop3, val3);
+    }
+
+    public static void Make<T1, T2, T3, T4>(
+        out IMutable<T1> prop1, T1 val1,
+        out IMutable<T2> prop2, T2 val2,
+        out IMutable<T3> prop3, T3 val3,
+        out IMutable<T4> prop4, T4 val4)
+    {
+        Make(out prop1, val1);
+        Make(out prop2, val2);
+        Make(out prop3, val3);
+        Make(out prop4, val4);
+    }
+
+    #endregion
+
+    #region Combinations
+
+    // default-less props are only allowed at the beginning
+
+
+    public static void Make<T1, T2>(out IMutable<T1?> prop1, out IMutable<T2> prop2, T2 val2)
+    {
+        Make(out prop1);
+        Make(out prop2, val2);
+    }
+
+    public static void Make<T1, T2, T3>(
+        out IMutable<T1?> prop1,
+        out IMutable<T2> prop2, T2 val2,
+        out IMutable<T3> prop3, T3 val3)
+    {
+        Make(out prop1);
+        Make(out prop2, val2);
+        Make(out prop3, val3);
+    }
+
+    public static void Make<T1, T2, T3, T4>(
+        out IMutable<T1?> prop1,
+        out IMutable<T2> prop2, T2 val2,
+        out IMutable<T3> prop3, T3 val3,
+        out IMutable<T4> prop4, T4 val4)
+    {
+        Make(out prop1);
+        Make(out prop2, val2);
+        Make(out prop3, val3);
+        Make(out prop4, val4);
+    }
+
+    public static void Make<T1, T2, T3>(
+        out IMutable<T1?> prop1,
+        out IMutable<T2?> prop2,
+        out IMutable<T3> prop3, T3 val3)
+    {
+        Make(out prop1);
+        Make(out prop2);
+        Make(out prop3, val3);
+    }
+
+    public static void Make<T1, T2, T3, T4>(
+        out IMutable<T1?> prop1,
+        out IMutable<T2?> prop2,
+        out IMutable<T3> prop3, T3 val3,
+        out IMutable<T4> prop4, T4 val4)
+    {
+        Make(out prop1);
+        Make(out prop2);
+        Make(out prop3, val3);
+        Make(out prop4, val4);
+    }
+
+    public static void Make<T1, T2, T3, T4>(
+        out IMutable<T1?> prop1,
+        out IMutable<T2?> prop2,
+        out IMutable<T3?> prop3,
+        out IMutable<T4> prop4, T4 val4)
+    {
+        Make(out prop1);
+        Make(out prop2);
+        Make(out prop3);
+        Make(out prop4, val4);
+    }
+
+    #endregion
 
     #endregion
 
 
-
-    public static void MakeComputed<TOwner, TValue, TResult>(out IComputed<TResult> prop, TOwner owner,
-        Expression<Func<TOwner, TValue>> selector,
-        Func<TValue, TResult> compute) where TOwner : ICompositeDisposable
-    {
-        // todo: make lazy (only update if someone is observing the value)
-        IComputed<TResult> comp = new ComputedValueProp<TResult>(default!);
-        owner.AddDisposable(Watch(owner, selector, x => comp.Set(compute(x))));
-        prop = comp;
-    }
-
-    // todo:
-    public static void Make<TFactory, TValue>(out TFactory value) where TFactory : IPropFactory<TValue?> =>
-        value = (TFactory) TFactory.Make();
+    // public static void MakeComputed<TOwner, T, TResult>(out IComputed<TResult> prop, TOwner owner,
+    //     Expression<Func<TOwner, T>> selector,
+    //     Func<T, TResult> compute) where TOwner : ICompositeDisposable
+    // {
+    //     // todo: make lazy (only update if someone is observing the prop)
+    //     IComputed<TResult> comp = new ComputedpropProp<TResult>(default!);
+    //     owner.AddDisposable(Watch(owner, selector, x => comp.Set(compute(x))));
+    //     prop = comp;
+    // }
 }
 
-public interface IPropFactory<T>
+public static class Set
 {
-    public static abstract IPropFactory<T> Make();
+    public static void Make()
+    {
+    }
 }

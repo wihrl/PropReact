@@ -1,5 +1,4 @@
-﻿using PropReact.Reactivity;
-
+﻿
 namespace PropReact;
 
 public interface ICompositeDisposable : IDisposable
@@ -9,7 +8,7 @@ public interface ICompositeDisposable : IDisposable
 
 public class CompositeDisposable : ICompositeDisposable
 {
-    private List<IDisposable> _ownedDisposables = new();
+    private readonly List<IDisposable> _ownedDisposables = new();
 
     public void AddDisposable(IDisposable disposable) => _ownedDisposables.Add(disposable);
 

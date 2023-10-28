@@ -1,5 +1,4 @@
-﻿using PropReact.Reactivity;
-
+﻿
 namespace PropReact.Properties;
 
 internal class MutableValueProp<TValue> : ValuePropBase<TValue>, IMutable<TValue>

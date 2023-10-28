@@ -24,10 +24,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\PropReact.Shared\PropReact.Shared.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\PropReact.Shared\PropReact.Shared.csproj" />
+      <ProjectReference Include="..\PropReact\PropReact.csproj" />
     </ItemGroup>
 
 

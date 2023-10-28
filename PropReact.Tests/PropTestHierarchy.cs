@@ -6,20 +6,22 @@ public class TestHierarchy
 {
     public TestHierarchy()
     {
-        NestedNavigable = Prop.MakeNavigable(this, new Nested1(), x => x.NavProp);
+        Prop.Make(out _id, 1, out _name, "", out _nested1Field, new());
     }
 
-    public IMutable<int> Id { get; } = Prop.Make(0);
-    public IMutable<string> Name { get; } = Prop.Make("");
-    public IMutable<Nested1?> Nested1 { get; } = Prop.Make(new Nested1());
 
-    public Nested1 Nested1NoPropMutable { get; set; } = new();
-    public Nested1 Nested1NoPropImmutable { get; } = new();
-
-    public readonly IMutable<Nested1> Nested1Field = Prop.Make(new Nested1());
-
+    private readonly IMutable<int> _id;
+    private readonly IMutable<string> _name;
+    private readonly IMutable<Nested1?> _nested1;
+    private readonly Nested1 _nested1NoPropMutable;
+    private readonly Nested1 _nested1NoPropImmutable;
+    private readonly IMutable<Nested1> _nested1Field;
 
     public IMutable<Nested1> NestedNavigable { get; }
+}
+
+class b : Nested1
+{
 }
 
 public class Nested1

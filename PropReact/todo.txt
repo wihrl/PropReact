@@ -15,4 +15,6 @@ allow watching without values Prop.Watch(x => x.1.2.3, () => {...}) - avoids all
 
 
 
+GetNextNode() - avoid duplicate nodes when branching based on getter
 
+transaction: StartRead(), StartWritable();
