@@ -1,11 +1,10 @@
 ﻿namespace PropReact.Properties;
 
-internal abstract class PropBase<TValue> : IProp<TValue>
+internal abstract class ValuePropBase<TValue> : IProp<TValue>
 {
     protected TValue _value;
-    private readonly List<IPropObserver<TValue>> _observers = new();
 
-    protected PropBase(TValue initialValue)
+    protected ValuePropBase(TValue initialValue)
     {
         _value = initialValue;
     }
@@ -20,9 +19,6 @@ internal abstract class PropBase<TValue> : IProp<TValue>
         foreach (var watcher in _observers) watcher.PropChanged(oldValue, value);
     }
 
-    public static implicit operator TValue(PropBase<TValue> prop) => prop._value;
-    public void Sub(IPropObserver<TValue> propObserver) => _observers.Add(propObserver);
-    public void Unsub(IPropObserver<TValue> propObserver) => _observers.Remove(propObserver);
-
+    public static implicit operator TValue(ValuePropBase<TValue> valueProp) => valueProp._value;
     public override string? ToString() => _value?.ToString();
 }

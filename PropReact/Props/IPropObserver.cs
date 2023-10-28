@@ -2,5 +2,5 @@
 
 internal interface IPropObserver<T>
 {
-    void PropChanged(T? oldValue, T? newValue);
+    void PropChanged(T? oldValue, T? newValue, IReadOnlyCollection<Action> reactions);
 }

@@ -5,6 +5,5 @@
 /// </summary>
 public interface IComputed<TValue> : IValueProp<TValue>
 {
-    TValue Value { get; }
     internal void Set(TValue value);
 }

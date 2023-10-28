@@ -2,7 +2,7 @@
 
 namespace PropReact.Properties;
 
-internal class MutableProp<TValue> : PropBase<TValue>, IMutable<TValue>
+internal class MutableValueProp<TValue> : ValuePropBase<TValue>, IMutable<TValue>
 {
     public TValue Value
     {
@@ -16,7 +16,7 @@ internal class MutableProp<TValue> : PropBase<TValue>, IMutable<TValue>
         }
     }
 
-    internal MutableProp(TValue initialValue) : base(initialValue)
+    internal MutableValueProp(TValue initialValue) : base(initialValue)
     {
     }
 }

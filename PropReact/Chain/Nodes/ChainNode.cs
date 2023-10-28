@@ -4,7 +4,7 @@ using PropReact.Reactivity;
 
 namespace PropReact.Chain;
 
-public abstract class ChainNode<TSource, TValue> : ChainNode
+public abstract class ChainNode<TValue> : ChainNode
 {
     public ValueNode<TValue, TNext> ChainSingle<TNext>(Func<TValue, IValueProp<TNext>> selector)
     {
@@ -36,7 +36,7 @@ public abstract class ChainNode
 
 public interface IChainNode<TSource>
 {
-    void ChangeSource(TSource? oldValue, TSource? newValue);
+    void ChangeSource(TSource? oldValue, TSource? newValue, IReadOnlyCollection<Action> reactions);
 }
 
 public static class SetNodeExtensions

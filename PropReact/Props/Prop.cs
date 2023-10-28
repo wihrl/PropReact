@@ -31,7 +31,7 @@ public static class Prop
         Func<TValue, TResult> compute) where TOwner : ICompositeDisposable
     {
         // todo: make lazy (only update if someone is observing the value) (cannot do because of transactions)
-        IComputed<TResult> comp = new ReadOnlyProp<TResult>(default!);
+        IComputed<TResult> comp = new ComputedValueProp<TResult>(default!);
         owner.AddDisposable(Watch(owner, selector, x => comp.Set(compute(x))));
         return comp;
     }
@@ -39,7 +39,7 @@ public static class Prop
     public static IComputed<TValue> Computed<TOwner, TValue>(TOwner owner,
         Expression<Func<TOwner, TValue>> selector) where TOwner : ICompositeDisposable
     {
-        IComputed<TValue> comp = new ReadOnlyProp<TValue>(default!);
+        IComputed<TValue> comp = new ComputedValueProp<TValue>(default!);
         owner.AddDisposable(Watch(owner, selector, x => comp.Set(x)));
         return comp;
     }
@@ -59,9 +59,9 @@ public static class Prop
 
     #region Mutable props
 
-    public static void Make<TValue>(out IMutable<TValue?> value) => value = new MutableProp<TValue?>(default);
+    public static void Make<TValue>(out IMutable<TValue?> value) => value = new MutableValueProp<TValue?>(default);
     public static void Make<TValue>(out IMutable<TValue> value, TValue initialValue) =>
-        value = new MutableProp<TValue>(initialValue);
+        value = new MutableValueProp<TValue>(initialValue);
     
     public static void MakeMany<TValue1, TValue2>(out IMutable<TValue1?> value1, out IMutable<TValue2?> value2)
     {
@@ -78,7 +78,7 @@ public static class Prop
         Func<TValue, TResult> compute) where TOwner : ICompositeDisposable
     {
         // todo: make lazy (only update if someone is observing the value)
-        IComputed<TResult> comp = new ReadOnlyProp<TResult>(default!);
+        IComputed<TResult> comp = new ComputedValueProp<TResult>(default!);
         owner.AddDisposable(Watch(owner, selector, x => comp.Set(compute(x))));
         prop = comp;
     }

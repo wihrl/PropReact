@@ -37,29 +37,31 @@ public class ManualChainBuild
         //Watch(this, static build => build);
         var a = new A();
 
-        ChainNode<A, A> builder = null!;
-
         // basic
         // public API: this.Watch(x => x.B.C.D1.Split());
-        builder.ChainSingle(x => x.B)
-            .ChainSingle(x => x.C)
-            .ChainSingle(x => x.D1);
+        ReactiveChain.Make<A>(root =>
+            root.ChainSingle(x => x.B)
+                .ChainSingle(x => x.C)
+                .ChainSingle(x => x.D1));
 
         var c1 = (a.B.Value.C.Value.D1.Value, a.B.Value.C.Value.EL.Select(x => x.Value));
         var c2 = a.B.Value.C.Value.Select(x => x.D1.Value, x => x.EL.Select(x => x.Value));
 
         // split
         // todo: public API: Prop.Watch(this, x => x.B.C).Split(x => x.Chain(...), x => ...).ToProp(out _prop, transform...)/.;
-        builder.ChainSingle(x => x.B)
-            .ChainSingle(x => x.C)
-            .Branch(
-                y => y.ChainSingle(x => x.D1)
-                    .ChainSingle(x => x.D2), // not necessary, will not trigger updates: .Chain(x => x.Value),
-                y => y.ChainSingle(x => x.D2));
+        ReactiveChain.Make<A>(root =>
+            root.ChainSingle(x => x.B)
+                .ChainSingle(x => x.C)
+                .Branch(
+                    y => y.ChainSingle(x => x.D1)
+                        .ChainSingle(x => x.D2), // not necessary, will not trigger updates: .Chain(x => x.Value),
+                    y => y.ChainSingle(x => x.D2)));
 
         // collection
         // todo: public API: this.Watch(x => x.B.C.EL).Enter().Chain(x => x.E1.Value);
-        builder.ChainSingle(x => x.B)
+        var roots = new RootNode<A>[2];
+        RootNode<A>.Make(out roots[0])
+            .ChainSingle(x => x.B)
             .ChainSingle(x => x.C)
             .ChainSingle(x => x.ES)
             .Branch(y => y.ChainSingle(x => x.Count),
@@ -67,7 +69,9 @@ public class ManualChainBuild
                     .ChainSingle(x => x.E1)
                     .ChainSingle(x => x.Value));
 
-        builder.ChainSingle(x => x.B).ChainSingle(x => x.C).ChainSingle(x => x.EL).Enter().ChainSingle(x => x.E1);
+        RootNode<A>.Make(out roots[1])
+            .ChainSingle(x => x.B).ChainSingle(x => x.C).ChainSingle(x => x.EL).Enter()
+            .ChainSingle(x => x.E1);
 
         // creating props: Prop.Make(out _prop);
     }
