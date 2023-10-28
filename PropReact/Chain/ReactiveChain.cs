@@ -1,11 +1,16 @@
-namespace PropReact.Chain;
+﻿namespace PropReact.Chain;
 
-public static class ReactiveChain
+public class ReactiveChain<TRoot>
 {
-    public static RootNode<T> Make<T>(Action<RootNode<T>> builder)
+    private readonly Action<Root<TRoot>> _builder;
+
+    public ReactiveChain(Action<IChainBuilder<TRoot>> builder) => _builder = builder;
+
+
+    public IDisposable Attach(TRoot root, Reaction reaction)
     {
-        var root = new RootNode<T>();
-        builder(root);
-        return root;
+        var rootNode = new Root<TRoot>(root, reaction);
+        _builder(rootNode);
+        return rootNode;
     }
 }

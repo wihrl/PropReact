@@ -1,0 +1,21 @@
+﻿namespace PropReact.Chain;
+
+public class Root<TRoot> : ChainBase<TRoot>, IDisposable
+{
+    private readonly TRoot _root;
+
+    public Root(TRoot root, Reaction reaction) : base(reaction)
+    {
+        _root = root;
+    }
+
+    public void Initialize()
+    {
+        foreach (var chainNode in _next) chainNode.ChangeSource(default, _root);
+    }
+
+    public void Dispose()
+    {
+        foreach (var chainNode in _next) chainNode.ChangeSource(_root, default);
+    }
+}

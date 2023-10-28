@@ -34,22 +34,17 @@ public class ManualChainBuild
     [Fact]
     public void Simple()
     {
-        //Watch(this, static build => build);
-        var a = new A();
-
         // basic
-        // public API: this.Watch(x => x.B.C.D1.Split());
-        ReactiveChain.Make<A>(root =>
+        // public API: this.Watch(x => x.B.C.D1);
+
+        new ReactiveChain<A>(root =>
             root.ChainSingle(x => x.B)
                 .ChainSingle(x => x.C)
                 .ChainSingle(x => x.D1));
 
-        var c1 = (a.B.Value.C.Value.D1.Value, a.B.Value.C.Value.EL.Select(x => x.Value));
-        var c2 = a.B.Value.C.Value.Select(x => x.D1.Value, x => x.EL.Select(x => x.Value));
-
         // split
         // todo: public API: Prop.Watch(this, x => x.B.C).Split(x => x.Chain(...), x => ...).ToProp(out _prop, transform...)/.;
-        ReactiveChain.Make<A>(root =>
+        new ReactiveChain<A>(root =>
             root.ChainSingle(x => x.B)
                 .ChainSingle(x => x.C)
                 .Branch(
@@ -59,19 +54,20 @@ public class ManualChainBuild
 
         // collection
         // todo: public API: this.Watch(x => x.B.C.EL).Enter().Chain(x => x.E1.Value);
-        var roots = new RootNode<A>[2];
-        RootNode<A>.Make(out roots[0])
+
+        new ReactiveChain<A>(root => root
             .ChainSingle(x => x.B)
             .ChainSingle(x => x.C)
             .ChainSingle(x => x.ES)
-            .Branch(y => y.ChainSingle(x => x.Count),
+            .Branch(y =>
+                    y.ChainSingle(x => x.Count),
                 y => y.Enter()
                     .ChainSingle(x => x.E1)
-                    .ChainSingle(x => x.Value));
+                    .ChainSingle(x => x.Value)));
 
-        RootNode<A>.Make(out roots[1])
+        new ReactiveChain<A>(root => root
             .ChainSingle(x => x.B).ChainSingle(x => x.C).ChainSingle(x => x.EL).Enter()
-            .ChainSingle(x => x.E1);
+            .ChainSingle(x => x.E1));
 
         // creating props: Prop.Make(out _prop);
     }
