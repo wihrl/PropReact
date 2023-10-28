@@ -27,8 +27,8 @@ internal abstract class ReactiveCollectionBase<TKey, TValue> : IProp<>, IWatchab
         UpdateWatchers(key, newValue);
     }
 
-    void IProp<>.Sub(IPropObserver<> propObserver) => _observers.Add(propObserver);
-    void IProp<>.Unsub(IPropObserver<> propObserver) => _observers.Remove(propObserver);
+    void IProp<>.Sub(IPropObserver<> observer) => _observers.Add(observer);
+    void IProp<>.Unsub(IPropObserver<> observer) => _observers.Remove(observer);
 
     private Dictionary<TKey, List<IComputed<TValue?>>>? _watchers;
     // public IViewProp<TKey, TValue?> WatchAt(TKey key)

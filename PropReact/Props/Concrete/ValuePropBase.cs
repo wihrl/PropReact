@@ -1,6 +1,6 @@
 ﻿namespace PropReact.Properties;
 
-internal abstract class ValuePropBase<TValue> : IProp<TValue>
+internal abstract class ValuePropBase<TValue> : PropBase<TValue>
 {
     protected TValue _value;
 
@@ -9,14 +9,12 @@ internal abstract class ValuePropBase<TValue> : IProp<TValue>
         _value = initialValue;
     }
 
-    protected void SetAndNotify(TValue value)
+    protected void SetAndNotify(TValue newValue)
     {
-        if (value?.Equals(_value) ?? false)
+        if (newValue?.Equals(_value) ?? false)
             return;
 
-        var oldValue = _value;
-        _value = value;
-        foreach (var watcher in _observers) watcher.PropChanged(oldValue, value);
+        NotifyObservers(_value, _value = newValue);
     }
 
     public static implicit operator TValue(ValuePropBase<TValue> valueProp) => valueProp._value;

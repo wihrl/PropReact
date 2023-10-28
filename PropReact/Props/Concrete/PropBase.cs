@@ -4,33 +4,13 @@ namespace PropReact.Properties;
 
 public abstract class PropBase<TValue> : IProp<TValue>
 {
-    private readonly Dictionary<IPropObserver<TValue>, HashSet<Action>> _reactionsMap = new();
+    private readonly HashSet<IPropObserver<TValue>> _observers = new();
+    void IProp<TValue>.Sub(IPropObserver<TValue> observer) => _observers.Add(observer);
+    void IProp<TValue>.Unsub(IPropObserver<TValue> observer) => _observers.Remove(observer);
 
-    
-    void IProp<TValue>.Sub(IPropObserver<TValue> propObserver, IReadOnlyCollection<Action> reactions)
+    protected void NotifyObservers(TValue? oldValue, TValue? newValue)
     {
-        if (!_reactionsMap.TryGetValue(propObserver, out var storedReactions))
-            _reactionsMap[propObserver] = storedReactions = new();
-        
-        foreach (var reaction in reactions) storedReactions.Add(reaction);
-    }
-
-    void IProp<TValue>.Unsub(IPropObserver<TValue> propObserver, IReadOnlyCollection<Action> reactions)
-    {
-        if (!_reactionsMap.TryGetValue(propObserver, out var storedReactions))
-            throw new("Cannot unsub an observer which isn't subscribed!");
-        
-        foreach (var reaction in reactions) storedReactions.Remove(reaction);
-
-        if (storedReactions.Count == 0)
-            _reactionsMap.Remove(propObserver);
-    }
-
-    protected void TriggerReactions(TValue? oldValue, TValue? newValue)
-    {
-        foreach (var reactionsMapKey in _reactionsMap.Keys)
-        {
-            reactionsMapKey.PropChanged(oldValue, newValue, _reactionsMap.Values);
-        }
+        foreach (var reactionsMapKey in _observers)
+            reactionsMapKey.PropChanged(oldValue, newValue);
     }
 }
