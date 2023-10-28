@@ -3,6 +3,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using PropReact.Shared;
 
 namespace PropReact.SourceGenerators;
 
@@ -84,8 +85,8 @@ public class WrapperGenerator : ISourceGenerator
                         Type: { TypeKind: TypeKind.Interface, Name: "IProp" or "ICompProp" }
                     })
                     continue;
-                
-                if(field.Name[0] != '_' || char.IsLower(field.Name[0]))
+
+                if (field.Name[0] != '_' || char.IsLower(field.Name[0]))
                     continue;
 
                 var wrapperName = GetWrapperName(field.Name);
@@ -96,13 +97,13 @@ public class WrapperGenerator : ISourceGenerator
                 }
 
                 var attributes = field.GetAttributes();
-                if (attributes.Any(x => x.AttributeClass?.Name == "FieldOnly"))
+                if (attributes.Any(x => x.AttributeClass?.Name == nameof(DontExpose)))
                     continue;
 
                 var typeSymbol = (INamedTypeSymbol) field.Type;
                 var typeName = typeSymbol.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
-                var getterOnly = attributes.Any(x => x.AttributeClass?.Name == "GetOnly");
+                var getterOnly = attributes.Any(x => x.AttributeClass?.Name == nameof(NoSetter));
                 var className = field.ContainingType.Name;
 
                 if (!Classes.TryGetValue(className, out var reactiveClass))

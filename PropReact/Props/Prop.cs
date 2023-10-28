@@ -18,6 +18,10 @@ namespace PropReact;
 /// </summary>
 public static class Prop
 {
+    // todo: !!! turn this into ref struct to prevent having to specify (this) all the time, could also differentiate
+    // between objects that implement ICompositeDisposable and just returning IDisposable
+    // new PropBuilder() vs new PropBuilder<>(this)
+    
     // todo: cache chains, use expression as key? - would be problematic because of disposing (need for ChainInstance)
     public static IDisposable Watch<TOwner, TValue>(TOwner owner, Expression<Func<TOwner, TValue>> selector,
         Action<TValue> action, Func<TOwner, TValue>? getter = null) where TOwner : notnull

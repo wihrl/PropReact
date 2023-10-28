@@ -2,6 +2,11 @@
 
 namespace PropReact;
 
+public interface ICompositeDisposable : IDisposable
+{
+    void AddDisposable(IDisposable disposable);
+}
+
 public class CompositeDisposable : ICompositeDisposable
 {
     private List<IDisposable> _ownedDisposables = new();

@@ -3,32 +3,28 @@ using PropReact.Reactivity;
 
 namespace PropReact.Collections;
 
-internal abstract class ReactiveCollectionBase<TKey, TValue> : IProp<>, IWatchableCollection<TKey, TValue>
+internal abstract class ReactiveCollectionBase<TKey, TValue> : PropBase<TValue>, IWatchableCollection<TKey, TValue>
     where TKey : notnull
 {
-    private readonly List<IPropObserver<>> _observers = new();
-
     // todo: trigger only once for bulk changes
     protected void Added(TKey key, TValue newValue)
     {
-        foreach (var changeObserver in _observers) changeObserver.PropChanged(null, newValue);
+        NotifyObservers(default, newValue);
         UpdateWatchers(key, newValue);
     }
 
     protected void Removed(TKey key, TValue oldValue)
     {
-        foreach (var changeObserver in _observers) changeObserver.PropChanged(oldValue, null);
+        NotifyObservers(oldValue, default);
         UpdateWatchers(key, default);
     }
 
     protected void Replaced(TKey key, TValue oldValue, TValue newValue)
     {
-        foreach (var changeObserver in _observers) changeObserver.PropChanged(oldValue, newValue);
+        NotifyObservers(oldValue, newValue);
         UpdateWatchers(key, newValue);
     }
 
-    void IProp<>.Sub(IPropObserver<> observer) => _observers.Add(observer);
-    void IProp<>.Unsub(IPropObserver<> observer) => _observers.Remove(observer);
 
     private Dictionary<TKey, List<IComputed<TValue?>>>? _watchers;
     // public IViewProp<TKey, TValue?> WatchAt(TKey key)
@@ -53,7 +49,7 @@ internal abstract class ReactiveCollectionBase<TKey, TValue> : IProp<>, IWatchab
         if (_watchers is null) return;
 
         if (!_watchers.TryGetValue(key, out var list)) return;
-        
+
         foreach (var comp in list)
             comp.Set(value);
     }
