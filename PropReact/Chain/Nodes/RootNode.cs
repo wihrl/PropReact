@@ -1,10 +1,10 @@
 ﻿namespace PropReact.Chain;
 
-public class Root<TRoot> : ChainBase<TRoot>, IDisposable
+public class RootNode<TRoot> : ChainBase<TRoot>, IDisposable
 {
     private readonly TRoot _root;
 
-    public Root(TRoot root, Reaction reaction) : base(reaction)
+    public RootNode(TRoot root, Reaction reaction) : base(reaction)
     {
         _root = root;
     }
