@@ -1,6 +1,6 @@
 ﻿namespace PropReact.Chain.Nodes;
 
-public class RootNode<TRoot> : ChainBase<TRoot>, IDisposable
+public class RootNode<TRoot> : ChainNodeBase<TRoot>, IDisposable
 {
     private readonly TRoot _root;
 

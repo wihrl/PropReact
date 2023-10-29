@@ -1,11 +1,11 @@
-﻿using PropReact.Props.Value;
+﻿using System.Collections;
+using PropReact.Props.Value;
 
 namespace PropReact.Props.Collections;
 
-internal abstract class ReactiveCollectionBase<TKey, TValue> : PropBase<TValue>, IWatchableCollection<TKey, TValue>
+internal abstract class CollectionPropBase<TValue, TKey> : PropBase<TValue>, ICollectionProp<TValue, TKey>
     where TKey : notnull
 {
-    // todo: trigger only once for bulk changes
     protected void Added(TKey key, TValue newValue)
     {
         NotifyObservers(default, newValue);
@@ -51,5 +51,13 @@ internal abstract class ReactiveCollectionBase<TKey, TValue> : PropBase<TValue>,
 
         foreach (var comp in list)
             comp.Set(value);
+    }
+
+    public abstract IEnumerator<TValue> GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    public abstract int Count { get; }
+    public void SubAt(IPropObserver<TValue> observer, TKey key)
+    {
+        throw new NotImplementedException();
     }
 }

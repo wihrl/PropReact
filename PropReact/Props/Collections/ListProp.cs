@@ -2,21 +2,21 @@
 
 namespace PropReact.Props.Collections;
 
-public interface IListProp<TValue> : IWatchableCollection<int, TValue>, IList<TValue>, IProp<TValue>
+public interface IListProp<TValue> : ICollectionProp<TValue, int>, IList<TValue>
 {
-    
+    new int Count { get; }
 }
 
-internal class ListProp<TValue> : ReactiveCollectionBase<int, TValue>, IListProp<TValue>
+internal sealed class ListProp<TValue> : CollectionPropBase<TValue, int>, IListProp<TValue>
 {
     private readonly List<TValue> _list;
 
     internal ListProp() => _list = new();
+    internal ListProp(IEnumerable<TValue> existing) => _list = new(existing);
     internal ListProp(int capacity) => _list = new(capacity);
-    // todo: init from enumerable
+    
 
-    public IEnumerator<TValue> GetEnumerator() => _list.GetEnumerator();
-    IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable) _list).GetEnumerator();
+    public override IEnumerator<TValue> GetEnumerator() => _list.GetEnumerator();
 
     public void Add(TValue item)
     {
@@ -26,7 +26,7 @@ internal class ListProp<TValue> : ReactiveCollectionBase<int, TValue>, IListProp
 
     public void Clear()
     {
-        while (_list.Any()) Remove(_list.Last());
+        while (_list.Count > 0) Remove(_list.Last());
     }
 
     public bool Contains(TValue item) => _list.Contains(item);
@@ -35,14 +35,19 @@ internal class ListProp<TValue> : ReactiveCollectionBase<int, TValue>, IListProp
     public bool Remove(TValue item)
     {
         var index = _list.IndexOf(item);
-        var res = _list.Remove(item);
-        if (res)
-            Removed(index, item);
 
-        return res;
+        if (index >= 0)
+        {
+            _list.RemoveAt(index);
+            Removed(index, item);
+            return true;
+        }
+
+        return false;
     }
 
-    public int Count => _list.Count;
+    public override int Count => _list.Count;
+
     public bool IsReadOnly => ((ICollection<TValue>) _list).IsReadOnly;
     public int IndexOf(TValue item) => _list.IndexOf(item);
 

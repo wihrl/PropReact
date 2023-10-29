@@ -11,6 +11,17 @@
 - very little boilerplate
 - reflection free - works great with AOT / trimming
 
+advantages over INPC:
+- completely implemented with generics - no `object` boxing
+- better collection support
+- more source generator-friendly, hence no reflection
+
+maybe one day:
+- arbitrary expression watching (no need for selectors)
+- incremental source generators
+- more granular transaction locking
+- bulk collection changes
+
 performance optimizations:
 
 - use source generators for expression parsing

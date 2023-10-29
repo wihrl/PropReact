@@ -6,9 +6,4 @@
         <Nullable>enable</Nullable>
         <LangVersion>11</LangVersion>
     </PropertyGroup>
-
-    <ItemGroup>
-        <Folder Include="Wrappers\"/>
-    </ItemGroup>
-
 </Project>

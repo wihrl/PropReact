@@ -3,7 +3,7 @@ using PropReact.Props.Value;
 
 namespace PropReact.Props.Collections;
 
-public interface IMap<TKey, TValue> : IWatchableCollection<TKey, TValue?>, IEnumerable<TValue>
+public interface IMap<TValue, TKey> : ICollectionProp<TValue, TKey>
     where TKey : notnull
 {
     bool ContainsKey(TKey key);
@@ -15,14 +15,21 @@ public interface IMap<TKey, TValue> : IWatchableCollection<TKey, TValue?>, IEnum
     bool Remove(TValue value);
 }
 
-internal class MapProp<TKey, TValue> : ReactiveCollectionBase<TKey, TValue>, IMap<TKey, TValue> where TKey : notnull
+internal class MapProp<TValue, TKey> : CollectionPropBase<TValue, TKey>, IMap<TValue, TKey> where TKey : notnull
 {
-    readonly Dictionary<TKey, TValue> _dictionary = new();
-    readonly Func<TValue, TKey> _keySelector;
+    private readonly Dictionary<TKey, TValue> _dictionary;
+    private readonly Func<TValue, TKey> _keySelector;
 
     public MapProp(Func<TValue, TKey> keySelector)
     {
         _keySelector = keySelector;
+        _dictionary = new();
+    }
+
+    public MapProp(Func<TValue, TKey> keySelector, IEnumerable<TValue> existing)
+    {
+        _keySelector = keySelector;
+        _dictionary = existing.ToDictionary(keySelector);
     }
 
     public bool ContainsKey(TKey key) => _dictionary.ContainsKey(key);
@@ -57,13 +64,7 @@ internal class MapProp<TKey, TValue> : ReactiveCollectionBase<TKey, TValue>, IMa
         return true;
     }
 
-    public IEnumerator<TValue> GetEnumerator() => _dictionary.Values.GetEnumerator();
-    public int Count => _dictionary.Count;
+    public override IEnumerator<TValue> GetEnumerator() => _dictionary.Values.GetEnumerator();
+    public override int Count => _dictionary.Count;
     protected override TValue? InternalGetter(TKey key) => _dictionary.TryGetValue(key, out var val) ? val : default;
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-    public IComputed<TKey?> WatchAt(TValue key)
-    {
-        throw new NotImplementedException();
-    }
 }

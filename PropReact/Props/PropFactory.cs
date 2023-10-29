@@ -182,12 +182,12 @@ public static class Prop
 
     #region Maps
 
-    public static void Map<T1Key, T1Value>(out IMap<T1Key, T1Value> map, Func<T1Value, T1Key> selector1)
-        where T1Key : notnull => map = new MapProp<T1Key, T1Value>(selector1);
+    public static void Map<T1Value, T1Key>(out IMap<T1Value, T1Key> map, Func<T1Value, T1Key> selector1)
+        where T1Key : notnull => map = new MapProp<T1Value, T1Key>(selector1);
 
-    public static void Map<T1Key, T1Value, T2Key, T2Value>(
-        out IMap<T1Key, T1Value> prop1, Func<T1Value, T1Key> selector1,
-        out IMap<T2Key, T2Value> prop2, Func<T2Value, T2Key> selector2)
+    public static void Map<T1Value, T1Key, T2Value, T2Key>(
+        out IMap<T1Value, T1Key> prop1, Func<T1Value, T1Key> selector1,
+        out IMap<T2Value, T2Key> prop2, Func<T2Value, T2Key> selector2)
         where T1Key : notnull
         where T2Key : notnull
     {
@@ -195,10 +195,10 @@ public static class Prop
         Map(out prop2, selector2);
     }
 
-    public static void Map<T1Key, T1Value, T2Key, T2Value, T3Key, T3Value>(
-        out IMap<T1Key, T1Value> prop1, Func<T1Value, T1Key> selector1,
-        out IMap<T2Key, T2Value> prop2, Func<T2Value, T2Key> selector2,
-        out IMap<T3Key, T3Value> prop3, Func<T3Value, T3Key> selector3)
+    public static void Map<T1Value, T1Key, T2Value, T2Key, T3Value, T3Key>(
+        out IMap<T1Value, T1Key> prop1, Func<T1Value, T1Key> selector1,
+        out IMap<T2Value, T2Key> prop2, Func<T2Value, T2Key> selector2,
+        out IMap<T3Value, T3Key> prop3, Func<T3Value, T3Key> selector3)
         where T1Key : notnull
         where T2Key : notnull
         where T3Key : notnull

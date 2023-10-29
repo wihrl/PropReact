@@ -7,7 +7,7 @@ public interface IChainBuilderSet<TSet, TValue> : IChainBuilder<TSet>
     IChainBuilder<TValue> Enter();
 }
 
-public sealed class SetNode<TSource, TSet, TValue> : ChainBase<TSet>, IChainNode<TSource>, IPropObserver<TValue>,
+public sealed class SetNode<TSource, TSet, TValue> : ChainNodeBase<TSet>, IChainNode<TSource>, IPropObserver<TValue>,
     IChainBuilderSet<TSet, TValue> where TSet : class, IEnumerable<TValue>
 {
     private readonly InnerSet _innerProxy;
@@ -20,6 +20,7 @@ public sealed class SetNode<TSource, TSet, TValue> : ChainBase<TSet>, IChainNode
     }
 
     // todo: what if its a nested enumerable: IEnumerable<IEnumerable<T>> - must return IChainBuilderSet
+    // todo: should be an extension method so that it can return IChainBuilderSet<> conditionally
     public IChainBuilder<TValue> Enter() => _innerProxy;
 
 
@@ -63,7 +64,7 @@ public sealed class SetNode<TSource, TSet, TValue> : ChainBase<TSet>, IChainNode
                 PropChanged(default, newItem);
     }
 
-    class InnerSet : ChainBase<TValue>
+    class InnerSet : ChainNodeBase<TValue>
     {
         internal void PropagateChange(TValue? oldValue, TValue? newValue)
         {

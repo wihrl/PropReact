@@ -5,43 +5,34 @@ namespace PropReact.Chain.Nodes;
 
 public interface IChainBuilder<TValue> : IChainBuilder
 {
-    IChainBuilder<TNext> ChainSingle<TNext>(Func<TValue, IValueProp<TNext>> selector);
-    IChainBuilderSet<IEnumerable<TNext>, TNext> ChainSingle<TNext>(Func<TValue, IEnumerable<TNext>> selector);
-    IChainBuilderSet<ICollectionProp<TNext>, TNext> ChainSingle<TNext>(Func<TValue, ICollectionProp<TNext>> selector);
+    IChainBuilder<TNext> ChainValue<TNext>(Func<TValue, IValueProp<TNext>> selector);
+    IChainBuilderSet<IEnumerable<TNext>, TNext> ChainSet<TNext>(Func<TValue, IEnumerable<TNext>> selector);
 }
 
-public interface IChainBuilder
+public interface IChainBuilder // used for extension methods
 {
 }
 
-public abstract class ChainBase<TValue> : ChainNode, IChainBuilder<TValue>
+public abstract class ChainNodeBase<TValue> : ChainNode, IChainBuilder<TValue>
 {
     protected readonly Reaction Reaction;
 
-    protected ChainBase(Reaction reaction)
+    protected ChainNodeBase(Reaction reaction)
     {
         Reaction = reaction;
     }
 
-    IChainBuilder<TNext> IChainBuilder<TValue>.ChainSingle<TNext>(Func<TValue, IValueProp<TNext>> selector)
+    IChainBuilder<TNext> IChainBuilder<TValue>.ChainValue<TNext>(Func<TValue, IValueProp<TNext>> selector)
     {
         var node = new ValueNode<TValue, TNext>(selector, Reaction);
         _next.Add(node);
         return node;
     }
 
-    IChainBuilderSet<IEnumerable<TNext>, TNext> IChainBuilder<TValue>.ChainSingle<TNext>(
+    IChainBuilderSet<IEnumerable<TNext>, TNext> IChainBuilder<TValue>.ChainSet<TNext>(
         Func<TValue, IEnumerable<TNext>> selector)
     {
         var node = new SetNode<TValue, IEnumerable<TNext>, TNext>(selector, Reaction);
-        _next.Add(node);
-        return node;
-    }
-
-    IChainBuilderSet<ICollectionProp<TNext>, TNext> IChainBuilder<TValue>.ChainSingle<TNext>(
-        Func<TValue, ICollectionProp<TNext>> selector)
-    {
-        var node = new SetNode<TValue, ICollectionProp<TNext>, TNext>(selector, Reaction);
         _next.Add(node);
         return node;
     }

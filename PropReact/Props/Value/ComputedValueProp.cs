@@ -1,6 +1,6 @@
 ﻿namespace PropReact.Props.Value;
 
-internal class ComputedValueProp<T> : ValuePropBase<T>, IComputed<T>
+internal sealed class ComputedValueProp<T> : ValuePropBase<T>, IComputed<T>
 {
     public T Value => _value;
 

@@ -1,7 +1,7 @@
 ﻿
 namespace PropReact.Props.Value;
 
-internal class MutableValueProp<TValue> : ValuePropBase<TValue>, IMutable<TValue>
+internal sealed class MutableValueProp<TValue> : ValuePropBase<TValue>, IMutable<TValue>
 {
     public TValue Value
     {
