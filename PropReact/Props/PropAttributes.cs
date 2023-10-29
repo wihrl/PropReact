@@ -1,4 +1,4 @@
-﻿namespace PropReact.Shared;
+﻿namespace PropReact.Props;
 
 [AttributeUsage(AttributeTargets.Field)]
 public class DontExpose : Attribute
@@ -6,6 +6,6 @@ public class DontExpose : Attribute
 }
 
 [AttributeUsage(AttributeTargets.Field)]
-public class NoSetter : Attribute
+public class GetOnly : Attribute
 {
 }

@@ -1,4 +1,4 @@
-namespace PropReact;
+namespace PropReact.Props.Value;
 
 public interface IValueProp<TValue> : IProp<TValue>
 {

@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 
-namespace PropReact.Collections;
+namespace PropReact.Props.Collections;
 
 public interface IListProp<TValue> : IWatchableCollection<int, TValue>, IList<TValue>, IProp<TValue>
 {

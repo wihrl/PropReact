@@ -1,4 +1,4 @@
-﻿namespace PropReact.Chain;
+﻿namespace PropReact.Chain.Nodes;
 
 public class RootNode<TRoot> : ChainBase<TRoot>, IDisposable
 {

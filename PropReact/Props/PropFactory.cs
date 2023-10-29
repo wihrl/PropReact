@@ -1,8 +1,7 @@
-﻿using System.Linq.Expressions;
-using PropReact.Collections;
-using PropReact.Properties;
+﻿using PropReact.Props.Collections;
+using PropReact.Props.Value;
 
-namespace PropReact;
+namespace PropReact.Props;
 
 /// <summary>
 /// Class for handling the creation and initialization of reactive properties.

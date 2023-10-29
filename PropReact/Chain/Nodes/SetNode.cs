@@ -1,4 +1,6 @@
-﻿namespace PropReact.Chain;
+﻿using PropReact.Props;
+
+namespace PropReact.Chain.Nodes;
 
 public interface IChainBuilderSet<TSet, TValue> : IChainBuilder<TSet>
 {

@@ -1,5 +1,5 @@
-﻿using PropReact.Collections;
-using PropReact.Properties;
+﻿using PropReact.Props;
+using PropReact.Props.Value;
 
 namespace PropReact.Tests;
 
@@ -9,12 +9,12 @@ public partial class ValuePropData
     private readonly IMutable<string?> _nullableString;
     private readonly IMutable<Record> _record;
     private readonly IMutable<Record?> _nullableRecord;
-    public IMutable<int> Test { get; set; }
 
     public ValuePropData()
     {
         Prop.Mutable(out _int, out _nullableRecord, out _nullableString, out _record, new());
 
+        _props._record(this);
         
         NullableRecord = new();
     }
@@ -27,11 +27,6 @@ public partial class Record
     private readonly IMutable<string> _text;
     private readonly IMutable<int> _rating;
     private readonly IMutable<Record?> _related;
-
-    public void __hiden()
-    {
-        
-    }
 
     public Record()
     {

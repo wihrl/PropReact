@@ -1,4 +1,4 @@
-﻿namespace PropReact.Properties;
+﻿namespace PropReact.Props.Value;
 
 internal class ComputedValueProp<T> : ValuePropBase<T>, IComputed<T>
 {

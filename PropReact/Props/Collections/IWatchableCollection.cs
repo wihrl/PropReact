@@ -1,6 +1,4 @@
-﻿using PropReact.Properties;
-
-namespace PropReact.Collections;
+﻿namespace PropReact.Props.Collections;
 
 public interface IWatchableCollection<TKey, TValue>
 {

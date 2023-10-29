@@ -1,6 +1,4 @@
-﻿using PropReact.Chain;
-
-namespace PropReact.Properties;
+﻿namespace PropReact.Props;
 
 public abstract class PropBase<TValue> : IProp<TValue>
 {

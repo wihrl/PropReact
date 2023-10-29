@@ -3,8 +3,8 @@ using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using PropReact.Properties;
-using PropReact.Shared;
+using PropReact.Props;
+using PropReact.Props.Value;
 
 namespace PropReact.SourceGenerators;
 
@@ -28,6 +28,11 @@ public class WrapperGenerator : ISourceGenerator
         foreach (var receiverError in receiver.Errors) context.ReportDiagnostic(receiverError);
 
         StringBuilder sb = new();
+        sb.AppendLine("using PropReact;");
+        sb.AppendLine("using PropReact.Props;");
+        sb.AppendLine("using PropReact.Props.Collections;");
+        sb.AppendLine("using PropReact.Props.Value;");
+        sb.AppendLine();
 
         foreach (var reactiveClass in receiver.Classes.Values)
         {
@@ -40,13 +45,22 @@ public class WrapperGenerator : ISourceGenerator
                         if (reactiveClass.IsBlazorComponent)
                             sb.IndentedLine("[Microsoft.AspNetCore.Components.Parameter]");
 
-                        using (sb.Block($"public {field.Type} {field.WrapperName}"))
+                        using (sb.Block($"public {field.ValueType} {field.WrapperName}"))
                         {
                             sb.IndentedLine($"get => {field.FieldName}.Value;");
 
                             if (!field.GetterOnly)
                                 sb.IndentedLine($"set => {field.FieldName}.Value = value;");
                         }
+                        
+                        sb.IndentedLine();
+                    }
+
+                    using (sb.Block($"public static class _props"))
+                    {
+                        foreach (var field in reactiveClass.Fields)
+                            sb.IndentedLine(
+                                $"public static {field.FieldType}<{field.ValueType}> {field.FieldName}({reactiveClass.Name} x) => x.{field.FieldName};");
                     }
                 }
             }
@@ -106,8 +120,8 @@ public class WrapperGenerator : ISourceGenerator
                     continue;
                 }
 
-                // field must be private (public is allowed, but do no expose wrapper is necessary there)
-                if (field.DeclaredAccessibility is not Accessibility.Private or Accessibility.Protected)
+                // field must be private (public is allowed, but do not generate wrapper)
+                if (field.DeclaredAccessibility is not (Accessibility.Private or Accessibility.Protected))
                     continue;
 
                 // field must start with an underscore or lowercase letter
@@ -129,7 +143,7 @@ public class WrapperGenerator : ISourceGenerator
                 var valueType = valueTypeSymbol.TypeArguments[0]
                     .ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
-                var getterOnly = isComputed || attributes.Any(x => x.AttributeClass?.Name == nameof(NoSetter));
+                var getterOnly = isComputed || attributes.Any(x => x.AttributeClass?.Name == nameof(GetOnly));
                 var className = field.ContainingType.Name;
 
                 if (!Classes.TryGetValue(className, out var reactiveClass))
@@ -143,7 +157,7 @@ public class WrapperGenerator : ISourceGenerator
                     reactiveClass = Classes[className] = new(className, classNamespace, classInpc, classBlazor);
                 }
 
-                reactiveClass.Fields.Add(new(field.Name, wrapperName, valueType, getterOnly));
+                reactiveClass.Fields.Add(new(field.Name, wrapperName, valueType, field.Type.Name, getterOnly));
             }
         }
 
@@ -176,17 +190,19 @@ public class WrapperGenerator : ISourceGenerator
 
     class ReactiveField
     {
-        public ReactiveField(string fieldName, string wrapperName, string type, bool getterOnly)
+        public ReactiveField(string fieldName, string wrapperName, string valueType, string fieldType, bool getterOnly)
         {
             WrapperName = wrapperName;
             GetterOnly = getterOnly;
+            FieldType = fieldType;
             FieldName = fieldName;
-            Type = type;
+            ValueType = valueType;
         }
 
         public string FieldName { get; }
         public string WrapperName { get; }
-        public string Type { get; }
+        public string ValueType { get; }
+        public string FieldType { get; }
         public bool GetterOnly { get; }
     }
 }

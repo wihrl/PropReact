@@ -1,7 +1,7 @@
 ﻿using System.Collections;
-using PropReact.Properties;
+using PropReact.Props.Value;
 
-namespace PropReact.Collections;
+namespace PropReact.Props.Collections;
 
 public interface IMap<TKey, TValue> : IWatchableCollection<TKey, TValue?>, IEnumerable<TValue>
     where TKey : notnull

@@ -1,4 +1,4 @@
-﻿namespace PropReact;
+﻿namespace PropReact.Props;
 
 internal interface IPropObserver<T>
 {

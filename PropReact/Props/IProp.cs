@@ -1,4 +1,4 @@
-﻿namespace PropReact;
+﻿namespace PropReact.Props;
 
 public interface IProp<T>
 {

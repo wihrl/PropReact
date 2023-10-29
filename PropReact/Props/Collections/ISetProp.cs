@@ -1,6 +1,8 @@
-﻿namespace PropReact.Props;
+﻿using PropReact.Props.Value;
 
-public interface ISetProp<TValue> : IProp<TValue>, IEnumerable<TValue>
+namespace PropReact.Props.Collections;
+
+public interface ICollectionProp<TValue> : IProp<TValue>, IEnumerable<TValue>
 {
     IValueProp<int> Count { get; }
 }

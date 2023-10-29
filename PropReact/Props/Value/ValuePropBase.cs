@@ -1,4 +1,4 @@
-﻿namespace PropReact.Properties;
+﻿namespace PropReact.Props.Value;
 
 internal abstract class ValuePropBase<TValue> : PropBase<TValue>
 {

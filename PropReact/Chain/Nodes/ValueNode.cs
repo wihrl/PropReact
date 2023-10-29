@@ -1,4 +1,7 @@
-﻿namespace PropReact.Chain;
+﻿using PropReact.Props;
+using PropReact.Props.Value;
+
+namespace PropReact.Chain.Nodes;
 
 public sealed class ValueNode<TSource, TValue> : ChainBase<TValue>, IPropObserver<TValue>, IChainNode<TSource>
 {

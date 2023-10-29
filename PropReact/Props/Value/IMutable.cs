@@ -1,4 +1,4 @@
-﻿namespace PropReact.Properties;
+﻿namespace PropReact.Props.Value;
 
 /// <summary>
 /// A mutable reactive property.

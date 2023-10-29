@@ -1,12 +1,13 @@
-﻿using PropReact.Props;
+﻿using PropReact.Props.Collections;
+using PropReact.Props.Value;
 
-namespace PropReact.Chain;
+namespace PropReact.Chain.Nodes;
 
 public interface IChainBuilder<TValue> : IChainBuilder
 {
     IChainBuilder<TNext> ChainSingle<TNext>(Func<TValue, IValueProp<TNext>> selector);
     IChainBuilderSet<IEnumerable<TNext>, TNext> ChainSingle<TNext>(Func<TValue, IEnumerable<TNext>> selector);
-    IChainBuilderSet<ISetProp<TNext>, TNext> ChainSingle<TNext>(Func<TValue, ISetProp<TNext>> selector);
+    IChainBuilderSet<ICollectionProp<TNext>, TNext> ChainSingle<TNext>(Func<TValue, ICollectionProp<TNext>> selector);
 }
 
 public interface IChainBuilder
@@ -37,10 +38,10 @@ public abstract class ChainBase<TValue> : ChainNode, IChainBuilder<TValue>
         return node;
     }
 
-    IChainBuilderSet<ISetProp<TNext>, TNext> IChainBuilder<TValue>.ChainSingle<TNext>(
-        Func<TValue, ISetProp<TNext>> selector)
+    IChainBuilderSet<ICollectionProp<TNext>, TNext> IChainBuilder<TValue>.ChainSingle<TNext>(
+        Func<TValue, ICollectionProp<TNext>> selector)
     {
-        var node = new SetNode<TValue, ISetProp<TNext>, TNext>(selector, Reaction);
+        var node = new SetNode<TValue, ICollectionProp<TNext>, TNext>(selector, Reaction);
         _next.Add(node);
         return node;
     }

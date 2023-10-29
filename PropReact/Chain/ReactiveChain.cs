@@ -1,4 +1,6 @@
-﻿namespace PropReact.Chain;
+﻿using PropReact.Chain.Nodes;
+
+namespace PropReact.Chain;
 
 public class ReactiveChain<TRoot>
 {

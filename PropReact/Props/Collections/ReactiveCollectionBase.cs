@@ -1,6 +1,6 @@
-﻿using PropReact.Properties;
+﻿using PropReact.Props.Value;
 
-namespace PropReact.Collections;
+namespace PropReact.Props.Collections;
 
 internal abstract class ReactiveCollectionBase<TKey, TValue> : PropBase<TValue>, IWatchableCollection<TKey, TValue>
     where TKey : notnull
