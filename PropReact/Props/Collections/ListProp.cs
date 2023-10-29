@@ -9,7 +9,11 @@ public interface IListProp<TValue> : IWatchableCollection<int, TValue>, IList<TV
 
 internal class ListProp<TValue> : ReactiveCollectionBase<int, TValue>, IListProp<TValue>
 {
-    private List<TValue> _list = new();
+    private readonly List<TValue> _list;
+
+    internal ListProp() => _list = new();
+    internal ListProp(int capacity) => _list = new(capacity);
+    // todo: init from enumerable
 
     public IEnumerator<TValue> GetEnumerator() => _list.GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable) _list).GetEnumerator();

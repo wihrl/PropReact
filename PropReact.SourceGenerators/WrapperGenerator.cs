@@ -3,6 +3,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using PropReact.Properties;
 using PropReact.Shared;
 
 namespace PropReact.SourceGenerators;
@@ -24,11 +25,7 @@ public class WrapperGenerator : ISourceGenerator
         if (context.SyntaxContextReceiver is not SyntaxReceiver receiver)
             return;
 
-        if (receiver.Errors.Any())
-        {
-            foreach (var receiverError in receiver.Errors) context.ReportDiagnostic(receiverError);
-            return;
-        }
+        foreach (var receiverError in receiver.Errors) context.ReportDiagnostic(receiverError);
 
         StringBuilder sb = new();
 
@@ -45,47 +42,75 @@ public class WrapperGenerator : ISourceGenerator
 
                         using (sb.Block($"public {field.Type} {field.WrapperName}"))
                         {
-                            sb.IndentedLine($"get => {field.FieldName}.V;");
+                            sb.IndentedLine($"get => {field.FieldName}.Value;");
 
                             if (!field.GetterOnly)
-                                sb.IndentedLine($"set => {field.FieldName}.V = value;");
+                                sb.IndentedLine($"set => {field.FieldName}.Value = value;");
                         }
                     }
                 }
             }
         }
 
-        context.AddSource($"generated.cs", sb.ToString());
+        context.AddSource("PropReact.generated.cs", sb.ToString());
     }
 
     class SyntaxReceiver : ISyntaxContextReceiver
     {
         readonly DiagnosticDescriptor _descriptorInvalidName = new("PRE01", "Invalid name",
-            "Invalid name of a backing field", "ProxReact", DiagnosticSeverity.Error, true);
+            "Invalid name of a backing field", "PropReact", DiagnosticSeverity.Error, true);
+
+        readonly DiagnosticDescriptor _descriptorWritableField = new("PRE02", "Writable backing field",
+            "Backing field must be readonly", "PropReact", DiagnosticSeverity.Error, true);
+
+        readonly DiagnosticDescriptor _descriptorPropAsProperty = new("PRE03", "IProp as a property",
+            "IProp-derived types can only be used as a field", "PropReact", DiagnosticSeverity.Error, true);
 
 
         public Dictionary<string, ReactiveClass> Classes { get; } = new();
         public List<Diagnostic> Errors { get; } = new();
 
 
+        // nameof ignores generics
+        bool IsProp(string typeName, out bool isComputed) =>
+            (isComputed = typeName.StartsWith(nameof(IComputed<int>))) || typeName.StartsWith(nameof(IMutable<int>));
+
         public void OnVisitSyntaxNode(GeneratorSyntaxContext context)
         {
+            if (context.Node is PropertyDeclarationSyntax propertyDeclaration)
+            {
+                if (IsProp(propertyDeclaration.Type.ToString(), out _))
+                    Errors.Add(Diagnostic.Create(_descriptorPropAsProperty, propertyDeclaration.GetLocation()));
+
+                return;
+            }
+
             if (context.Node is not FieldDeclarationSyntax fieldDeclaration)
                 return;
 
-
             foreach (var variable in fieldDeclaration.Declaration.Variables)
             {
-                var field = context.SemanticModel.GetDeclaredSymbol(variable) as IFieldSymbol;
+                var symbol = context.SemanticModel.GetDeclaredSymbol(variable);
 
-                // skip public or non-prop fields
-                if (field is not
-                    {
-                        DeclaredAccessibility: Accessibility.Private or Accessibility.Protected,
-                        Type: { TypeKind: TypeKind.Interface, Name: "IProp" or "ICompProp" }
-                    })
+                if (symbol is not IFieldSymbol field)
                     continue;
 
+                // field must be a value prop
+                if (!IsProp(field.Type.Name, out var isComputed))
+                    continue;
+
+                // field must be readonly
+                if (!field.IsReadOnly)
+                {
+                    Errors.Add(Diagnostic.Create(_descriptorWritableField, fieldDeclaration.GetLocation()));
+                    continue;
+                }
+
+                // field must be private (public is allowed, but do no expose wrapper is necessary there)
+                if (field.DeclaredAccessibility is not Accessibility.Private or Accessibility.Protected)
+                    continue;
+
+                // field must start with an underscore or lowercase letter
                 if (field.Name[0] != '_' || char.IsLower(field.Name[0]))
                     continue;
 
@@ -100,10 +125,11 @@ public class WrapperGenerator : ISourceGenerator
                 if (attributes.Any(x => x.AttributeClass?.Name == nameof(DontExpose)))
                     continue;
 
-                var typeSymbol = (INamedTypeSymbol) field.Type;
-                var typeName = typeSymbol.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                var valueTypeSymbol = (INamedTypeSymbol) field.Type;
+                var valueType = valueTypeSymbol.TypeArguments[0]
+                    .ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
-                var getterOnly = attributes.Any(x => x.AttributeClass?.Name == nameof(NoSetter));
+                var getterOnly = isComputed || attributes.Any(x => x.AttributeClass?.Name == nameof(NoSetter));
                 var className = field.ContainingType.Name;
 
                 if (!Classes.TryGetValue(className, out var reactiveClass))
@@ -117,7 +143,7 @@ public class WrapperGenerator : ISourceGenerator
                     reactiveClass = Classes[className] = new(className, classNamespace, classInpc, classBlazor);
                 }
 
-                reactiveClass.Fields.Add(new(field.Name, wrapperName, typeName, getterOnly));
+                reactiveClass.Fields.Add(new(field.Name, wrapperName, valueType, getterOnly));
             }
         }
 

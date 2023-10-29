@@ -8,7 +8,7 @@
 //
 // public class ReactiveComponent<TComponent> : ComponentBase, IProp<> where TComponent : ReactiveComponent<TComponent>
 // {
-//     private readonly List<IDisposable> _disposables = new();
+//     private readonly Map<IDisposable> _disposables = new();
 //     private readonly Dictionary<int, object> _lambdas = new();
 //
 //     private TComponent This => (TComponent) this;

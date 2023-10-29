@@ -23,9 +23,17 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\PropReact.Shared\PropReact.Shared.csproj" />
-      <ProjectReference Include="..\PropReact\PropReact.csproj" />
+      <ProjectReference Include="..\PropReact\PropReact.csproj" OutputItemType="Analyzer" />
     </ItemGroup>
 
+<!--    <PropertyGroup>-->
+<!--        <GetTargetPathDependsOn>$(GetTargetPathDependsOn);GetDependencyTargetPaths</GetTargetPathDependsOn>-->
+<!--    </PropertyGroup>-->
+
+<!--    <Target Name="GetDependencyTargetPaths">-->
+<!--        <ItemGroup>-->
+<!--            <TargetPathWithTargetPlatformMoniker Include="..\PropReact\bin\$(Configuration)\netstandard2.0\PropReact.dll" IncludeRuntimeDependency="false"/>-->
+<!--        </ItemGroup>-->
+<!--    </Target>   -->
 
 </Project>

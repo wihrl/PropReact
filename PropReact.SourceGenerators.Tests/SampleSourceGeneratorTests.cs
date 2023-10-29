@@ -5,7 +5,10 @@
 // using Xunit;
 //
 // namespace PropReact.SourceGenerators.Tests;
-//
+
+
+// todo: mostly test invalid input - IProp as prop instead of private field, invalid expressions, ...
+
 // public class SampleSourceGeneratorTests
 // {
 //     private const string DddRegistryText = @"User
