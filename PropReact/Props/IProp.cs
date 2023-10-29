@@ -2,6 +2,6 @@
 
 public interface IProp<TValue>
 {
-    internal void Sub(IPropObserver<TValue> observer);
-    internal void Unsub(IPropObserver<TValue> observer);
+    internal void Watch(IPropObserver<TValue> observer);
+    internal void StopWatching(IPropObserver<TValue> observer);
 }

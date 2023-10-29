@@ -3,61 +3,51 @@ using PropReact.Props.Value;
 
 namespace PropReact.Props.Collections;
 
-internal abstract class CollectionPropBase<TValue, TKey> : PropBase<TValue>, ICollectionProp<TValue, TKey>
+internal abstract class CollectionPropBase<TValue, TKey> : ICollectionProp<TValue, TKey>
     where TKey : notnull
 {
-    protected void Added(TKey key, TValue newValue)
-    {
-        NotifyObservers(default, newValue);
-        UpdateWatchers(key, newValue);
-    }
-
-    protected void Removed(TKey key, TValue oldValue)
-    {
-        NotifyObservers(oldValue, default);
-        UpdateWatchers(key, default);
-    }
-
-    protected void Replaced(TKey key, TValue oldValue, TValue newValue)
-    {
-        NotifyObservers(oldValue, newValue);
-        UpdateWatchers(key, newValue);
-    }
-
-
-    private Dictionary<TKey, List<IComputed<TValue?>>>? _watchers;
-    // public IViewProp<TKey, TValue?> WatchAt(TKey key)
-    // {
-    //     _watchers ??= new();
-    //     if (!_watchers.TryGetValue(key, out var list))
-    //     {
-    //         list ??= new();
-    //         _watchers[key] = list;
-    //     }
-    //
-    //     IViewProp<TKey, TValue?> prop = new ViewProp<TKey, TValue?>(key);
-    //     list.Add(prop);
-    //     prop.Set(InternalGetter(key));
-    //     return prop;
-    // }
-
-    protected abstract TValue? InternalGetter(TKey key);
-
-    void UpdateWatchers(TKey key, TValue? value)
-    {
-        if (_watchers is null) return;
-
-        if (!_watchers.TryGetValue(key, out var list)) return;
-
-        foreach (var comp in list)
-            comp.Set(value);
-    }
-
     public abstract IEnumerator<TValue> GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     public abstract int Count { get; }
-    public void SubAt(IPropObserver<TValue> observer, TKey key)
+
+    protected void Added(TKey key, TValue newValue) => NotifyObservers(key, default, newValue);
+    protected void Removed(TKey key, TValue oldValue) => NotifyObservers(key, oldValue, default);
+    protected void Replaced(TKey key, TValue oldValue, TValue newValue) => NotifyObservers(key, oldValue, newValue);
+
+    void NotifyObservers(TKey key, TValue? oldValue, TValue? newValue)
     {
-        throw new NotImplementedException();
+        if (_observers is not null)
+            foreach (var propObserver in _observers)
+                propObserver.PropChanged(oldValue, newValue);
+
+        if (_keyedObservers is null) return;
+        if (!_keyedObservers.TryGetValue(key, out var keyed)) return;
+
+        foreach (var observer in keyed)
+            observer.PropChanged(oldValue, newValue);
+    }
+
+
+    private HashSet<IPropObserver<TValue>>? _observers;
+    private Dictionary<TKey, HashSet<IPropObserver<TValue>>>? _keyedObservers;
+
+    public void WatchAt(IPropObserver<TValue> observer, TKey key)
+    {
+        _keyedObservers ??= new();
+        if (!_keyedObservers.TryGetValue(key, out var set))
+            _keyedObservers[key] = set = new();
+
+        set.Add(observer);
+    }
+
+    public void Watch(IPropObserver<TValue> observer) => (_observers ??= new()).Add(observer);
+
+    public void StopWatching(IPropObserver<TValue> observer)
+    {
+        _observers!.Remove(observer);
+
+        if (_keyedObservers is null) return;
+        foreach (var keyedObserversValue in _keyedObservers.Values)
+            keyedObserversValue.Remove(observer);
     }
 }

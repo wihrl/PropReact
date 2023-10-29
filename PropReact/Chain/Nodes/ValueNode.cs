@@ -23,8 +23,8 @@ public sealed class ValueNode<TSource, TValue> : ChainNodeBase<TValue>, IPropObs
         var oldValue = oldSource is null ? null : _getter(oldSource);
         var newValue = newSource is null ? null : _getter(newSource);
 
-        oldValue?.Unsub(this);
-        newValue?.Sub(this);
+        oldValue?.StopWatching(this);
+        newValue?.Watch(this);
 
         foreach (var chainNode in _next)
             chainNode.ChangeSource(oldValue is null ? default : oldValue.Value, newValue is null ? default : newValue.Value);

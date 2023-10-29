@@ -46,8 +46,8 @@ public sealed class SetNode<TSource, TSet, TValue> : ChainNodeBase<TSet>, IChain
         var newProp = newValue as IProp<TValue>;
 
         // resubscribe if set is a prop
-        oldProp?.Unsub(this);
-        newProp?.Sub(this);
+        oldProp?.StopWatching(this);
+        newProp?.Watch(this);
 
         // notify following nodes without entering (for example .Count)
         foreach (var chainNode in _next)

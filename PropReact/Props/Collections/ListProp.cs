@@ -74,6 +74,4 @@ internal sealed class ListProp<TValue> : CollectionPropBase<TValue, int>, IListP
             Replaced(index, toReplace, value);
         }
     }
-
-    protected override TValue InternalGetter(int key) => _list[key];
 }

@@ -66,5 +66,4 @@ internal class MapProp<TValue, TKey> : CollectionPropBase<TValue, TKey>, IMap<TV
 
     public override IEnumerator<TValue> GetEnumerator() => _dictionary.Values.GetEnumerator();
     public override int Count => _dictionary.Count;
-    protected override TValue? InternalGetter(TKey key) => _dictionary.TryGetValue(key, out var val) ? val : default;
 }

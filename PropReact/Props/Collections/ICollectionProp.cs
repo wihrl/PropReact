@@ -4,7 +4,7 @@ namespace PropReact.Props.Collections;
 
 public interface ICollectionProp<TValue, TKey> : IProp<TValue>, IEnumerable<TValue>, ICollectionProp<TValue>
 {
-    internal void SubAt(IPropObserver<TValue> observer, TKey key);
+    internal void WatchAt(IPropObserver<TValue> observer, TKey key);
 }
 
 public interface ICollectionProp<TValue>
