@@ -6,9 +6,10 @@ public class RootNode<TRoot> : ChainNodeBase<TRoot>, IDisposable
 
     public RootNode(TRoot root, Reaction reaction) : base(reaction) => _root = root;
 
-    public void Initialize()
+    public RootNode<TRoot> Initialize()
     {
         foreach (var chainNode in Next) chainNode.ChangeSource(default, _root);
+        return this;
     }
 
     public void Dispose()

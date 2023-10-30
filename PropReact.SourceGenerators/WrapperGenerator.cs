@@ -3,8 +3,6 @@ using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using PropReact.Props;
-using PropReact.Props.Value;
 
 namespace PropReact.SourceGenerators;
 
@@ -87,7 +85,7 @@ public class WrapperGenerator : ISourceGenerator
 
         // nameof ignores generics
         bool IsProp(string typeName, out bool isComputed) =>
-            (isComputed = typeName.StartsWith(nameof(IComputed<int>))) || typeName.StartsWith(nameof(IMutable<int>));
+            (isComputed = typeName.StartsWith(Magic.Computed)) || typeName.StartsWith(Magic.Mutable);
 
         public void OnVisitSyntaxNode(GeneratorSyntaxContext context)
         {
@@ -136,15 +134,15 @@ public class WrapperGenerator : ISourceGenerator
                 }
 
                 var attributes = field.GetAttributes();
-                if (attributes.Any(x => x.AttributeClass?.Name == nameof(DontExpose)))
+                if (attributes.Any(x => x.AttributeClass?.Name == Magic.DontExpose))
                     continue;
 
                 var valueTypeSymbol = (INamedTypeSymbol) field.Type;
                 var valueType = valueTypeSymbol.TypeArguments[0]
                     .ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
-                var getterOnly = isComputed || attributes.Any(x => x.AttributeClass?.Name == nameof(GetOnly));
-                var className = field.ContainingType.Name;
+                var getterOnly = isComputed || attributes.Any(x => x.AttributeClass?.Name == Magic.GetOnly);
+                var className = field.ContainingType!.Name;
 
                 if (!Classes.TryGetValue(className, out var reactiveClass))
                 {

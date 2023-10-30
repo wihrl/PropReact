@@ -3,20 +3,16 @@ using PropReact.Props.Value;
 
 namespace PropReact.Tests;
 
-public partial class ValuePropData
+public partial class ValueData
 {
     private readonly IMutable<int> _int;
     private readonly IMutable<string?> _nullableString;
     private readonly IMutable<Record> _record;
     private readonly IMutable<Record?> _nullableRecord;
 
-    public ValuePropData()
+    public ValueData()
     {
         Prop.Mutable(out _int, out _nullableRecord, out _nullableString, out _record, new());
-
-        _props._record(this);
-        
-        NullableRecord = new();
     }
 }
 

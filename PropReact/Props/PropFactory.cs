@@ -1,4 +1,6 @@
-﻿using PropReact.Props.Collections;
+﻿using System.Runtime.CompilerServices;
+using PropReact.Chain.Nodes;
+using PropReact.Props.Collections;
 using PropReact.Props.Value;
 
 namespace PropReact.Props;
@@ -210,14 +212,26 @@ public static class Prop
 
     #endregion
 
+    #region Watch
 
-    // public static void MutableComputed<TOwner, T, TResult>(out IComputed<TResult> prop, TOwner owner,
-    //     Expression<Func<TOwner, T>> selector1,
-    //     Func<T, TResult> compute) where TOwner : ICompositeDisposable
+    // internal static void ParseChain<TRoot, TResult>(TRoot root, Action action, Func<TRoot, TResult> selector,
+    //     [CallerArgumentExpression(nameof(selector))] string? expression = null) where TRoot : IChainRoot<TRoot>
     // {
-    //     // todo: Mutable lazy (only update if someone is observing the prop)
-    //     IComputed<TResult> comp = new ComputedpropProp<TResult>(default!);
-    //     owner.AddDisposable(Watch(owner, selector1, x => comp.Set(compute(x))));
-    //     prop = comp;
+    //     if (expression is null)
+    //         throw new ArgumentException("Expression string cannot be null.");
+    //
+    //     root.CreateChain()
     // }
+    
+    public static void Watch<TRoot, TResult>(TRoot root, Func<TRoot, TResult> selector,
+        [CallerArgumentExpression(nameof(selector))] string? expression = null)
+    {
+    }
+
+    #endregion
+}
+
+interface IChainRoot<TSelf>
+{
+    RootNode<TSelf> CreateChain(Action action, string expression);
 }
