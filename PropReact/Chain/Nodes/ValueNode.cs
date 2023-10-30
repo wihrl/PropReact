@@ -11,7 +11,7 @@ public sealed class ValueNode<TSource, TValue> : ChainNodeBase<TValue>, IPropObs
 
     public void PropChanged(TValue? oldValue, TValue? newValue)
     {
-        foreach (var chainNode in _next)
+        foreach (var chainNode in Next)
             chainNode.ChangeSource(oldValue, newValue);
 
         Reaction();
@@ -27,7 +27,7 @@ public sealed class ValueNode<TSource, TValue> : ChainNodeBase<TValue>, IPropObs
         oldValue?.StopWatching(this);
         newValue?.Watch(this);
 
-        foreach (var chainNode in _next)
+        foreach (var chainNode in Next)
             chainNode.ChangeSource(oldValue is null ? default : oldValue.Value,
                 newValue is null ? default : newValue.Value);
     }
@@ -41,7 +41,7 @@ public sealed class KeyedNode<TSource, TValue, TKey> : ChainNodeBase<TValue>, IP
 
     public void PropChanged(TValue? oldValue, TValue? newValue)
     {
-        foreach (var chainNode in _next)
+        foreach (var chainNode in Next)
             chainNode.ChangeSource(oldValue, newValue);
 
         Reaction();
@@ -54,7 +54,7 @@ public sealed class KeyedNode<TSource, TValue, TKey> : ChainNodeBase<TValue>, IP
         var oldValue = oldSource is null ? default : oldSource.StopWatchingAt(this, _key);
         var newValue = newSource is null ? default : newSource.WatchAt(this, _key);
 
-        foreach (var chainNode in _next)
+        foreach (var chainNode in Next)
             chainNode.ChangeSource(oldValue, newValue);
     }
 }

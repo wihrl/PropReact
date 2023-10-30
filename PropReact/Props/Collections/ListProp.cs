@@ -14,7 +14,7 @@ internal sealed class ListProp<TValue> : CollectionPropBase<TValue, int>, IListP
     internal ListProp() => _list = new();
     internal ListProp(IEnumerable<TValue> existing) => _list = new(existing);
     internal ListProp(int capacity) => _list = new(capacity);
-    
+
 
     public override IEnumerator<TValue> GetEnumerator() => _list.GetEnumerator();
 
@@ -47,6 +47,7 @@ internal sealed class ListProp<TValue> : CollectionPropBase<TValue, int>, IListP
     }
 
     public override int Count => _list.Count;
+    protected override TValue? InternalGetter(int key) => key < 0 || key >= _list.Count ? default : _list[key];
 
     public bool IsReadOnly => ((ICollection<TValue>) _list).IsReadOnly;
     public int IndexOf(TValue item) => _list.IndexOf(item);
@@ -64,7 +65,7 @@ internal sealed class ListProp<TValue> : CollectionPropBase<TValue, int>, IListP
         Removed(index, toRemove);
     }
 
-    public override TValue this[int index]
+    public TValue this[int index]
     {
         get => _list[index];
         set

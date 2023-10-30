@@ -35,7 +35,7 @@ internal class CollectionProp<TValue, TKey> : CollectionPropBase<TValue, TKey>, 
     public bool ContainsKey(TKey key) => _dictionary.ContainsKey(key);
     public bool TryGetValue(TKey key, out TValue value) => _dictionary.TryGetValue(key, out value!);
 
-    public override TValue this[TKey key] => _dictionary[key];
+    public TValue this[TKey key] => _dictionary[key];
     public IEnumerable<TKey> Keys => _dictionary.Keys;
     public IEnumerable<TValue> Values => _dictionary.Values;
 
@@ -66,4 +66,7 @@ internal class CollectionProp<TValue, TKey> : CollectionPropBase<TValue, TKey>, 
 
     public override IEnumerator<TValue> GetEnumerator() => _dictionary.Values.GetEnumerator();
     public override int Count => _dictionary.Count;
+
+    protected override TValue? InternalGetter(TKey key) =>
+        _dictionary.TryGetValue(key, out var value) ? value : default;
 }

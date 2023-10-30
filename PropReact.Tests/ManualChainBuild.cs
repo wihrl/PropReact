@@ -38,54 +38,111 @@ public class ManualChainBuild
         // basic
         // public API: this.Watch(x => x.B.C.D1);
 
-        new ReactiveChain<A>(root =>
-            root.Chain(x => x.B)
-                .Chain(x => x.C)
-                .Chain(x => x.D1));
+        // new ReactiveChain<A>(root =>
+        //     root.Chain(x => x.B)
+        //         .Chain(x => x.C)
+        //         .Chain(x => x.D1));
+
+        Reaction r = () => { };
+        A root = null!;
+
+        new RootNode<A>(root, r)
+        {
+            new ValueNode<A, B>(x => x.B, r)
+            {
+                new ValueNode<B, C>(x => x.C, r)
+            }
+        };
 
         // split
         // todo: public API: Prop.Watch(this, x => x.B.C).Split(x => x.Chain(...), x => ...).ToProp(out _prop, transform...)/.;
-        new ReactiveChain<A>(root =>
-            root.Chain(x => x.B)
-                .Chain(x => x.C)
-                .Branch(
-                    y => y.Chain(x => x.D1)
-                        .Chain(x => x.D2), // not necessary, will not trigger updates: .Chain(x => x.Value),
-                    y => y.Chain(x => x.D2)));
+        // new ReactiveChain<A>(root =>
+        //     root.Chain(x => x.B)
+        //         .Chain(x => x.C)
+        //         .Branch(
+        //             y => y.Chain(x => x.D1)
+        //                 .Chain(x => x.D2), // not necessary, will not trigger updates: .Chain(x => x.Value),
+        //             y => y.Chain(x => x.D2)));
 
         // collection
         // todo: public API: this.Watch(x => x.B.C.EL).Enter().Chain(x => x.E1.Value);
 
-        new ReactiveChain<A>(root => root
-            .Chain(x => x.B)
-            .Chain(x => x.C)
-            .ChainMany(x => x.EL)
-            .Enter()
-            .Chain(x => x.E1)
-            .ChainMany(x => x.Value));
+        new RootNode<A>(root, r)
+        {
+            new ValueNode<A, B>(x => x.B, r)
+            {
+                new ValueNode<B, C>(x => x.C, r)
+                {
+                    new ValueNode<C, D>(x => x.D1, r),
+                    new ValueNode<C, D>(x => x.D2, r),
+                }
+            }
+        };
+
+        // new ReactiveChain<A>(root => root
+        //     .Chain(x => x.B)
+        //     .Chain(x => x.C)
+        //     .ChainMany(x => x.EL)
+        //     .Enter()
+        //     .Chain(x => x.E1)
+        //     .ChainMany(x => x.Value));
+
+        new RootNode<A>(root, r)
+        {
+            new ValueNode<A, B>(x => x.B, r)
+            {
+                new ValueNode<B, C>(x => x.C, r)
+                {
+                    new CollectionNode<C, IListProp<E>, E>(x => x.EL, r)
+                    {
+                        Inner =
+                        {
+                            new ValueNode<E, E>(x => x.E1, r)
+                        },
+                    }
+                }
+            }
+        };
 
         // nested list
-        new ReactiveChain<A>(root => root
-            .Chain(x => x.B)
-            .Chain(x => x.C)
-            .ChainMany(x => x.ELE)
-            .Enter()
-            .ChainMany(x => x)
-            .Enter()
-            .Chain(x => x.E1));
+        // new ReactiveChain<A>(root => root
+        // .Chain(x => x.B)
+        // .Chain(x => x.C)
+        // .ChainMany(x => x.ELE)
+        // .Enter()
+        // .ChainMany(x => x)
+        // .Enter()
+        // .Chain(x => x.E1));
 
         // value prop if enumerable or list
-        new ReactiveChain<A>(root => root
-            .Chain(x => x.B)
-            .Chain(x => x.ListOfC)
-            .ChainMany(x => x)
-            .Enter()
-            .Chain(x => x.D1));
+        // new ReactiveChain<A>(root => root
+        //     .Chain(x => x.B)
+        //     .Chain(x => x.ListOfC)
+        //     .ChainMany(x => x)
+        //     .Enter()
+        //     .Chain(x => x.D1));
+        
+        new RootNode<A>(root, r)
+        {
+            new ValueNode<A, B>(x => x.B, r)
+            {
+                new ValueNode<B, IEnumerable<C>>(x => x.ListOfC, r)
+                {
+                    new CollectionNode<IEnumerable<C>, IEnumerable<C>, C>(x => x, r)
+                    {
+                        Inner =
+                        {
+                            new ValueNode<C, D>(x => x.D1, r)
+                        },
+                    }
+                }
+            }
+        };
 
 
-        new ReactiveChain<A>(root => root
-            .Chain(x => x.B).Chain(x => x.C).ChainMany(x => x.EE).Enter()
-            .Chain(x => x.E1));
+        // new ReactiveChain<A>(root => root
+        //     .Chain(x => x.B).Chain(x => x.C).ChainMany(x => x.EE).Enter()
+        //     .Chain(x => x.E1));
 
         // creating props: Prop.Make(out _prop);
     }

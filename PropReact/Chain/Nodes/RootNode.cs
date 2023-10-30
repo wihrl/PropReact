@@ -4,18 +4,15 @@ public class RootNode<TRoot> : ChainNodeBase<TRoot>, IDisposable
 {
     private readonly TRoot _root;
 
-    public RootNode(TRoot root, Reaction reaction) : base(reaction)
-    {
-        _root = root;
-    }
+    public RootNode(TRoot root, Reaction reaction) : base(reaction) => _root = root;
 
     public void Initialize()
     {
-        foreach (var chainNode in _next) chainNode.ChangeSource(default, _root);
+        foreach (var chainNode in Next) chainNode.ChangeSource(default, _root);
     }
 
     public void Dispose()
     {
-        foreach (var chainNode in _next) chainNode.ChangeSource(_root, default);
+        foreach (var chainNode in Next) chainNode.ChangeSource(_root, default);
     }
 }

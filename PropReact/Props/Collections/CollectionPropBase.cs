@@ -31,24 +31,27 @@ internal abstract class CollectionPropBase<TValue, TKey> : IKeyedCollectionProp<
     private HashSet<IPropObserver<TValue>>? _observers;
     private Dictionary<TKey, HashSet<IPropObserver<TValue>>>? _keyedObservers;
 
-    public void WatchAt(IPropObserver<TValue> observer, TKey key)
+    public TValue? WatchAt(IPropObserver<TValue> observer, TKey key)
     {
         _keyedObservers ??= new();
         if (!_keyedObservers.TryGetValue(key, out var set))
             _keyedObservers[key] = set = new();
 
         set.Add(observer);
+        return InternalGetter(key);
     }
 
-    public void StopWatchingAt(IPropObserver<TValue> observer, TKey key)
+    public TValue? StopWatchingAt(IPropObserver<TValue> observer, TKey key)
     {
-        if (_keyedObservers is null) return;
-        if (!_keyedObservers.TryGetValue(key, out var set))
-            return;
-
-        set.Remove(observer);
+        var value = InternalGetter(key);
+        if (_keyedObservers is not null && _keyedObservers.TryGetValue(key, out var set))
+            set.Remove(observer);
+        
+        return value;
     }
 
     public void Watch(IPropObserver<TValue> observer) => (_observers ??= new()).Add(observer);
     public void StopWatching(IPropObserver<TValue> observer) => _observers!.Remove(observer);
+
+    protected abstract TValue? InternalGetter(TKey key);
 }
