@@ -2,12 +2,8 @@
 
 namespace PropReact.Props.Collections;
 
-public interface ICollectionProp<TValue, TKey> : IProp<TValue>, IEnumerable<TValue>, ICollectionProp<TValue>
+public interface IKeyedCollectionProp<TValue, TKey> : IProp<TValue>, IEnumerable<TValue>
 {
-    internal void WatchAt(IPropObserver<TValue> observer, TKey key);
-}
-
-public interface ICollectionProp<TValue>
-{
-    int Count { get; }
+    internal TValue? WatchAt(IPropObserver<TValue> observer, TKey key);
+    internal TValue? StopWatchingAt(IPropObserver<TValue> observer, TKey key);
 }

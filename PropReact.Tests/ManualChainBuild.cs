@@ -39,53 +39,53 @@ public class ManualChainBuild
         // public API: this.Watch(x => x.B.C.D1);
 
         new ReactiveChain<A>(root =>
-            root.ChainValue(x => x.B)
-                .ChainValue(x => x.C)
-                .ChainValue(x => x.D1));
+            root.Chain(x => x.B)
+                .Chain(x => x.C)
+                .Chain(x => x.D1));
 
         // split
         // todo: public API: Prop.Watch(this, x => x.B.C).Split(x => x.Chain(...), x => ...).ToProp(out _prop, transform...)/.;
         new ReactiveChain<A>(root =>
-            root.ChainValue(x => x.B)
-                .ChainValue(x => x.C)
+            root.Chain(x => x.B)
+                .Chain(x => x.C)
                 .Branch(
-                    y => y.ChainValue(x => x.D1)
-                        .ChainValue(x => x.D2), // not necessary, will not trigger updates: .Chain(x => x.Value),
-                    y => y.ChainValue(x => x.D2)));
+                    y => y.Chain(x => x.D1)
+                        .Chain(x => x.D2), // not necessary, will not trigger updates: .Chain(x => x.Value),
+                    y => y.Chain(x => x.D2)));
 
         // collection
         // todo: public API: this.Watch(x => x.B.C.EL).Enter().Chain(x => x.E1.Value);
 
         new ReactiveChain<A>(root => root
-            .ChainValue(x => x.B)
-            .ChainValue(x => x.C)
-            .ChainSet(x => x.EL)
+            .Chain(x => x.B)
+            .Chain(x => x.C)
+            .ChainMany(x => x.EL)
             .Enter()
-            .ChainValue(x => x.E1)
-            .ChainSet(x => x.Value));
+            .Chain(x => x.E1)
+            .ChainMany(x => x.Value));
 
         // nested list
         new ReactiveChain<A>(root => root
-            .ChainValue(x => x.B)
-            .ChainValue(x => x.C)
-            .ChainSet(x => x.ELE)
+            .Chain(x => x.B)
+            .Chain(x => x.C)
+            .ChainMany(x => x.ELE)
             .Enter()
-            .ChainSet(x => x)
+            .ChainMany(x => x)
             .Enter()
-            .ChainValue(x => x.E1));
+            .Chain(x => x.E1));
 
         // value prop if enumerable or list
         new ReactiveChain<A>(root => root
-            .ChainValue(x => x.B)
-            .ChainValue(x => x.ListOfC)
-            .ChainSet(x => x)
+            .Chain(x => x.B)
+            .Chain(x => x.ListOfC)
+            .ChainMany(x => x)
             .Enter()
-            .ChainValue(x => x.D1));
+            .Chain(x => x.D1));
 
 
         new ReactiveChain<A>(root => root
-            .ChainValue(x => x.B).ChainValue(x => x.C).ChainSet(x => x.EE).Enter()
-            .ChainValue(x => x.E1));
+            .Chain(x => x.B).Chain(x => x.C).ChainMany(x => x.EE).Enter()
+            .Chain(x => x.E1));
 
         // creating props: Prop.Make(out _prop);
     }

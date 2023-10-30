@@ -3,7 +3,7 @@ using PropReact.Props.Value;
 
 namespace PropReact.Props.Collections;
 
-internal abstract class CollectionPropBase<TValue, TKey> : ICollectionProp<TValue, TKey>
+internal abstract class CollectionPropBase<TValue, TKey> : IKeyedCollectionProp<TValue, TKey>
     where TKey : notnull
 {
     public abstract IEnumerator<TValue> GetEnumerator();
@@ -40,14 +40,15 @@ internal abstract class CollectionPropBase<TValue, TKey> : ICollectionProp<TValu
         set.Add(observer);
     }
 
-    public void Watch(IPropObserver<TValue> observer) => (_observers ??= new()).Add(observer);
-
-    public void StopWatching(IPropObserver<TValue> observer)
+    public void StopWatchingAt(IPropObserver<TValue> observer, TKey key)
     {
-        _observers!.Remove(observer);
-
         if (_keyedObservers is null) return;
-        foreach (var keyedObserversValue in _keyedObservers.Values)
-            keyedObserversValue.Remove(observer);
+        if (!_keyedObservers.TryGetValue(key, out var set))
+            return;
+
+        set.Remove(observer);
     }
+
+    public void Watch(IPropObserver<TValue> observer) => (_observers ??= new()).Add(observer);
+    public void StopWatching(IPropObserver<TValue> observer) => _observers!.Remove(observer);
 }

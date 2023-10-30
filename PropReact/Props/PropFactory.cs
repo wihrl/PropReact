@@ -183,7 +183,7 @@ public static class Prop
     #region Maps
 
     public static void Map<T1Value, T1Key>(out IMap<T1Value, T1Key> map, Func<T1Value, T1Key> selector1)
-        where T1Key : notnull => map = new MapProp<T1Value, T1Key>(selector1);
+        where T1Key : notnull => map = new CollectionProp<T1Value, T1Key>(selector1);
 
     public static void Map<T1Value, T1Key, T2Value, T2Key>(
         out IMap<T1Value, T1Key> prop1, Func<T1Value, T1Key> selector1,

@@ -2,33 +2,24 @@
 
 namespace PropReact.Chain.Nodes;
 
-public interface IChainBuilderSet<TSet, TValue> : IChainBuilder<TSet>
+public interface ICollectionChainBuilder<TSet, TValue> : IChainBuilder<TSet>
 {
     IChainBuilder<TValue> Enter();
 }
 
-public sealed class SetNode<TSource, TSet, TValue> : ChainNodeBase<TSet>, IChainNode<TSource>, IPropObserver<TValue>,
-    IChainBuilderSet<TSet, TValue> where TSet : class, IEnumerable<TValue>
+public class CollectionNode<TSource, TSet, TValue> : ChainNodeBase<TSet>, IChainNode<TSource>, IPropObserver<TValue>,
+    ICollectionChainBuilder<TSet, TValue> where TSet : class, IEnumerable<TValue>
 {
     private readonly InnerSet _innerProxy;
     private readonly Func<TSource, TSet> _getter;
 
-    public SetNode(Func<TSource, TSet> getter, Reaction reaction) : base(reaction)
+    public CollectionNode(Func<TSource, TSet> getter, Reaction reaction) : base(reaction)
     {
         _getter = getter;
         _innerProxy = new(reaction);
     }
-
-    // todo: what if its a nested enumerable: IEnumerable<IEnumerable<T>> - must return IChainBuilderSet
-    // todo: should be an extension method so that it can return IChainBuilderSet<> conditionally
+    
     public IChainBuilder<TValue> Enter() => _innerProxy;
-
-
-    // todo
-    // public ChainableNodeBase<TValue> Enter(TKey key)
-    // {
-    //     throw new InvalidOperationException();
-    // }
 
     public void PropChanged(TValue? oldValue, TValue? newValue)
     {

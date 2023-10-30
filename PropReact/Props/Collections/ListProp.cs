@@ -2,7 +2,7 @@
 
 namespace PropReact.Props.Collections;
 
-public interface IListProp<TValue> : ICollectionProp<TValue, int>, IList<TValue>
+public interface IListProp<TValue> : IKeyedCollectionProp<TValue, int>, IList<TValue>
 {
     new int Count { get; }
 }
@@ -64,7 +64,7 @@ internal sealed class ListProp<TValue> : CollectionPropBase<TValue, int>, IListP
         Removed(index, toRemove);
     }
 
-    public TValue this[int index]
+    public override TValue this[int index]
     {
         get => _list[index];
         set
