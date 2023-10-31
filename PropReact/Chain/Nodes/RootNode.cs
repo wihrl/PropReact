@@ -1,6 +1,6 @@
 ﻿namespace PropReact.Chain.Nodes;
 
-public class RootNode<TRoot> : ChainNodeBase<TRoot>, IDisposable
+public class RootNode<TRoot> : ChainNodeBase<TRoot>, IDisposable, IChainNode<TRoot>
 {
     private readonly TRoot _root;
 
@@ -16,4 +16,6 @@ public class RootNode<TRoot> : ChainNodeBase<TRoot>, IDisposable
     {
         foreach (var chainNode in Next) chainNode.ChangeSource(_root, default);
     }
+
+    public void ChangeSource(TRoot? oldValue, TRoot? newValue) => throw new NotImplementedException();
 }

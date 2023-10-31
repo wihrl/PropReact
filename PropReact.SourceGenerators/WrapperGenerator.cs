@@ -30,17 +30,18 @@ public class WrapperGenerator : ISourceGenerator
         sb.AppendLine("using PropReact.Props;");
         sb.AppendLine("using PropReact.Props.Collections;");
         sb.AppendLine("using PropReact.Props.Value;");
+        sb.AppendLine("using PropReact.Chain.Nodes;");
         sb.AppendLine();
 
-        foreach (var reactiveClass in receiver.Classes.Values)
+        foreach (var @class in receiver.Classes.Values)
         {
-            using (sb.Block("namespace " + reactiveClass.Namespace, reactiveClass.Namespace is not null))
+            using (sb.Block("namespace " + @class.Namespace, @class.Namespace is not null))
             {
-                using (sb.Block($"partial class {reactiveClass.Name}"))
+                using (sb.Block($"partial class {@class.Name} : IChainRoot<{@class.Name}>"))
                 {
-                    foreach (var field in reactiveClass.Fields)
+                    foreach (var field in @class.Fields)
                     {
-                        if (reactiveClass.IsBlazorComponent)
+                        if (@class.IsBlazorComponent)
                             sb.IndentedLine("[Microsoft.AspNetCore.Components.Parameter]");
 
                         using (sb.Block($"public {field.ValueType} {field.WrapperName}"))
@@ -50,15 +51,32 @@ public class WrapperGenerator : ISourceGenerator
                             if (!field.GetterOnly)
                                 sb.IndentedLine($"set => {field.FieldName}.Value = value;");
                         }
-                        
+
                         sb.IndentedLine();
                     }
 
                     using (sb.Block($"public static class _props"))
                     {
-                        foreach (var field in reactiveClass.Fields)
+                        foreach (var field in @class.Fields)
                             sb.IndentedLine(
-                                $"public static {field.FieldType}<{field.ValueType}> {field.FieldName}({reactiveClass.Name} x) => x.{field.FieldName};");
+                                $"public static {field.FieldType}<{field.ValueType}> {field.FieldName}({@class.Name} x) => x.{field.FieldName};");
+                    }
+                    
+                    sb.IndentedLine();
+
+                    using (sb.Block(
+                               $"RootNode<{@class.Name}> IChainRoot<{@class.Name}>.CreateChain(string expression, Action action)"))
+                    {
+                        using (sb.Block("switch (expression)"))
+                        {
+                            foreach (var classExpression in @class.Expressions)
+                            {
+                                sb.IndentedLine($"""""case """"{classExpression}"""":""""");
+                                sb.IndentedLine("return null!;");
+                            }
+
+                            sb.IndentedLine("default: throw new Exception();");
+                        }
                     }
                 }
             }
@@ -89,6 +107,7 @@ public class WrapperGenerator : ISourceGenerator
 
         public void OnVisitSyntaxNode(GeneratorSyntaxContext context)
         {
+            // disallow IValueProp<> as property 
             if (context.Node is PropertyDeclarationSyntax propertyDeclaration)
             {
                 if (IsProp(propertyDeclaration.Type.ToString(), out _))
@@ -96,10 +115,32 @@ public class WrapperGenerator : ISourceGenerator
 
                 return;
             }
+            
+            // todo: dissallow Prop.Watch / etc outside of constructors
 
-            if (context.Node is not FieldDeclarationSyntax fieldDeclaration)
-                return;
+            if (context.Node is InvocationExpressionSyntax
+                {
+                    Expression: MemberAccessExpressionSyntax memberAccessExpressionSyntax
+                } invocationExpressionSyntax)
+            {
+                if (memberAccessExpressionSyntax.ToString() == "Prop.Watch")
+                {
+                    //var symbol = context.SemanticModel.GetSymbolInfo(invocationExpressionSyntax);
+                    var containingClass = context.Node.FirstAncestorOrSelf<ClassDeclarationSyntax>();
+                    var @class = GetClass(context.SemanticModel.GetDeclaredSymbol(containingClass) as INamedTypeSymbol);
+                    var selector = invocationExpressionSyntax.ArgumentList.Arguments[1].Expression;
+                    var identifiers = selector.DescendantNodes().OfType<IdentifierNameSyntax>().ToArray();
+                    var symbols = identifiers.Select(x => context.SemanticModel.GetSymbolInfo(x)).ToArray();
+                    @class.Expressions.Add(selector);
+                }
+            }
 
+            if (context.Node is FieldDeclarationSyntax fieldDeclaration)
+                ProcessField(fieldDeclaration, context);
+        }
+
+        void ProcessField(FieldDeclarationSyntax fieldDeclaration, GeneratorSyntaxContext context)
+        {
             foreach (var variable in fieldDeclaration.Declaration.Variables)
             {
                 var symbol = context.SemanticModel.GetDeclaredSymbol(variable);
@@ -142,20 +183,9 @@ public class WrapperGenerator : ISourceGenerator
                     .ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
                 var getterOnly = isComputed || attributes.Any(x => x.AttributeClass?.Name == Magic.GetOnly);
-                var className = field.ContainingType!.Name;
 
-                if (!Classes.TryGetValue(className, out var reactiveClass))
-                {
-                    var classNamespace = field.ContainingType.ContainingNamespace.IsGlobalNamespace
-                        ? null
-                        : field.ContainingType.ContainingNamespace.ToDisplayString();
-                    var classInpc = field.ContainingType.Interfaces.Any(x => x.Name == "INotifyPropertyChanged");
-                    var classBlazor = field.ContainingType?.BaseType?.Name == "ComponentBase";
-
-                    reactiveClass = Classes[className] = new(className, classNamespace, classInpc, classBlazor);
-                }
-
-                reactiveClass.Fields.Add(new(field.Name, wrapperName, valueType, field.Type.Name, getterOnly));
+                GetClass(field.ContainingType).Fields
+                    .Add(new(field.Name, wrapperName, valueType, field.Type.Name, getterOnly));
             }
         }
 
@@ -166,6 +196,22 @@ public class WrapperGenerator : ISourceGenerator
                 return null;
 
             return char.ToUpper(trimmed[0]) + trimmed.Substring(1);
+        }
+
+        ReactiveClass GetClass(INamedTypeSymbol type)
+        {
+            if (!Classes.TryGetValue(type.Name, out var reactiveClass))
+            {
+                var classNamespace = type.ContainingNamespace.IsGlobalNamespace
+                    ? null
+                    : type.ContainingNamespace.ToDisplayString();
+                var classInpc = type.Interfaces.Any(x => x.Name == "INotifyPropertyChanged");
+                var classBlazor = type.BaseType?.Name == "ComponentBase";
+
+                reactiveClass = Classes[type.Name] = new(type.Name, classNamespace, classInpc, classBlazor);
+            }
+
+            return reactiveClass;
         }
     }
 
@@ -184,6 +230,7 @@ public class WrapperGenerator : ISourceGenerator
         public bool GeneratePropertyChanged { get; }
         public bool IsBlazorComponent { get; }
         public List<ReactiveField> Fields { get; } = new();
+        public List<ExpressionSyntax> Expressions { get; } = new();
     }
 
     class ReactiveField
@@ -202,5 +249,17 @@ public class WrapperGenerator : ISourceGenerator
         public string ValueType { get; }
         public string FieldType { get; }
         public bool GetterOnly { get; }
+    }
+
+    class Selector
+    {
+        public string Expression { get; }
+        public IdentifierNameSyntax[] Identifiers { get; }
+    }
+
+    class Identifier
+    {
+        public string Name { get; }
+        public string IsParam
     }
 }
