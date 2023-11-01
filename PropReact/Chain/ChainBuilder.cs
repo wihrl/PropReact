@@ -154,24 +154,97 @@
 
 // need TMainRoot to store getter and determine whether or not is the current node finalizable (prevent finalize in branches) 
 
+using PropReact.Props.Collections;
 using PropReact.Props.Value;
 
-public class ChainBuilder<TMainRoot, TBranchRoot, TValue>
+// public class ValueChainBuilder<TMainRoot, TBranchType, TValue> : ChainBuilder<TMainRoot, TBranchType, TValue>
+// {
+// }
+
+public interface IBranchType
 {
-    
+}
+
+public struct RootBranch : IBranchType
+{
+}
+
+public struct InnerBranch : IBranchType
+{
+}
+
+public class ChainBuilder<TMainRoot, TBranch, TValue> where TBranch : IBranchType
+{
 }
 
 public static class ChainBuilderActions
 {
-    public static ChainBuilder<TMainRoot, TBranchRoot, TNext> Then<TMainRoot, TBranchRoot, TValue, TNext>(
-        this ChainBuilder<TMainRoot, TBranchRoot, TValue> builder, Func<TValue, IValueProp<TNext>> selector)
+    // ivalueprop selector
+    public static ChainBuilder<TMainRoot, TBranchType, TNext> Then<TMainRoot, TBranchType, TValue, TNext>(
+        this ChainBuilder<TMainRoot, TBranchType, TValue> builder, Func<TValue, IValueProp<TNext>> selector)
+        where TBranchType : IBranchType
     {
         throw new NotImplementedException();
     }
-    
-    public static ChainBuilder<TMainRoot, TBranchRoot, TValue> Enter<TMainRoot, TBranchRoot, TValue>(
-        this ChainBuilder<TMainRoot, TBranchRoot, IEnumerable<TValue>> builder)
+
+    public static ChainBuilder<TMainRoot, TBranchType, TNext> ThenConstant<TMainRoot, TBranchType, TValue, TNext>(
+        this ChainBuilder<TMainRoot, TBranchType, TValue> builder, Func<TValue, TNext> selector)
+        where TBranchType : IBranchType
     {
         throw new NotImplementedException();
     }
+
+    #region Enumerable
+
+    private static ChainBuilder<TMainRoot, TBranchType, TValue> Enter<TMainRoot, TBranchType, TSet, TValue>(
+        this ChainBuilder<TMainRoot, TBranchType, TSet> builder)
+        where TSet : IEnumerable<TValue> where TBranchType : IBranchType
+    {
+        throw new NotImplementedException();
+    }
+
+    // type inference proxy
+    public static ChainBuilder<TMainRoot, TBranchType, TValue> Enter<TMainRoot, TBranchType, TValue>(
+        this ChainBuilder<TMainRoot, TBranchType, IEnumerable<TValue>> builder) where TBranchType : IBranchType =>
+        builder.Enter<TMainRoot, TBranchType, IEnumerable<TValue>, TValue>();
+
+    public static ChainBuilder<TMainRoot, TBranchType, TValue> Enter<TMainRoot, TBranchType, TValue>(
+        this ChainBuilder<TMainRoot, TBranchType, IListProp<TValue>> builder) where TBranchType : IBranchType =>
+        builder.Enter<TMainRoot, TBranchType, IListProp<TValue>, TValue>();
+
+    public static ChainBuilder<TMainRoot, TBranchType, TValue> Enter<TMainRoot, TBranchType, TValue, TKey>(
+        this ChainBuilder<TMainRoot, TBranchType, IMap<TValue, TKey>> builder)
+        where TKey : notnull where TBranchType : IBranchType =>
+        builder.Enter<TMainRoot, TBranchType, IMap<TValue, TKey>, TValue>();
+
+    #endregion
+
+    #region Maps
+
+    public static ChainBuilder<TMainRoot, TBranchType, TValue> EnterAt<TMainRoot, TBranchType, TValue, TKey>(
+        this ChainBuilder<TMainRoot, TBranchType, IMap<TValue, TKey>> builder, TKey key)
+        where TKey : notnull where TBranchType : IBranchType =>
+        builder.Enter<TMainRoot, TBranchType, IMap<TValue, TKey>, TValue>();
+
+    #endregion
+
+    #region Branching
+
+    public static ChainBuilder<TMainRoot, RootBranch, (TNext1, TNext2)> Branch<TMainRoot, TBranchType, TValue, TNext1,
+        TNext2>(
+        this ChainBuilder<TMainRoot, TBranchType, TValue> builder,
+        Func<ChainBuilder<TMainRoot, InnerBranch, TValue>, ChainBuilder<TMainRoot, InnerBranch, TNext1>> selector1,
+        Func<ChainBuilder<TMainRoot, InnerBranch, TValue>, ChainBuilder<TMainRoot, InnerBranch, TNext2>> selector2)
+        where TBranchType : IBranchType =>
+        throw new NotImplementedException();
+
+    #endregion
+
+    #region Finalization
+
+    public static IComputed<TValue> AsComputed<TMainRoot, TValue>(
+        this ChainBuilder<TMainRoot, RootBranch, TValue> builder) =>
+        throw new NotImplementedException();
+
+    #endregion
 }

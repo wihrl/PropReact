@@ -225,7 +225,7 @@ public static class Prop
     //     root.CreateChain()
     // }
 
-    public static ChainBuilder<TRoot, TRoot, TRoot> Watch<TRoot>([NotNull] TRoot root) where TRoot : notnull => new();
+    public static ChainBuilder<TRoot, RootBranch, TRoot> Watch<TRoot>([NotNull] TRoot root) where TRoot : notnull => new();
 
     // public static ChainBuilder<TValue> Watch<TRoot, TValue>([NotNull] TRoot root,
     //     Func<TRoot, IEnumerable<TValue>> selector)

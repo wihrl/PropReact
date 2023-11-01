@@ -98,7 +98,7 @@ public partial class ManualChainBuild
             .Then(x => x.B)
             .Then(x => x.C)
             .Branch(
-                b => b.Then(x => x.El).Enter().Then(x => x.E1),
+                b => b.ThenConstant(x => x.El).Enter().Then(x => x.E1),
                 b => b.Then(x => x.D1)
             ).AsComputed();
 
@@ -115,7 +115,10 @@ public partial class ManualChainBuild
         Prop.Watch(root)
             .Then(x => x.B)
             .Then(x => x.C)
-            .Then(x => x.Ele);
+            .ThenConstant(x => x.Ele)
+            .Enter()
+            .Enter()
+            .Then(x => x.E1);
 
         // value prop if enumerable or list
         // new ReactiveChain<A>(root => root
@@ -131,17 +134,22 @@ public partial class ManualChainBuild
             .Enter()
             .Then(x => x.D1);
 
-        IEnumerable<IMap<string, C>> a = root.B.Value.IListOfC.Value[0];
-        
+        //IEnumerable<IMap<string, C>> a = root.B.Value.IListOfC.Value[0];
+
         Prop.Watch(root)
             .Then(x => x.B)
             .Then(x => x.IListOfC)
-            .Enter();
+            .Enter()
+            .Enter()
+            .Enter()
+            .Then(x => x.D1);
         
 
-        Prop.Watch(root, x => x.B)
+        Prop.Watch(root)
+            .Then(x => x.B)
             .Then(x => x.C)
-            .Then(x => x.Emap, "asdf")
+            .ThenConstant(x => x.Emap)
+            .EnterAt("asdf")
             .Then(x => x.E1);
 
         // new RootNode<A>(root, r)
@@ -181,7 +189,7 @@ partial class B
     public readonly IMutable<C> C;
 
     public readonly IMutable<IEnumerable<C>> ListOfC;
-    public readonly IMutable<IListProp<IEnumerable<IMap<string, C>>>> IListOfC;
+    public readonly IMutable<IListProp<IEnumerable<IMap<C, string>>>> IListOfC;
 
 }
 
