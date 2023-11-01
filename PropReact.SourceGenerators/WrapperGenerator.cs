@@ -30,6 +30,7 @@ public class WrapperGenerator : ISourceGenerator
         sb.AppendLine("using PropReact.Props;");
         sb.AppendLine("using PropReact.Props.Collections;");
         sb.AppendLine("using PropReact.Props.Value;");
+        sb.AppendLine("using PropReact.Chain;");
         sb.AppendLine("using PropReact.Chain.Nodes;");
         sb.AppendLine();
 
@@ -37,7 +38,7 @@ public class WrapperGenerator : ISourceGenerator
         {
             using (sb.Block("namespace " + @class.Namespace, @class.Namespace is not null))
             {
-                using (sb.Block($"partial class {@class.Name} : IChainRoot<{@class.Name}>"))
+                using (sb.Block($"partial class {@class.Name} : IPropSource<{@class.Name}>"))
                 {
                     foreach (var field in @class.Fields)
                     {
@@ -55,27 +56,15 @@ public class WrapperGenerator : ISourceGenerator
                         sb.IndentedLine();
                     }
 
-                    using (sb.Block($"public static class _props"))
+                    using (sb.Block($"static Func<{@class.Name}, IValueProp<TValue>> IPropSource<{@class.Name}>.GetBackingFieldGetter<TValue>(string expression)"))
                     {
-                        foreach (var field in @class.Fields)
-                            sb.IndentedLine(
-                                $"public static {field.FieldType}<{field.ValueType}> {field.FieldName}({@class.Name} x) => x.{field.FieldName};");
-                    }
-                    
-                    sb.IndentedLine();
-
-                    using (sb.Block(
-                               $"RootNode<{@class.Name}> IChainRoot<{@class.Name}>.CreateChain(string expression, Action action)"))
-                    {
-                        using (sb.Block("switch (expression)"))
+                        using (sb.Block("switch(expression)"))
                         {
-                            foreach (var classExpression in @class.Expressions)
+                            foreach (var field in @class.Fields)
                             {
-                                sb.IndentedLine($"""""case """"{classExpression}"""":""""");
-                                sb.IndentedLine("return null!;");
-                            }
-
-                            sb.IndentedLine("default: throw new Exception();");
+                                sb.IndentedLine($"""case "{field.WrapperName}:""");
+                                sb.IndentedLine($"\treturn (Func<{@class.Name}, IValueProp<TValue>>)({@class.Name} x) => x.{field.FieldName});");
+                            }    
                         }
                     }
                 }
@@ -260,6 +249,5 @@ public class WrapperGenerator : ISourceGenerator
     class Identifier
     {
         public string Name { get; }
-        public string IsParam
     }
 }

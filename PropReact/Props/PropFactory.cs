@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using PropReact.Chain;
 using PropReact.Chain.Nodes;
 using PropReact.Props.Collections;
 using PropReact.Props.Value;
@@ -224,17 +225,20 @@ public static class Prop
     //     root.CreateChain()
     // }
 
-    public static IDisposable Watch<TRoot, TResult>([NotNull] TRoot root, Func<TRoot, TResult> selector,
+    public static ChainBuilder<TResult> Watch<TRoot, TResult>([NotNull] TRoot root, Func<TRoot, IProp<TResult>> selector,
         [CallerArgumentExpression(nameof(selector))]
         string? expression = null) where TRoot : notnull
     {
-        throw new Exception();
+        return new ChainBuilder<TRoot>()
+            .Then(selector);
+    }
+    
+    public static ChainBuilder<TValue> Watch<TRoot, TValue>([NotNull] TRoot root, Func<TRoot, TValue> selector)
+        where TRoot : IPropSource<TRoot>
+    {
+        return new ChainBuilder<TRoot>()
+            .Then(selector);
     }
 
     #endregion
-}
-
-public interface IChainRoot<TSelf>
-{
-    RootNode<TSelf> CreateChain(string expression, Action action);
 }

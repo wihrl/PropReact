@@ -2,7 +2,7 @@
 
 namespace PropReact.Chain;
 
-public interface IPropSource
+public interface IPropSource<TSelf>
 {
-    public static abstract IValueProp<TValue> GetBacking<TValue>(string expression);
+    public static abstract Func<TSelf, IValueProp<TValue>> GetBackingFieldGetter<TValue>(string expression);
 }

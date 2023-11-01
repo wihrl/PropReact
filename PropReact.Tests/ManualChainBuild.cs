@@ -10,14 +10,16 @@ namespace PropReact.Tests;
 
 public static class BuilderExtensions
 {
-    public static ChainNodeBase<TNext> Then<TSource, TNext>(this ChainNodeBase<TSource> root, Func<TSource, IValueProp<TNext>> getter)
-        => new ValueNode<TSource, TNext>(getter, () => {});
+    public static ChainNodeBase<TNext> Then<TSource, TNext>(this ChainNodeBase<TSource> root,
+        Func<TSource, IValueProp<TNext>> getter)
+        => new ValueNode<TSource, TNext>(getter, () => { });
 
-    public static ChainNodeBase<TNext> Then<TSource, TNext>(this ChainNodeBase<TSource> root, Func<TSource, TNext> getter)
-        => new ValueNode<TSource, TNext>(null!, () => {}); // todo: constant node
-    
+    public static ChainNodeBase<TNext> Then<TSource, TNext>(this ChainNodeBase<TSource> root,
+        Func<TSource, TNext> getter)
+        => new ValueNode<TSource, TNext>(null!, () => { }); // todo: constant node
+
     public static void ThenEnter<TSource, TNext>(this IChainNode<TSource> root, Func<TSource, IValueProp<TNext>> getter)
-        => new ValueNode<TSource, TNext>(getter, () => {});
+        => new ValueNode<TSource, TNext>(getter, () => { });
 }
 
 public partial class ManualChainBuild
@@ -63,6 +65,7 @@ public partial class ManualChainBuild
         // collection
         // todo: public API: this.Watch(x => x.B.C.EL).Enter().Chain(x => x.E1.Value);
 
+
         new RootNode<A>(root, r)
         {
             new ValueNode<A, B>(x => x.B, r)
@@ -75,7 +78,12 @@ public partial class ManualChainBuild
             }
         };
 
-        Prop.Watch(root, r => r.B.C.Branch(x => x.D1, x => x.D2));
+        Prop.Watch(root, x => x.B).Then(x => x.C)
+            .Branch(
+                c => c.Then(x => x.D1),
+                c => c.Then(x => x.D2));
+
+        // Prop.Watch(root, r => r.B.C.Branch(x => x.D1, x => x.D2));
 
         // new ReactiveChain<A>(root => root
         //     .Chain(x => x.B)
@@ -91,7 +99,7 @@ public partial class ManualChainBuild
             {
                 new ValueNode<B, C>(x => x._c, r)
                 {
-                    new CollectionNode<C, IListProp<E>, E>(x => x._el, r)
+                    new CollectionNode<C, IListProp<E>, E>(x => x.El, r)
                     {
                         Inner =
                         {
@@ -102,7 +110,15 @@ public partial class ManualChainBuild
             }
         };
 
-        Prop.Watch(root, r => r.B.C._el.Select(x => x.E1));
+        //Prop.Watch(root, r => r.B.C.El.Select(x => x.E1));
+
+        Prop.Watch(root, x => x.B)
+            .Then(x => x.C)
+            .Branch(b =>
+                    b.Then(x => x.El)
+                        .Then(x => x.E1),
+                b => b.Then(x => x.D1)
+            );
 
         // nested list
         // new ReactiveChain<A>(root => root
@@ -114,6 +130,10 @@ public partial class ManualChainBuild
         // .Enter()
         // .Chain(x => x.E1));
 
+        Prop.Watch(root, x => x.B)
+            .Then(x => x.C)
+            .Then(x => x.Ele);
+
         // value prop if enumerable or list
         // new ReactiveChain<A>(root => root
         //     .Chain(x => x.B)
@@ -121,6 +141,16 @@ public partial class ManualChainBuild
         //     .ChainMany(x => x)
         //     .Enter()
         //     .Chain(x => x.D1));
+
+        Prop.Watch(root, x => x.B)
+            .Then(x => x.ListOfC)
+            .Enter()
+            .Then(x => x.D1);
+
+        Prop.Watch(root, x => x.B)
+            .Then(x => x.C)
+            .Then(x => x.Emap, "asdf")
+            .Then(x => x.E1);
 
         // new RootNode<A>(root, r)
         // {
@@ -163,12 +193,16 @@ partial class B
 
 partial class C
 {
+    public D Dd1 { get; }
+
     private readonly IMutable<D> _d1;
     private readonly IMutable<D> _d2;
     private readonly IEnumerable<D> _dl;
-    public readonly IListProp<E> _el;
-    public readonly IListProp<IEnumerable<E>> _ele;
-    public readonly IEnumerable<E> _ee;
+    
+    public IListProp<E> El {get;}
+    public IMap<E, string> Emap {get;}
+    public IListProp<IEnumerable<E>> Ele {get;}
+    public IEnumerable<E> Ee {get;}
 }
 
 partial class D
