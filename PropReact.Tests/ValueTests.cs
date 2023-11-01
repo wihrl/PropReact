@@ -7,6 +7,11 @@
 // namespace PropReact.Tests;
 //
 
+public static class Extensions
+{
+    public static void asdf<T>(this List<IEnumerable<T>> e) {}
+}
+
 public class T
 {
     [Fact]
@@ -14,6 +19,24 @@ public class T
     {
         ICallable i = null!;
         i.Call();
+    }
+
+    [Fact]
+    public void t1()
+    {
+        var list = new List<List<string>>();
+        list.asdf();
+        t2(arg => list);
+    }
+
+    public void t2<Tvalue>(Func<T, IEnumerable<Tvalue>> action)
+    {
+        
+    }
+    
+    public void t2<Tvalue>(Func<T, IEnumerable<IEnumerable<Tvalue>>> action)
+    {
+        
     }
 }
 

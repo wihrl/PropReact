@@ -94,7 +94,8 @@ public partial class ManualChainBuild
 
         //Prop.Watch(root, r => r.B.C.El.Select(x => x.E1));
 
-        Prop.Watch(root, x => x.B)
+        Prop.Watch(root)
+            .Then(x => x.B)
             .Then(x => x.C)
             .Branch(
                 b => b.Then(x => x.El).Enter().Then(x => x.E1),
@@ -111,7 +112,8 @@ public partial class ManualChainBuild
         // .Enter()
         // .Chain(x => x.E1));
 
-        Prop.Watch(root, x => x.B)
+        Prop.Watch(root)
+            .Then(x => x.B)
             .Then(x => x.C)
             .Then(x => x.Ele);
 
@@ -123,15 +125,19 @@ public partial class ManualChainBuild
         //     .Enter()
         //     .Chain(x => x.D1));
 
-        Prop.Watch(root, x => x.B)
+        Prop.Watch(root)
+            .Then(x => x.B)
             .Then(x => x.ListOfC)
             .Enter()
             .Then(x => x.D1);
 
-        Prop.Watch(root, x => x.B)
+        IEnumerable<IMap<string, C>> a = root.B.Value.IListOfC.Value[0];
+        
+        Prop.Watch(root)
+            .Then(x => x.B)
             .Then(x => x.IListOfC)
-            .EnterAt("")
             .Enter();
+        
 
         Prop.Watch(root, x => x.B)
             .Then(x => x.C)

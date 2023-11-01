@@ -2,7 +2,7 @@
 
 namespace PropReact.Props.Collections;
 
-public interface IListProp<TValue> : IKeyedCollectionProp<TValue, int>, IList<TValue>
+public interface IListProp<out TValue> : IKeyedCollectionProp<TValue, int>, IList<TValue>
 {
     new int Count { get; }
 }
