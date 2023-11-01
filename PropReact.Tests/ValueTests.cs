@@ -6,6 +6,27 @@
 //
 // namespace PropReact.Tests;
 //
+
+public class T
+{
+    [Fact]
+    public void NullExtension()
+    {
+        ICallable i = null!;
+        i.Call();
+    }
+}
+
+public interface ICallable
+{
+    
+}
+
+public static class CallableExtensions
+{
+    public static void Call(this ICallable callable) => Console.WriteLine("t");
+}
+
 // // todo: leave sourcegen tests for SourceGenerators.Tests
 // public partial class BasicTests
 // {

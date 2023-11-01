@@ -6,8 +6,8 @@ namespace PropReact.Chain.Nodes;
 
 public abstract class ChainNodeBase<TValue> : IEnumerable<IChainNode<TValue>>
 {
-    protected readonly Reaction Reaction;
-    protected ChainNodeBase(Reaction reaction) => Reaction = reaction;
+    public readonly IRootNode Root;
+    protected ChainNodeBase(IRootNode root) => Root = root;
 
     public List<IChainNode<TValue>> Next { protected get; init; } = new();
     

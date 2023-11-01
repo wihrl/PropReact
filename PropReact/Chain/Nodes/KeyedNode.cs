@@ -1,24 +1,24 @@
 ﻿using PropReact.Props;
+using PropReact.Props.Collections;
 
 namespace PropReact.Chain.Nodes;
 
-public class CollectionNode<TSource, TSet, TValue> : ChainNodeBase<TValue>, IChainNode<TSource>, IPropObserver<TValue>
-    where TSet : class, IEnumerable<TValue>
+public sealed class KeyedNode<TSource, TValue, TKey> : ChainNodeBase<TValue>, IPropObserver<TValue>, IChainNode<TSource>
+    where TKey : notnull
 {
-    private readonly Func<TSource, TSet> _getter;
-
-    public CollectionNode(Func<TSource, TSet> getter, IRootNode root) : base(root)
+    private readonly TKey _key;
+    private readonly Func<TSource, IKeyedCollectionProp<TValue, TKey>> _getter;
+    public KeyedNode(Func<TSource, IKeyedCollectionProp<TValue, TKey>> getter, IRootNode root, TKey key) : base(root)
     {
+        _key = key;
         _getter = getter;
     }
 
-    // todo: same in all nodes, put to base
     public void PropChanged(TValue? oldValue, TValue? newValue)
     {
-        // an item was added or removed from the set
         foreach (var chainNode in Next)
             chainNode.ChangeSource(oldValue, newValue);
-        
+
         Root.Changed();
     }
 
@@ -27,12 +27,9 @@ public class CollectionNode<TSource, TSet, TValue> : ChainNodeBase<TValue>, ICha
         var oldValue = oldSource is null ? null : _getter(oldSource);
         var newValue = newSource is null ? null : _getter(newSource);
 
-        var oldProp = oldValue as IProp<TValue>;
-        var newProp = newValue as IProp<TValue>;
-
         // resubscribe if set is a prop
-        oldProp?.StopWatching(this);
-        newProp?.Watch(this);
+        oldValue?.StopWatchingAt(this, _key);
+        newValue?.WatchAt(this, _key);
 
         // unsubscribe from all previous set items
         if (oldValue is not null)

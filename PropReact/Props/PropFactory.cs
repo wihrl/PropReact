@@ -225,20 +225,23 @@ public static class Prop
     //     root.CreateChain()
     // }
 
-    public static ChainBuilder<TResult> Watch<TRoot, TResult>([NotNull] TRoot root, Func<TRoot, IProp<TResult>> selector,
-        [CallerArgumentExpression(nameof(selector))]
-        string? expression = null) where TRoot : notnull
-    {
-        return new ChainBuilder<TRoot>()
+    public static ChainBuilder<TRoot, TValue> Watch<TRoot, TValue>([NotNull] TRoot root,
+        Func<TRoot, IValueProp<TValue>> selector)
+        where TRoot : notnull =>
+        new ChainBuilder<TRoot, TRoot>(root, new(root), x => x)
             .Then(selector);
-    }
-    
-    public static ChainBuilder<TValue> Watch<TRoot, TValue>([NotNull] TRoot root, Func<TRoot, TValue> selector)
-        where TRoot : IPropSource<TRoot>
-    {
-        return new ChainBuilder<TRoot>()
-            .Then(selector);
-    }
+
+    // public static ChainBuilder<TValue> Watch<TRoot, TValue>([NotNull] TRoot root,
+    //     Func<TRoot, IEnumerable<TValue>> selector)
+    //     where TRoot : notnull =>
+    //     new ChainBuilder<TRoot>(new RootNode<TRoot>(root))
+    //         .Then(selector);
+    //
+    // public static ChainBuilder<TValue> Watch<TRoot, TValue, TKey>([NotNull] TRoot root,
+    //     Func<TRoot, IKeyedCollectionProp<TValue, TKey>> selector)
+    //     where TRoot : notnull =>
+    //     new ChainBuilder<TRoot>(new RootNode<TRoot>(root))
+    //         .Then(selector);
 
     #endregion
 }

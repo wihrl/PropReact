@@ -24,7 +24,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PropReact\PropReact.csproj"/>
-    <ProjectReference Include="..\PropReact.SourceGenerators\PropReact.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
   </ItemGroup>
 
 </Project>
