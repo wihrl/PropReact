@@ -99,7 +99,10 @@ public partial class ManualChainBuild
             .Then(x => x.C)
             .Branch(
                 b => b.ThenConstant(x => x.El).Enter().Then(x => x.E1),
-                b => b.Then(x => x.D1)
+                b =>
+                    b.Branch(
+                        b2 => b2.Then(x => x.D1),
+                        b2 => b2.Then(x => x.D2))
             ).AsComputed();
 
         // nested list
@@ -117,8 +120,8 @@ public partial class ManualChainBuild
             .Then(x => x.C)
             .ThenConstant(x => x.Ele)
             .Enter()
-            .Enter();
-            .Then2(x => x.E1)
+            .Enter()
+            .Then(x => x.E1)
             .AsComputed();
 
         // value prop if enumerable or list
@@ -133,7 +136,7 @@ public partial class ManualChainBuild
             .Then(x => x.B)
             .Then(x => x.ListOfC)
             .Enter()
-            .Then2(x => x.D1)
+            .Then(x => x.D1)
             .AsComputed();
 
         //IEnumerable<IMap<string, C>> a = root.B.Value.IListOfC.Value[0];
@@ -144,7 +147,7 @@ public partial class ManualChainBuild
             .Enter()
             .Enter()
             .Enter()
-            .Then2(x => x.D1)
+            .Then(x => x.D1)
             .AsComputed();
 
 
@@ -159,7 +162,7 @@ public partial class ManualChainBuild
         var p6 = Prop.Watch(root)
             .Then(x => x.Blist)
             .Enter()
-            .Then2(x=>x.C)
+            .Then(x => x.C)
             .AsComputed();
 
         // new RootNode<A>(root, r)
@@ -201,7 +204,6 @@ partial class B
 
     public readonly IMutable<IEnumerable<C>> ListOfC;
     public readonly IMutable<IListProp<IEnumerable<IMap<C, string>>>> IListOfC;
-
 }
 
 partial class C
