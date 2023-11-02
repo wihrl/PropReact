@@ -94,7 +94,7 @@ public partial class ManualChainBuild
 
         //Prop.Watch(root, r => r.B.C.El.Select(x => x.E1));
 
-        var p1 = Prop.Watch(root)
+        Prop.Watch(root)
             .Then(x => x.B)
             .Then(x => x.C)
             .Branch(
@@ -103,7 +103,9 @@ public partial class ManualChainBuild
                     b.Branch(
                         b2 => b2.Then(x => x.D1),
                         b2 => b2.Then(x => x.D2))
-            ).AsComputed();
+            )
+            .Immediate()
+            .React(() => { });
 
         // nested list
         // new ReactiveChain<A>(root => root
@@ -122,7 +124,8 @@ public partial class ManualChainBuild
             .Enter()
             .Enter()
             .Then(x => x.E1)
-            .AsComputed();
+            .Immediate()
+            .ToComputed();
 
         // value prop if enumerable or list
         // new ReactiveChain<A>(root => root
@@ -137,7 +140,7 @@ public partial class ManualChainBuild
             .Then(x => x.ListOfC)
             .Enter()
             .Then(x => x.D1)
-            .AsComputed();
+            .ToComputed();
 
         //IEnumerable<IMap<string, C>> a = root.B.Value.IListOfC.Value[0];
 
@@ -148,7 +151,7 @@ public partial class ManualChainBuild
             .Enter()
             .Enter()
             .Then(x => x.D1)
-            .AsComputed();
+            .ToComputed();
 
 
         var p5 = Prop.Watch(root)
@@ -157,13 +160,13 @@ public partial class ManualChainBuild
             .ThenConstant(x => x.Emap)
             .EnterAt("asdf")
             .Then(x => x.E1)
-            .AsComputed();
+            .ToComputed();
 
         var p6 = Prop.Watch(root)
             .Then(x => x.Blist)
             .Enter()
             .Then(x => x.C)
-            .AsComputed();
+            .ToComputed();
 
         // new RootNode<A>(root, r)
         // {
