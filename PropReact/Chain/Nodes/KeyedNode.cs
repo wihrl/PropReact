@@ -3,7 +3,7 @@ using PropReact.Props.Collections;
 
 namespace PropReact.Chain.Nodes;
 
-public sealed class KeyedNode<TSource, TValue, TKey> : ChainNodeBase<TValue>, IPropObserver<TValue>, IChainNode<TSource>
+public sealed class KeyedNode<TSource, TValue, TKey> : ChainNode<TValue>, IPropObserver<TValue>, IChainNode<TSource>
     where TKey : notnull
 {
     private readonly TKey _key;

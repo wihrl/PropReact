@@ -2,14 +2,11 @@
 
 namespace PropReact.Chain.Nodes;
 
-public class CollectionNode<TSource, TSet, TValue> : ChainNodeBase<TValue>, IChainNode<TSource>, IPropObserver<TValue>
+public class CollectionNode<TSet, TValue> : ChainNode<TValue>, IChainNode<TSet>, IPropObserver<TValue>
     where TSet : class, IEnumerable<TValue>
 {
-    private readonly Func<TSource, TSet> _getter;
-
-    public CollectionNode(Func<TSource, TSet> getter, IRootNode root) : base(root)
+    public CollectionNode(IRootNode root) : base(root)
     {
-        _getter = getter;
     }
 
     // todo: same in all nodes, put to base
@@ -22,26 +19,23 @@ public class CollectionNode<TSource, TSet, TValue> : ChainNodeBase<TValue>, ICha
         Root.Changed();
     }
 
-    void IChainNode<TSource>.ChangeSource(TSource? oldSource, TSource? newSource)
+    void IChainNode<TSet>.ChangeSource(TSet? oldSource, TSet? newSource)
     {
-        var oldValue = oldSource is null ? null : _getter(oldSource);
-        var newValue = newSource is null ? null : _getter(newSource);
-
-        var oldProp = oldValue as IProp<TValue>;
-        var newProp = newValue as IProp<TValue>;
+        var oldProp = oldSource as IProp<TValue>;
+        var newProp = newSource as IProp<TValue>;
 
         // resubscribe if set is a prop
         oldProp?.StopWatching(this);
         newProp?.Watch(this);
 
         // unsubscribe from all previous set items
-        if (oldValue is not null)
-            foreach (var oldItem in oldValue)
+        if (oldSource is not null)
+            foreach (var oldItem in oldSource)
                 PropChanged(oldItem, default);
 
         // subscribe to all new set items
-        if (newValue is not null)
-            foreach (var newItem in newValue)
+        if (newSource is not null)
+            foreach (var newItem in newSource)
                 PropChanged(default, newItem);
     }
 }

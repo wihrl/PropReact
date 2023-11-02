@@ -94,7 +94,7 @@ public partial class ManualChainBuild
 
         //Prop.Watch(root, r => r.B.C.El.Select(x => x.E1));
 
-        Prop.Watch(root)
+        var p1 = Prop.Watch(root)
             .Then(x => x.B)
             .Then(x => x.C)
             .Branch(
@@ -112,13 +112,14 @@ public partial class ManualChainBuild
         // .Enter()
         // .Chain(x => x.E1));
 
-        Prop.Watch(root)
+        var p2 = Prop.Watch(root)
             .Then(x => x.B)
             .Then(x => x.C)
             .ThenConstant(x => x.Ele)
             .Enter()
-            .Enter()
-            .Then(x => x.E1);
+            .Enter();
+            .Then2(x => x.E1)
+            .AsComputed();
 
         // value prop if enumerable or list
         // new ReactiveChain<A>(root => root
@@ -128,29 +129,38 @@ public partial class ManualChainBuild
         //     .Enter()
         //     .Chain(x => x.D1));
 
-        Prop.Watch(root)
+        var p3 = Prop.Watch(root)
             .Then(x => x.B)
             .Then(x => x.ListOfC)
             .Enter()
-            .Then(x => x.D1);
+            .Then2(x => x.D1)
+            .AsComputed();
 
         //IEnumerable<IMap<string, C>> a = root.B.Value.IListOfC.Value[0];
 
-        Prop.Watch(root)
+        var p4 = Prop.Watch(root)
             .Then(x => x.B)
             .Then(x => x.IListOfC)
             .Enter()
             .Enter()
             .Enter()
-            .Then(x => x.D1);
-        
+            .Then2(x => x.D1)
+            .AsComputed();
 
-        Prop.Watch(root)
+
+        var p5 = Prop.Watch(root)
             .Then(x => x.B)
             .Then(x => x.C)
             .ThenConstant(x => x.Emap)
             .EnterAt("asdf")
-            .Then(x => x.E1);
+            .Then(x => x.E1)
+            .AsComputed();
+
+        var p6 = Prop.Watch(root)
+            .Then(x => x.Blist)
+            .Enter()
+            .Then2(x=>x.C)
+            .AsComputed();
 
         // new RootNode<A>(root, r)
         // {
@@ -180,6 +190,7 @@ public partial class ManualChainBuild
 partial class A
 {
     public readonly IMutable<B> B;
+    public readonly IMutable<IEnumerable<B>> Blist;
 
     public readonly IMutable<B> PB;
 }

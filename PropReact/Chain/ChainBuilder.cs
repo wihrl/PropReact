@@ -154,6 +154,7 @@
 
 // need TMainRoot to store getter and determine whether or not is the current node finalizable (prevent finalize in branches) 
 
+using PropReact.Chain.Nodes;
 using PropReact.Props.Collections;
 using PropReact.Props.Value;
 
@@ -173,68 +174,137 @@ public struct InnerBranch : IBranchType
 {
 }
 
-public class ChainBuilder<TMainRoot, TBranch, TValue> where TBranch : IBranchType
+public struct ChainBuilder<TRoot, TBranchType, TValue, TResult> where TBranchType : IBranchType
 {
+    public required RootNode<TRoot> RootNode { get; init; }
+    public required ChainNode<TValue> Node { get; init; }
+
+    public required Func<TRoot, TResult> ChainGetter { get; init; }
+    //public Func<TRoot, TValue> GetterTransformer { get; init; }
 }
+
+// public class ChainGetterBuilder<TRoot, TValue>
+// {
+//     public required Func<TRoot, TValue> ChainGetter { get; init; }
+//
+//     public ChainGetterBuilder<TRoot, TValue> AppendValue<TNext>(Func<TValue, TNext> func)
+//     {
+//         return x => func(ChainGetter(x));
+//     }
+//     
+//     public ChainGetterBuilder<TRoot, IEnumerable<TNext>> AppendCollection<TNext>(Func<TValue, IEnumerable<TNext>> func)
+//     {
+//         return x => func(ChainGetter(x));
+//     }
+// }
 
 public static class ChainBuilderActions
 {
-    // ivalueprop selector
-    public static ChainBuilder<TMainRoot, TBranchType, TNext> Then<TMainRoot, TBranchType, TValue, TNext>(
-        this ChainBuilder<TMainRoot, TBranchType, TValue> builder, Func<TValue, IValueProp<TNext>> selector)
+    public static Func<TRoot, TNext> Append<TRoot, TValue, TNext>(this Func<TRoot, TValue> start,
+        Func<TValue, TNext> selector) =>
+        root => selector(start(root));
+
+    public static Func<TRoot, TNext> AppendValue<TRoot, TRes, TNext>(this Func<TRoot, TRes> start,
+        Func<TRes, IValueProp<TNext>> selector) =>
+        root => selector(start(root)).Value;
+
+    public static Func<TRoot, IEnumerable<TNext>> Append<TRoot, TValue, TNext>(
+        this Func<TRoot, IEnumerable<TValue>> start,
+        Func<TValue, IValueProp<TNext>> selector) =>
+        root => start(root).Select(x => selector(x).Value);
+
+    #region Values
+
+    public static ChainBuilder<TMainRoot, TBranchType, TNext, TNext> Then<TMainRoot, TBranchType, TNext, TRes>(
+        this ChainBuilder<TMainRoot, TBranchType, TRes, TRes> builder, Func<TRes, IValueProp<TNext>> selector)
         where TBranchType : IBranchType
     {
-        throw new NotImplementedException();
+        return new()
+        {
+            RootNode = builder.RootNode,
+            Node = new ValueNode<TRes, TNext>(selector, builder.RootNode),
+            ChainGetter = builder.ChainGetter.AppendValue(selector) //x => selector(builder.ChainGetter(x)).Value
+        };
     }
-
-    public static ChainBuilder<TMainRoot, TBranchType, TNext> ThenConstant<TMainRoot, TBranchType, TValue, TNext>(
-        this ChainBuilder<TMainRoot, TBranchType, TValue> builder, Func<TValue, TNext> selector)
+    
+    public static ChainBuilder<TMainRoot, TBranchType, TNext, IEnumerable<TNext>> Then2<TMainRoot, TBranchType, TValue, TNext>(
+        this ChainBuilder<TMainRoot, TBranchType, TValue, IEnumerable<TValue>> builder, Func<TValue, IValueProp<TNext>> selector)
         where TBranchType : IBranchType
     {
-        throw new NotImplementedException();
+        return new()
+        {
+            RootNode = builder.RootNode,
+            Node = new ValueNode<TValue, TNext>(selector, builder.RootNode),
+            ChainGetter = builder.ChainGetter.Append(selector)
+        };
     }
 
-    #region Enumerable
-
-    private static ChainBuilder<TMainRoot, TBranchType, TValue> Enter<TMainRoot, TBranchType, TSet, TValue>(
-        this ChainBuilder<TMainRoot, TBranchType, TSet> builder)
-        where TSet : IEnumerable<TValue> where TBranchType : IBranchType
+    public static ChainBuilder<TMainRoot, TBranchType, TNext, TNext> ThenConstant<TMainRoot, TBranchType, TValue, TNext, TRes>(
+        this ChainBuilder<TMainRoot, TBranchType, TValue, TRes> builder, Func<TValue, TNext> selector)
+        where TBranchType : IBranchType
     {
-        throw new NotImplementedException();
+        return new()
+        {
+            RootNode = builder.RootNode,
+            Node = new ConstantNode<TValue, TNext>(selector, builder.RootNode),
+            ChainGetter = builder.ChainGetter.Append(selector)
+        };
     }
 
-    // type inference proxy
-    public static ChainBuilder<TMainRoot, TBranchType, TValue> Enter<TMainRoot, TBranchType, TValue>(
-        this ChainBuilder<TMainRoot, TBranchType, IEnumerable<TValue>> builder) where TBranchType : IBranchType =>
-        builder.Enter<TMainRoot, TBranchType, IEnumerable<TValue>, TValue>();
+    #endregion
 
-    public static ChainBuilder<TMainRoot, TBranchType, TValue> Enter<TMainRoot, TBranchType, TValue>(
-        this ChainBuilder<TMainRoot, TBranchType, IListProp<TValue>> builder) where TBranchType : IBranchType =>
-        builder.Enter<TMainRoot, TBranchType, IListProp<TValue>, TValue>();
+    #region Collections
 
-    public static ChainBuilder<TMainRoot, TBranchType, TValue> Enter<TMainRoot, TBranchType, TValue, TKey>(
-        this ChainBuilder<TMainRoot, TBranchType, IMap<TValue, TKey>> builder)
+    private static ChainBuilder<TMainRoot, TBranchType, TValue, IEnumerable<TValue>>
+        EnterExplicit<TMainRoot, TBranchType, TSet, TValue, TResult>(
+            this ChainBuilder<TMainRoot, TBranchType, TSet, TResult> builder)
+        where TSet : class, IEnumerable<TValue> where TBranchType : IBranchType
+    {
+        return new()
+        {
+            RootNode = builder.RootNode,
+            Node = new CollectionNode<TSet, TValue>(builder.RootNode),
+            ChainGetter = builder.ChainGetter
+        };
+    }
+
+    // type inference proxies
+    public static ChainBuilder<TMainRoot, TBranchType, TValue, IEnumerable<TValue>> Enter<TMainRoot, TBranchType,
+        TValue, TResult>(
+        this ChainBuilder<TMainRoot, TBranchType, IEnumerable<TValue>, TResult> builder)
+        where TBranchType : IBranchType =>
+        builder.EnterExplicit<TMainRoot, TBranchType, IEnumerable<TValue>, TValue, TResult>();
+
+    public static ChainBuilder<TMainRoot, TBranchType, TValue, IEnumerable<TValue>> Enter<TMainRoot, TBranchType, TValue, TResult>(
+        this ChainBuilder<TMainRoot, TBranchType, IListProp<TValue>, TResult> builder) where TBranchType : IBranchType =>
+        builder.EnterExplicit<TMainRoot, TBranchType, IListProp<TValue>, TValue, TResult>();
+
+    public static ChainBuilder<TMainRoot, TBranchType, TValue, IEnumerable<TValue>> Enter<TMainRoot, TBranchType, TValue, TKey, TResult>(
+        this ChainBuilder<TMainRoot, TBranchType, IMap<TValue, TKey>, TResult> builder)
         where TKey : notnull where TBranchType : IBranchType =>
-        builder.Enter<TMainRoot, TBranchType, IMap<TValue, TKey>, TValue>();
+        builder.EnterExplicit<TMainRoot, TBranchType, IMap<TValue, TKey>, TValue, TResult>();
 
     #endregion
 
     #region Maps
 
-    public static ChainBuilder<TMainRoot, TBranchType, TValue> EnterAt<TMainRoot, TBranchType, TValue, TKey>(
-        this ChainBuilder<TMainRoot, TBranchType, IMap<TValue, TKey>> builder, TKey key)
+    public static ChainBuilder<TMainRoot, TBranchType, TValue, TValue> EnterAt<TMainRoot, TBranchType, TValue, TKey,
+        TResult>(
+        this ChainBuilder<TMainRoot, TBranchType, IMap<TValue, TKey>, TResult> builder, TKey key)
         where TKey : notnull where TBranchType : IBranchType =>
-        builder.Enter<TMainRoot, TBranchType, IMap<TValue, TKey>, TValue>();
+        throw new NotImplementedException();
+        //builder.Enter<TMainRoot, TBranchType, IMap<TValue, TKey>, TValue, TResult>();
 
     #endregion
 
     #region Branching
 
-    public static ChainBuilder<TMainRoot, RootBranch, (TNext1, TNext2)> Branch<TMainRoot, TBranchType, TValue, TNext1,
-        TNext2>(
-        this ChainBuilder<TMainRoot, TBranchType, TValue> builder,
-        Func<ChainBuilder<TMainRoot, InnerBranch, TValue>, ChainBuilder<TMainRoot, InnerBranch, TNext1>> selector1,
-        Func<ChainBuilder<TMainRoot, InnerBranch, TValue>, ChainBuilder<TMainRoot, InnerBranch, TNext2>> selector2)
+    // todo: should return finalizable
+    public static ChainBuilder<TMainRoot, RootBranch, IEnumerable<(TNext1, TNext2)>, IEnumerable<(TRes1, TRes2)>>
+        Branch<TMainRoot, TBranchType, TValue, TRes, TNext1, TRes1, TNext2, TRes2>(
+        this ChainBuilder<TMainRoot, TBranchType, TValue, TRes> builder,
+        Func<ChainBuilder<TMainRoot, InnerBranch, TValue, TRes>, ChainBuilder<TMainRoot, InnerBranch, TNext1, TRes1>> selector1,
+        Func<ChainBuilder<TMainRoot, InnerBranch, TValue, TRes>, ChainBuilder<TMainRoot, InnerBranch, TNext2, TRes2>> selector2)
         where TBranchType : IBranchType =>
         throw new NotImplementedException();
 
@@ -242,8 +312,8 @@ public static class ChainBuilderActions
 
     #region Finalization
 
-    public static IComputed<TValue> AsComputed<TMainRoot, TValue>(
-        this ChainBuilder<TMainRoot, RootBranch, TValue> builder) =>
+    public static IComputed<TRes> AsComputed<TMainRoot, TValue, TRes>(
+        this ChainBuilder<TMainRoot, RootBranch, TValue, TRes> builder) =>
         throw new NotImplementedException();
 
     #endregion

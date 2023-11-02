@@ -7,26 +7,36 @@
 // namespace PropReact.Tests;
 //
 
+
 public static class Extensions
 {
     public static void asdf<T>(this List<IEnumerable<T>> e) {}
 }
 
+class Mutable<Tv>
+{
+    public Mutable(Tv value)
+    {
+        Value = value;
+    }
+
+    private Tv Value { get; set; }
+}
+
 public class T
 {
+    private Mutable<string> V { get; set; } = new("");
+    // private ReactiveList<string> Vl { get; set; }
+    // private ReactiveMap<string> Vl { get; set; }
+    
     [Fact]
     public void NullExtension()
     {
-        ICallable i = null!;
-        i.Call();
     }
 
     [Fact]
     public void t1()
     {
-        var list = new List<List<string>>();
-        list.asdf();
-        t2(arg => list);
     }
 
     public void t2<Tvalue>(Func<T, IEnumerable<Tvalue>> action)

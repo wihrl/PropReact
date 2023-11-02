@@ -3,7 +3,7 @@ using PropReact.Props.Value;
 
 namespace PropReact.Chain.Nodes;
 
-public sealed class ValueNode<TSource, TValue> : ChainNodeBase<TValue>, IPropObserver<TValue>, IChainNode<TSource>
+public sealed class ValueNode<TSource, TValue> : ChainNode<TValue>, IPropObserver<TValue>, IChainNode<TSource>
 {
     private readonly Func<TSource, IValueProp<TValue>> _getter;
     public ValueNode(Func<TSource, IValueProp<TValue>> getter, IRootNode root) : base(root) => _getter = getter;
