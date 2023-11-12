@@ -1,15 +1,18 @@
 ﻿namespace PropReact.Chain.Nodes;
 
-public class RootNode<TRoot> : ChainNode<TRoot>, IDisposable, IChainNode<TRoot>, IRootNode
+public class RootNodeSource<TRoot> : ChainNode<TRoot>, IDisposable, IChainNodeSource<TRoot>, IRootNode
 {
-    public Reaction? Reaction { get; private set; }
     private readonly TRoot _root;
+    private Action? _changeCallback;
 
-    public RootNode(TRoot root) : base(null!) => _root = root;
+    public RootNodeSource(TRoot root) : base(null!) => _root = root;
 
-    public void Initialize(Reaction reaction)
+    public void Attach(Action reaction)
     {
-        Reaction = reaction;
+        if (_changeCallback is not null)
+            throw new("Chain is already attached.");
+        
+        _changeCallback = reaction;
         foreach (var chainNode in Next) chainNode.ChangeSource(default, _root);
     }
 
@@ -19,10 +22,10 @@ public class RootNode<TRoot> : ChainNode<TRoot>, IDisposable, IChainNode<TRoot>,
     }
 
     public void ChangeSource(TRoot? oldValue, TRoot? newValue) => throw new NotImplementedException();
-    public void Changed() => Reaction?.Invoke();
+    public void ChainChanged() => _changeCallback?.Invoke();
 }
 
 public interface IRootNode
 {
-    public void Changed();
+    public void ChainChanged();
 }

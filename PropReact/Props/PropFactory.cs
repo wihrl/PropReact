@@ -225,14 +225,19 @@ public static class Prop
     //     root.CreateChain()
     // }
 
-    public static ChainBuilder<TRoot, RootBranch, TRoot> Watch<TRoot>([NotNull] TRoot root) where TRoot : notnull
+    public static ChainBuilder<TRoot, RootBranch, TRoot> Watch<TRoot>(
+        [NotNull] TRoot root,
+        [CallerArgumentExpression(nameof(root))]
+        string? rootExpression = null) where TRoot : notnull
     {
-        var rootNode = new RootNode<TRoot>(root);
-        return new()
-        {
-            Node = rootNode,
-            RootNode = rootNode
-        };
+#if DEBUG
+        if (rootExpression != "this")
+            throw new ArgumentException("Observing must always start in the local object. Pass `this` as root.",
+                nameof(root));
+#endif
+
+        var rootNode = new RootNodeSource<TRoot>(root);
+        return new(rootNode, rootNode);
     }
 
     // public static ChainBuilder<TValue> Watch<TRoot, TValue>([NotNull] TRoot root,

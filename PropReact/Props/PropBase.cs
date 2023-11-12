@@ -1,6 +1,6 @@
 ﻿namespace PropReact.Props;
 
-internal abstract class PropBase<TValue> : IProp<TValue>
+public abstract class PropBase<TValue> : IProp<TValue>
 {
     // do not create hashset until it is actually needed
     private HashSet<IPropObserver<TValue>>? _observers;

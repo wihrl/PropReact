@@ -4,15 +4,11 @@ using PropReact.Chain.Nodes;
 using PropReact.Props;
 using PropReact.Props.Collections;
 using PropReact.Props.Value;
-using PropReact.Selectors;
 
 namespace PropReact.Tests;
 
 public partial class ManualChainBuild
 {
-    string LambdaToString<TA, TB>(Func<TA, TB> func, [CallerArgumentExpression(nameof(func))] string? s = null) => s;
-
-
     [Fact]
     public void Simple()
     {
@@ -24,7 +20,6 @@ public partial class ManualChainBuild
         //         .Chain(x => x.C)
         //         .Chain(x => x.D1));
 
-        Reaction r = () => { };
         A root = null!;
 
 
@@ -125,7 +120,7 @@ public partial class ManualChainBuild
             .Enter()
             .Then(x => x.E1)
             .Immediate()
-            .ToComputed();
+            .Compute(() => root.B.Value.C.Value.Ele.Select(x => x.Select(y => y.E1.v)), out var d0);
 
         // value prop if enumerable or list
         // new ReactiveChain<A>(root => root
@@ -135,12 +130,13 @@ public partial class ManualChainBuild
         //     .Enter()
         //     .Chain(x => x.D1));
 
-        var p3 = Prop.Watch(root)
+        Prop.Watch(root)
             .Then(x => x.B)
             .Then(x => x.ListOfC)
             .Enter()
             .Then(x => x.D1)
-            .ToComputed();
+            .Immediate()
+            .React(() => {});
 
         //IEnumerable<IMap<string, C>> a = root.B.Value.IListOfC.Value[0];
 
@@ -151,7 +147,7 @@ public partial class ManualChainBuild
             .Enter()
             .Enter()
             .Then(x => x.D1)
-            .ToComputed();
+            .Immediate();
 
 
         var p5 = Prop.Watch(root)
@@ -160,13 +156,15 @@ public partial class ManualChainBuild
             .ThenConstant(x => x.Emap)
             .EnterAt("asdf")
             .Then(x => x.E1)
-            .ToComputed();
+            .Immediate();
 
         var p6 = Prop.Watch(root)
             .Then(x => x.Blist)
             .Enter()
             .Then(x => x.C)
-            .ToComputed();
+            .Immediate()
+            .Compute(() => "", out var d1)
+            .Start();
 
         // new RootNode<A>(root, r)
         // {

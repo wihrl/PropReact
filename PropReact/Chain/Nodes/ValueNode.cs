@@ -3,20 +3,20 @@ using PropReact.Props.Value;
 
 namespace PropReact.Chain.Nodes;
 
-public sealed class ValueNode<TSource, TValue> : ChainNode<TValue>, IPropObserver<TValue>, IChainNode<TSource>
+public sealed class ValueNodeSource<TSource, TValue> : ChainNode<TValue>, IPropObserver<TValue>, IChainNodeSource<TSource>
 {
     private readonly Func<TSource, IValueProp<TValue>> _getter;
-    public ValueNode(Func<TSource, IValueProp<TValue>> getter, IRootNode root) : base(root) => _getter = getter;
+    public ValueNodeSource(Func<TSource, IValueProp<TValue>> getter, IRootNode root) : base(root) => _getter = getter;
 
     public void PropChanged(TValue? oldValue, TValue? newValue)
     {
         foreach (var chainNode in Next)
             chainNode.ChangeSource(oldValue, newValue);
 
-        Root.Changed();
+        Root.ChainChanged();
     }
 
-    void IChainNode<TSource>.ChangeSource(TSource? oldSource, TSource? newSource)
+    void IChainNodeSource<TSource>.ChangeSource(TSource? oldSource, TSource? newSource)
     {
         // todo: test nullability of API
 

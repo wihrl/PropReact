@@ -2,9 +2,8 @@
 
 namespace PropReact.Props.Collections;
 
-public interface IListProp<out TValue> : IKeyedCollectionProp<TValue, int>, IList<TValue>
+public interface IListProp<TValue> : IKeyedCollectionProp<TValue, int>, IList<TValue>
 {
-    new int Count { get; }
 }
 
 internal sealed class ListProp<TValue> : CollectionPropBase<TValue, int>, IListProp<TValue>
