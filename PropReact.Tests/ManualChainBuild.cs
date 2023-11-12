@@ -90,14 +90,14 @@ public partial class ManualChainBuild
         //Prop.Watch(root, r => r.B.C.El.Select(x => x.E1));
 
         Prop.Watch(root)
-            .Then(x => x.B)
-            .Then(x => x.C)
+            .ChainValue(x => x.B)
+            .ChainValue(x => x.C)
             .Branch(
-                b => b.ThenConstant(x => x.El).Enter().Then(x => x.E1),
+                b => b.ChainConstant(x => x.El).Enter().ChainValue(x => x.E1),
                 b =>
                     b.Branch(
-                        b2 => b2.Then(x => x.D1),
-                        b2 => b2.Then(x => x.D2))
+                        b2 => b2.ChainValue(x => x.D1),
+                        b2 => b2.ChainValue(x => x.D2))
             )
             .Immediate()
             .React(() => { });
@@ -113,12 +113,12 @@ public partial class ManualChainBuild
         // .Chain(x => x.E1));
 
         var p2 = Prop.Watch(root)
-            .Then(x => x.B)
-            .Then(x => x.C)
-            .ThenConstant(x => x.Ele)
+            .ChainValue(x => x.B)
+            .ChainValue(x => x.C)
+            .ChainConstant(x => x.Ele)
             .Enter()
             .Enter()
-            .Then(x => x.E1)
+            .ChainValue(x => x.E1)
             .Immediate()
             .Compute(() => root.B.Value.C.Value.Ele.Select(x => x.Select(y => y.E1.v)), out var d0);
 
@@ -131,37 +131,37 @@ public partial class ManualChainBuild
         //     .Chain(x => x.D1));
 
         Prop.Watch(root)
-            .Then(x => x.B)
-            .Then(x => x.ListOfC)
+            .ChainValue(x => x.B)
+            .ChainValue(x => x.ListOfC)
             .Enter()
-            .Then(x => x.D1)
+            .ChainValue(x => x.D1)
             .Immediate()
             .React(() => {});
 
         //IEnumerable<IMap<string, C>> a = root.B.Value.IListOfC.Value[0];
 
         var p4 = Prop.Watch(root)
-            .Then(x => x.B)
-            .Then(x => x.IListOfC)
+            .ChainValue(x => x.B)
+            .ChainValue(x => x.IListOfC)
             .Enter()
             .Enter()
             .Enter()
-            .Then(x => x.D1)
+            .ChainValue(x => x.D1)
             .Immediate();
 
 
         var p5 = Prop.Watch(root)
-            .Then(x => x.B)
-            .Then(x => x.C)
-            .ThenConstant(x => x.Emap)
+            .ChainValue(x => x.B)
+            .ChainValue(x => x.C)
+            .ChainConstant(x => x.Emap)
             .EnterAt("asdf")
-            .Then(x => x.E1)
+            .ChainValue(x => x.E1)
             .Immediate();
 
         var p6 = Prop.Watch(root)
-            .Then(x => x.Blist)
+            .ChainValue(x => x.Blist)
             .Enter()
-            .Then(x => x.C)
+            .ChainValue(x => x.C)
             .Immediate()
             .Compute(() => "", out var d1)
             .Start();

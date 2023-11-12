@@ -17,7 +17,7 @@ public abstract class Reaction<TRoot> : IReactionBuilder<TRoot>
 {
     protected event Action? Reactions;
     protected event Action<CancellationToken>? AsyncReactions;
-    protected CancellationTokenSource _cts = new();
+    private CancellationTokenSource _cts = new();
 
     private readonly RootNodeSource<TRoot> _root;
     internal Reaction(RootNodeSource<TRoot> root) => _root = root;

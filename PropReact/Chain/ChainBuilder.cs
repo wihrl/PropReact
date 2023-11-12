@@ -34,8 +34,8 @@ public static class ChainBuilderActions
 {
     #region Values
 
-    public static ChainBuilder<TMainRoot, TBranchType, TNext> Then<TMainRoot, TBranchType, TValue, TNext>(
-        this ChainBuilder<TMainRoot, TBranchType, TValue> builder, Func<TValue, IValueProp<TNext>> selector,
+    public static ChainBuilder<TMainRoot, TBranchType, TNext> ChainValue<TMainRoot, TBranchType, TValue, TNext>(
+        this ChainBuilder<TMainRoot, TBranchType, TValue> builder, Func<TValue, IValueProp<TNext?>> selector,
         [CallerArgumentExpression(nameof(selector))]
         string? expression = null)
         where TBranchType : IBranchType
@@ -59,7 +59,7 @@ public static class ChainBuilderActions
         );
     }
 
-    public static ChainBuilder<TMainRoot, TBranchType, TNext> ThenConstant<TMainRoot, TBranchType, TValue, TNext>(
+    public static ChainBuilder<TMainRoot, TBranchType, TNext> ChainConstant<TMainRoot, TBranchType, TValue, TNext>(
         this ChainBuilder<TMainRoot, TBranchType, TValue> builder, Func<TValue, TNext> selector)
         where TBranchType : IBranchType
     {
@@ -81,9 +81,12 @@ public static class ChainBuilderActions
             this ChainBuilder<TMainRoot, TBranchType, TSet> builder)
         where TSet : class, IEnumerable<TValue> where TBranchType : IBranchType
     {
+        var nextNode = new CollectionNodeSource<TSet, TValue>(builder.RootNodeSource);
+        builder.Node.Add(nextNode);
+        
         return new(
             builder.RootNodeSource,
-            new CollectionNodeSource<TSet, TValue>(builder.RootNodeSource)
+            nextNode    
         );
     }
 

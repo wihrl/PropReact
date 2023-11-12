@@ -19,6 +19,6 @@ public class ValidationTests
     private void ChainedExpression()
     {
         var builder = Prop.Watch(this);
-        Assert.Throws<ArgumentException>(() => builder.Then(x => x.Data.Int));
+        Assert.Throws<ArgumentException>(() => builder.ChainValue(x => x.Data.Int));
     }
 }
