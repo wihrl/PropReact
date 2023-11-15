@@ -1,4 +1,60 @@
-﻿// namespace PropReact.Tests;
+﻿
+
+
+using PropReact.Chain;
+using PropReact.Props;
+using PropReact.Tests.Value;
+
+namespace PropReact.Tests;
+
+public class CollectionTests
+{
+    private ListData Data { get; } = new();
+    
+    [Fact]
+    public void ListSimple()
+    {
+        var changes = 0;
+        Prop.Watch(this)
+            .ChainConstant(x => x.Data.Records)
+            .Enter()
+            .Immediate()
+            .React(() => changes++)
+            .Start();
+
+        Assert.Equal(0, changes);
+        
+        Data.Records.Add(new());
+        Data.Records.Clear();
+        Assert.Equal(2, changes);
+    }
+
+    [Fact]
+    public void ListAsValue()
+    {
+        
+    }
+
+    [Fact]
+    public void ListEnteredChain()
+    {
+        
+    }
+
+    [Fact]
+    public void ListRepeatedValues()
+    {
+        
+    }
+
+    [Fact]
+    public void ListWatchAt()
+    {
+        
+    }
+}
+
+// namespace PropReact.Tests;
 //
 // public class CollectionTests
 // {
