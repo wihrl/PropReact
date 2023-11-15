@@ -20,7 +20,7 @@ public struct InnerBranch : IBranchType
 
 public class ChainBuilder<TRoot, TBranchType, TValue> where TBranchType : IBranchType
 {
-    public ChainBuilder(RootNodeSource<TRoot> rootNodeSource, ChainNode<TValue> node)
+    internal ChainBuilder(RootNodeSource<TRoot> rootNodeSource, ChainNode<TValue> node)
     {
         RootNodeSource = rootNodeSource;
         Node = node;
@@ -51,7 +51,7 @@ public static class ChainBuilder
 #endif
 
         var nextNode = new ValueNodeSource<TValue, TNext>(selector, builder.RootNodeSource);
-        builder.Node.Add(nextNode);
+        builder.Node.Chain(nextNode);
 
         return new(
             builder.RootNodeSource,
@@ -64,7 +64,7 @@ public static class ChainBuilder
         where TBranchType : IBranchType
     {
         var nextNode = new ConstantNodeSource<TValue, TNext>(selector, builder.RootNodeSource);
-        builder.Node.Add(nextNode);
+        builder.Node.Chain(nextNode);
 
         return new(
             builder.RootNodeSource,
@@ -81,7 +81,7 @@ public static class ChainBuilder
         where TSet : class, IEnumerable<TValue> where TBranchType : IBranchType
     {
         var nextNode = new CollectionNodeSource<TSet, TValue>(builder.RootNodeSource);
-        builder.Node.Add(nextNode);
+        builder.Node.Chain(nextNode);
 
         return new(
             builder.RootNodeSource,

@@ -36,3 +36,9 @@ todo:
 
 - remove navigation properties, instead allow watching collection keys in computed properties (
   x.Parent.SomeCollection[Key])
+
+current limitations:
+ - manual reactive chain creation
+ - no bulk updates for collections (.Clear() updates n-times)
+ - no type inference for selected expressions
+   - updates triggered for or changes along the chain, not just the result

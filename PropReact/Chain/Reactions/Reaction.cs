@@ -9,11 +9,11 @@ public interface IReactionBuilder<TRoot>
     IReactionBuilder<TRoot> ReactAsync(Action<CancellationToken> action, bool runNow = false);
     IReactionBuilder<TRoot> Compute<TValue>(Func<TValue> getter, out IDisposable disposable);
     IReactionBuilder<TRoot> ComputeAsync<TValue>(Func<CancellationToken, Task<TValue>> getter);
-    IDisposable Start();
+    IDisposable StartDisposable();
     void Start(ICompositeDisposable disposable);
 }
 
-internal abstract class Reaction<TRoot> : IReactionBuilder<TRoot>
+abstract class Reaction<TRoot> : IReactionBuilder<TRoot>
 {
     protected event Action? Reactions;
     protected event Action<CancellationToken>? AsyncReactions;
@@ -50,7 +50,7 @@ internal abstract class Reaction<TRoot> : IReactionBuilder<TRoot>
         throw new NotImplementedException();
     }
 
-    IDisposable IReactionBuilder<TRoot>.Start()
+    IDisposable IReactionBuilder<TRoot>.StartDisposable()
     {
         _root.Attach(Trigger);
         return _root;
@@ -58,7 +58,7 @@ internal abstract class Reaction<TRoot> : IReactionBuilder<TRoot>
 
     void IReactionBuilder<TRoot>.Start(ICompositeDisposable disposable)
     {
-        disposable.AddDisposable(((IReactionBuilder<TRoot>) this).Start());
+        disposable.AddDisposable(((IReactionBuilder<TRoot>) this).StartDisposable());
     }
 
     protected abstract void Trigger();

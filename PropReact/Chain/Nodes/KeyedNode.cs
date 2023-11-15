@@ -3,7 +3,7 @@ using PropReact.Props.Collections;
 
 namespace PropReact.Chain.Nodes;
 
-public sealed class KeyedNodeSource<TSource, TValue, TKey> : ChainNode<TValue>, IPropObserver<TValue>, IChainNodeSource<TSource>
+class KeyedNodeSource<TSource, TValue, TKey> : ChainNode<TValue>, IPropObserver<TValue>, ISourceOnlyChainNode<TSource>
     where TKey : notnull
 {
     private readonly TKey _key;
@@ -22,7 +22,7 @@ public sealed class KeyedNodeSource<TSource, TValue, TKey> : ChainNode<TValue>, 
         Root.ChainChanged();
     }
 
-    void IChainNodeSource<TSource>.ChangeSource(TSource? oldSource, TSource? newSource)
+    void ISourceOnlyChainNode<TSource>.ChangeSource(TSource? oldSource, TSource? newSource)
     {
         var oldValue = oldSource is null ? null : _getter(oldSource);
         var newValue = newSource is null ? null : _getter(newSource);

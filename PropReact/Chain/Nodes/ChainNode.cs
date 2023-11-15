@@ -4,22 +4,17 @@ using PropReact.Props.Value;
 
 namespace PropReact.Chain.Nodes;
 
-public abstract class ChainNode<TValue> : IEnumerable<IChainNodeSource<TValue>>
+abstract class ChainNode<TValue>
 {
-    public readonly IRootNode Root;
+    protected readonly IRootNode Root;
     protected ChainNode(IRootNode root) => Root = root;
 
-    public List<IChainNodeSource<TValue>> Next { protected get; init; } = new();
-    
-    public IEnumerator<IChainNodeSource<TValue>> GetEnumerator() => Next.GetEnumerator();
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-    // todo: remove?
-    public void Add(IChainNodeSource<TValue> next) => Next.Add(next);
+    protected readonly List<ISourceOnlyChainNode<TValue>> Next = new();
+    internal void Chain(ISourceOnlyChainNode<TValue> next) => Next.Add(next);
 }
 
-// todo: maybe remove?
-public interface IChainNodeSource<TSource>
+
+interface ISourceOnlyChainNode<TSource>
 {
     void ChangeSource(TSource? oldValue, TSource? newValue);
 }

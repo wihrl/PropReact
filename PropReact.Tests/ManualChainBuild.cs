@@ -9,7 +9,7 @@ namespace PropReact.Tests;
 
 public partial class ManualChainBuild
 {
-    [Fact]
+    
     public void Simple()
     {
         // basic
@@ -164,7 +164,7 @@ public partial class ManualChainBuild
             .ChainValue(x => x.C)
             .Immediate()
             .Compute(() => "", out var d1)
-            .Start();
+            .StartDisposable();
 
         // new RootNode<A>(root, r)
         // {

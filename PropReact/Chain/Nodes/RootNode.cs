@@ -1,6 +1,6 @@
 ﻿namespace PropReact.Chain.Nodes;
 
-public class RootNodeSource<TRoot> : ChainNode<TRoot>, IDisposable, IChainNodeSource<TRoot>, IRootNode
+class RootNodeSource<TRoot> : ChainNode<TRoot>, IDisposable, ISourceOnlyChainNode<TRoot>, IRootNode
 {
     private readonly TRoot _root;
     private Action? _changeCallback;
@@ -21,7 +21,7 @@ public class RootNodeSource<TRoot> : ChainNode<TRoot>, IDisposable, IChainNodeSo
         foreach (var chainNode in Next) chainNode.ChangeSource(_root, default);
     }
 
-    public void ChangeSource(TRoot? oldValue, TRoot? newValue) => throw new NotImplementedException();
+    void ISourceOnlyChainNode<TRoot>.ChangeSource(TRoot? oldValue, TRoot? newValue) => throw new NotImplementedException();
     public void ChainChanged() => _changeCallback?.Invoke();
 }
 

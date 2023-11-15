@@ -2,7 +2,7 @@
 
 namespace PropReact.Chain.Nodes;
 
-public class CollectionNodeSource<TSet, TValue> : ChainNode<TValue>, IChainNodeSource<TSet>, IPropObserver<TValue>
+class CollectionNodeSource<TSet, TValue> : ChainNode<TValue>, ISourceOnlyChainNode<TSet>, IPropObserver<TValue>
     where TSet : class, IEnumerable<TValue>
 {
     public CollectionNodeSource(IRootNode root) : base(root)
@@ -22,7 +22,7 @@ public class CollectionNodeSource<TSet, TValue> : ChainNode<TValue>, IChainNodeS
             chainNode.ChangeSource(oldValue, newValue);
     }
 
-    void IChainNodeSource<TSet>.ChangeSource(TSet? oldSource, TSet? newSource)
+    void ISourceOnlyChainNode<TSet>.ChangeSource(TSet? oldSource, TSet? newSource)
     {
         var oldProp = oldSource as IProp<TValue>;
         var newProp = newSource as IProp<TValue>;
