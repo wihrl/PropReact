@@ -30,7 +30,7 @@ public class ChainBuilder<TRoot, TBranchType, TValue> where TBranchType : IBranc
     internal ChainNode<TValue> Node { get; }
 }
 
-public static class ChainBuilderActions
+public static class ChainBuilder
 {
     #region Values
 
@@ -76,9 +76,8 @@ public static class ChainBuilderActions
 
     #region Collections
 
-    private static ChainBuilder<TMainRoot, TBranchType, TValue>
-        EnterExplicit<TMainRoot, TBranchType, TSet, TValue>(
-            this ChainBuilder<TMainRoot, TBranchType, TSet> builder)
+    public static ChainBuilder<TMainRoot, TBranchType, TValue>
+        EnterExplicit<TMainRoot, TBranchType, TSet, TValue>(ChainBuilder<TMainRoot, TBranchType, TSet> builder)
         where TSet : class, IEnumerable<TValue> where TBranchType : IBranchType
     {
         var nextNode = new CollectionNodeSource<TSet, TValue>(builder.RootNodeSource);
@@ -97,16 +96,20 @@ public static class ChainBuilderActions
         TValue>(
         this ChainBuilder<TMainRoot, TBranchType, IEnumerable<TValue>> builder)
         where TBranchType : IBranchType =>
-        builder.EnterExplicit<TMainRoot, TBranchType, IEnumerable<TValue>, TValue>();
+        EnterExplicit<TMainRoot, TBranchType, IEnumerable<TValue>, TValue>(builder);
 
     public static ChainBuilder<TMainRoot, TBranchType, TValue> Enter<TMainRoot, TBranchType, TValue>(
-        this ChainBuilder<TMainRoot, TBranchType, IListProp<TValue>> builder) where TBranchType : IBranchType =>
-        builder.EnterExplicit<TMainRoot, TBranchType, IListProp<TValue>, TValue>();
+        this ChainBuilder<TMainRoot, TBranchType, IReactiveList<TValue>> builder) where TBranchType : IBranchType =>
+        EnterExplicit<TMainRoot, TBranchType, IReactiveList<TValue>, TValue>(builder);
+
+    public static ChainBuilder<TMainRoot, TBranchType, TValue> Enter<TMainRoot, TBranchType, TValue>(
+        this ChainBuilder<TMainRoot, TBranchType, ReactiveList<TValue>> builder) where TBranchType : IBranchType =>
+        EnterExplicit<TMainRoot, TBranchType, ReactiveList<TValue>, TValue>(builder);
 
     public static ChainBuilder<TMainRoot, TBranchType, TValue> Enter<TMainRoot, TBranchType, TValue, TKey>(
-        this ChainBuilder<TMainRoot, TBranchType, IMap<TValue, TKey>> builder)
+        this ChainBuilder<TMainRoot, TBranchType, IReactiveMap<TValue, TKey>> builder)
         where TKey : notnull where TBranchType : IBranchType =>
-        builder.EnterExplicit<TMainRoot, TBranchType, IMap<TValue, TKey>, TValue>();
+        EnterExplicit<TMainRoot, TBranchType, IReactiveMap<TValue, TKey>, TValue>(builder);
 
     #endregion
 
@@ -115,7 +118,7 @@ public static class ChainBuilderActions
     #region Maps
 
     public static ChainBuilder<TMainRoot, TBranchType, TValue> EnterAt<TMainRoot, TBranchType, TValue, TKey>(
-        this ChainBuilder<TMainRoot, TBranchType, IMap<TValue, TKey>> builder, TKey key)
+        this ChainBuilder<TMainRoot, TBranchType, IReactiveMap<TValue, TKey>> builder, TKey key)
         where TKey : notnull where TBranchType : IBranchType =>
         throw new NotImplementedException();
     //builder.Enter<TMainRoot, TBranchType, IMap<TValue, TKey>, TValue>();

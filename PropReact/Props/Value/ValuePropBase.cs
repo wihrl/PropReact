@@ -1,6 +1,6 @@
 ﻿namespace PropReact.Props.Value;
 
-internal abstract class ValuePropBase<TValue> : PropBase<TValue>
+public abstract class ValuePropBase<TValue> : PropBase<TValue>
 {
     protected TValue _value;
 

@@ -204,7 +204,7 @@ partial class B
     public readonly IMutable<C> C;
 
     public readonly IMutable<IEnumerable<C>> ListOfC;
-    public readonly IMutable<IListProp<IEnumerable<IMap<C, string>>>> IListOfC;
+    public readonly IMutable<IReactiveList<IEnumerable<IReactiveMap<C, string>>>> IListOfC;
 }
 
 partial class C
@@ -215,9 +215,9 @@ partial class C
     public readonly IMutable<D> D2;
     public readonly IEnumerable<D> Dl;
 
-    public IListProp<E> El { get; }
-    public IMap<E, string> Emap { get; }
-    public IListProp<IEnumerable<E>> Ele { get; }
+    public IReactiveList<E> El { get; }
+    public IReactiveMap<E, string> Emap { get; }
+    public IReactiveList<IEnumerable<E>> Ele { get; }
     public IEnumerable<E> Ee { get; }
 }
 

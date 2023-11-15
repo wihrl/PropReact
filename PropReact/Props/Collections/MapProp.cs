@@ -3,7 +3,7 @@ using PropReact.Props.Value;
 
 namespace PropReact.Props.Collections;
 
-public interface IMap<TValue, TKey> : IKeyedCollectionProp<TValue, TKey>
+public interface IReactiveMap<TValue, TKey> : IKeyedCollectionProp<TValue, TKey>
     where TKey : notnull
 {
     bool ContainsKey(TKey key);
@@ -15,18 +15,18 @@ public interface IMap<TValue, TKey> : IKeyedCollectionProp<TValue, TKey>
     bool Remove(TValue value);
 }
 
-internal class CollectionProp<TValue, TKey> : CollectionPropBase<TValue, TKey>, IMap<TValue, TKey> where TKey : notnull
+public class ReactiveMap<TValue, TKey> : CollectionPropBase<TValue, TKey>, IReactiveMap<TValue, TKey> where TKey : notnull
 {
     private readonly Dictionary<TKey, TValue> _dictionary;
     private readonly Func<TValue, TKey> _keySelector;
 
-    public CollectionProp(Func<TValue, TKey> keySelector)
+    public ReactiveMap(Func<TValue, TKey> keySelector)
     {
         _keySelector = keySelector;
         _dictionary = new();
     }
 
-    public CollectionProp(Func<TValue, TKey> keySelector, IEnumerable<TValue> existing)
+    public ReactiveMap(Func<TValue, TKey> keySelector, IEnumerable<TValue> existing)
     {
         _keySelector = keySelector;
         _dictionary = existing.ToDictionary(keySelector);

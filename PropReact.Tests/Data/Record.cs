@@ -7,9 +7,7 @@ public class Record
 {
     public Guid Id { get; } = Guid.NewGuid();
 
-    public readonly IMutable<string> Text;
-    public readonly IMutable<int> Rating;
-    public readonly IMutable<Record?> Related;
-
-    public Record() => Prop.Mutable(out Related, out Rating, out Text, "");
+    public readonly Mutable<string> Text = "";
+    public readonly Mutable<int> Rating = 0;
+    public readonly Mutable<Record?> Related = new(null);
 }

@@ -3,7 +3,7 @@ using PropReact.Props.Value;
 
 namespace PropReact.Props.Collections;
 
-internal abstract class CollectionPropBase<TValue, TKey> : IKeyedCollectionProp<TValue, TKey>
+public abstract class CollectionPropBase<TValue, TKey> : IKeyedCollectionProp<TValue, TKey>
     where TKey : notnull
 {
     public abstract IEnumerator<TValue> GetEnumerator();
@@ -31,7 +31,7 @@ internal abstract class CollectionPropBase<TValue, TKey> : IKeyedCollectionProp<
     private HashSet<IPropObserver<TValue>>? _observers;
     private Dictionary<TKey, HashSet<IPropObserver<TValue>>>? _keyedObservers;
 
-    public void WatchAt(IPropObserver<TValue> observer, TKey key)
+    void IKeyedCollectionProp<TValue, TKey>.WatchAt(IPropObserver<TValue> observer, TKey key)
     {
         _keyedObservers ??= new();
         if (!_keyedObservers.TryGetValue(key, out var set))
@@ -40,14 +40,14 @@ internal abstract class CollectionPropBase<TValue, TKey> : IKeyedCollectionProp<
         set.Add(observer);
     }
 
-    public void StopWatchingAt(IPropObserver<TValue> observer, TKey key)
+    void IKeyedCollectionProp<TValue, TKey>.StopWatchingAt(IPropObserver<TValue> observer, TKey key)
     {
         if (_keyedObservers is not null && _keyedObservers.TryGetValue(key, out var set))
             set.Remove(observer);
     }
 
-    public void Watch(IPropObserver<TValue> observer) => (_observers ??= new()).Add(observer);
-    public void StopWatching(IPropObserver<TValue> observer) => _observers!.Remove(observer);
+    void IProp<TValue>.Watch(IPropObserver<TValue> observer) => (_observers ??= new()).Add(observer);
+    void IProp<TValue>.StopWatching(IPropObserver<TValue> observer) => _observers!.Remove(observer);
 
     protected abstract TValue? InternalGetter(TKey key);
 }

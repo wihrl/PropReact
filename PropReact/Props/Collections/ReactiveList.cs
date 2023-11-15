@@ -2,17 +2,17 @@
 
 namespace PropReact.Props.Collections;
 
-public interface IListProp<TValue> : IKeyedCollectionProp<TValue, int>, IList<TValue>
+public interface IReactiveList<TValue> : IKeyedCollectionProp<TValue, int>, IList<TValue>
 {
 }
 
-internal sealed class ListProp<TValue> : CollectionPropBase<TValue, int>, IListProp<TValue>
+public sealed class ReactiveList<TValue> : CollectionPropBase<TValue, int>, IReactiveList<TValue>
 {
     private readonly List<TValue> _list;
 
-    internal ListProp() => _list = new();
-    internal ListProp(IEnumerable<TValue> existing) => _list = new(existing);
-    internal ListProp(int capacity) => _list = new(capacity);
+    public ReactiveList() => _list = new();
+    public ReactiveList(IEnumerable<TValue> existing) => _list = new(existing);
+    public ReactiveList(int capacity) => _list = new(capacity);
 
 
     public override IEnumerator<TValue> GetEnumerator() => _list.GetEnumerator();

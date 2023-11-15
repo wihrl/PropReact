@@ -1,16 +1,16 @@
-﻿
-
-
-using PropReact.Chain;
+﻿using PropReact.Chain;
 using PropReact.Props;
+using PropReact.Props.Collections;
+using PropReact.Tests.Data;
 using PropReact.Tests.Value;
+using Record = PropReact.Tests.Data.Record;
 
 namespace PropReact.Tests;
 
-public class CollectionTests
+public class CollectionTests : CompositeDisposable
 {
     private ListData Data { get; } = new();
-    
+
     [Fact]
     public void ListSimple()
     {
@@ -23,7 +23,8 @@ public class CollectionTests
             .Start();
 
         Assert.Equal(0, changes);
-        
+
+        // todo: try all ops
         Data.Records.Add(new());
         Data.Records.Clear();
         Assert.Equal(2, changes);
@@ -32,25 +33,51 @@ public class CollectionTests
     [Fact]
     public void ListAsValue()
     {
+        var changes = 0;
+        var expected = 0;
+        Prop.Watch(this)
+            .ChainConstant(x => x.Data)
+            .ChainValue(x => x.MutableRecords)
+            .Enter()
+            .Immediate()
+            .React(() => changes++)
+            .Start(this);
+
+        var primary = Data.MutableRecords.v;
+        var secondary = new ReactiveList<Record>();
+
+        Data.MutableRecords.v.Add(new());
+        Data.MutableRecords.v.Clear();
+        Assert.Equal(expected = 2, changes);
+
+        Data.MutableRecords.v = secondary;
+        Assert.Equal(++expected, changes);
+
+        primary.Add(new());
+        Assert.Equal(expected, changes);
         
+        secondary.Add(new());
+        Assert.Equal(++expected, changes);
+        
+        Dispose();
+        
+        secondary.Add(new());
+        Assert.Equal(expected, changes);
     }
 
     [Fact]
     public void ListEnteredChain()
     {
-        
     }
 
     [Fact]
     public void ListRepeatedValues()
     {
-        
     }
 
     [Fact]
     public void ListWatchAt()
     {
-        
     }
 }
 

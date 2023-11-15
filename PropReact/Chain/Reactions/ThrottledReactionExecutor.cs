@@ -1,7 +1,8 @@
 using PropReact.Chain.Nodes;
-using PropReact.Chain.Reactions;
 
-public class ThrottledReaction<TRoot> : Reaction<TRoot>
+namespace PropReact.Chain.Reactions;
+
+internal class ThrottledReaction<TRoot> : Reaction<TRoot>
 {
     public required int Delay { get; init; }
     public required bool RunFirst { get; init; }

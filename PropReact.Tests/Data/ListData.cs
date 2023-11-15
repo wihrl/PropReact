@@ -1,13 +1,12 @@
-﻿using PropReact.Props;
-using PropReact.Props.Collections;
+﻿using PropReact.Props.Collections;
 using PropReact.Props.Value;
 
-namespace PropReact.Tests.Value;
+namespace PropReact.Tests.Data;
 
 public class ListData
 {
-    public IListProp<Record> Records;
-    public IMutable<IListProp<Record>> MutableRecords;
+    public readonly ReactiveList<Record> Records = new();
+    public readonly Mutable<ReactiveList<Record>> MutableRecords = new(new());
 
     public ListData()
     {

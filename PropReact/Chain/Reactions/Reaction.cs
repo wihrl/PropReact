@@ -13,7 +13,7 @@ public interface IReactionBuilder<TRoot>
     void Start(ICompositeDisposable disposable);
 }
 
-public abstract class Reaction<TRoot> : IReactionBuilder<TRoot>
+internal abstract class Reaction<TRoot> : IReactionBuilder<TRoot>
 {
     protected event Action? Reactions;
     protected event Action<CancellationToken>? AsyncReactions;
