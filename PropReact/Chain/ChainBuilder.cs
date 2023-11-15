@@ -83,10 +83,10 @@ public static class ChainBuilderActions
     {
         var nextNode = new CollectionNodeSource<TSet, TValue>(builder.RootNodeSource);
         builder.Node.Add(nextNode);
-        
+
         return new(
             builder.RootNodeSource,
-            nextNode    
+            nextNode
         );
     }
 
@@ -124,20 +124,28 @@ public static class ChainBuilderActions
 
     #region Branching
 
-    public static ChainBuilder<TMainRoot, TBranchType, (TNext1, TNext2)>
-        Branch<TMainRoot, TBranchType, TValue, TNext1, TNext2>(
-            this ChainBuilder<TMainRoot, TBranchType, TValue> builder,
-            Func<ChainBuilder<TMainRoot, InnerBranch, TValue>, ChainBuilder<TMainRoot, InnerBranch, TNext1>> selector1,
-            Func<ChainBuilder<TMainRoot, InnerBranch, TValue>, ChainBuilder<TMainRoot, InnerBranch, TNext2>> selector2)
-        where TBranchType : IBranchType =>
-        throw new NotImplementedException();
+    public static ChainBuilder<TMainRoot, TBranchType, TValue> Branch<TMainRoot, TBranchType, TValue, TNext1, TNext2>(
+        this ChainBuilder<TMainRoot, TBranchType, TValue> builder,
+        Func<ChainBuilder<TMainRoot, InnerBranch, TValue>, ChainBuilder<TMainRoot, InnerBranch, TNext1>> selector1,
+        Func<ChainBuilder<TMainRoot, InnerBranch, TValue>, ChainBuilder<TMainRoot, InnerBranch, TNext2>> selector2)
+        where TBranchType : IBranchType
+    {
+        var innerBuilder = new ChainBuilder<TMainRoot, InnerBranch, TValue>(builder.RootNodeSource, builder.Node);
+
+        selector1(innerBuilder);
+        selector2(innerBuilder);
+
+        return new(
+            builder.RootNodeSource,
+            builder.Node
+        );
+    }
 
     #endregion
 
     #region Reactions
 
-    public static IReactionBuilder<TMainRoot> Immediate<TMainRoot, TValue>(
-        this ChainBuilder<TMainRoot, RootBranch, TValue> builder) =>
+    public static IReactionBuilder<TMainRoot> Immediate<TMainRoot, TValue>(this ChainBuilder<TMainRoot, RootBranch, TValue> builder) =>
         new ImmediateReaction<TMainRoot>(builder.RootNodeSource);
 
     public static IReactionBuilder<TMainRoot> Throttled<TMainRoot, TValue>(

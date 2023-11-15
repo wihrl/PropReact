@@ -36,6 +36,11 @@ public class ValueTests : CompositeDisposable
     }
 
     [Fact]
+    void ChainedConstants()
+    {
+    }
+
+    [Fact]
     void ChainedValue()
     {
         var changes = 0;
@@ -52,14 +57,14 @@ public class ValueTests : CompositeDisposable
 
         Assert.Equal(expected, changes);
 
-        var record = new Record();
-        var related = new Record();
+        var a = new Record();
+        var b = new Record();
 
-        Data.NullableRecord.Value = record;
+        Data.NullableRecord.Value = a;
         Assert.Equal(++expected, changes);
 
 
-        Data.NullableRecord.Value.Related.Value = related;
+        Data.NullableRecord.Value.Related.Value = b;
         Assert.Equal(++expected, changes);
 
         Data.NullableRecord.Value.Related.Value!.Text.Value = "12";
@@ -68,7 +73,7 @@ public class ValueTests : CompositeDisposable
         Data.NullableRecord.Value.Related.Value!.Text.Value = "12";
         Assert.Equal(expected, changes);
 
-        related.Text.Value = "34";
+        b.Text.Value = "34";
         Assert.Equal(++expected, changes);
 
         Data.NullableRecord.Value.Related.v = null;
@@ -77,31 +82,105 @@ public class ValueTests : CompositeDisposable
         Data.NullableRecord.v = null;
         Assert.Equal(++expected, changes);
 
-        record.Related.v = related;
+        a.Related.v = b;
         Assert.Equal(expected, changes);
 
-        related.Text.v = "foo";
+        b.Text.v = "foo";
         Assert.Equal(expected, changes);
 
         Dispose();
 
-        Data.NullableRecord.v = record;
+        Data.NullableRecord.v = a;
         Assert.Equal(expected, changes);
     }
 
     [Fact]
     void ChainLoop()
     {
+        var changes = 0;
+        var expected = 1;
+
+        Prop.Watch(this)
+            .ChainConstant(x => x.Data)
+            .ChainValue(x => x.NullableRecord)
+            .ChainValue(x => x.Related)
+            .ChainValue(x => x.Related)
+            .ChainValue(x => x.Text)
+            .Immediate()
+            .React(() => changes++, true)
+            .Start(this);
+
+        Assert.Equal(expected, changes);
+
+        var a = new Record();
+        var b = new Record();
+
+        Data.NullableRecord.v = a;
+        Assert.Equal(++expected, changes);
+
+        Data.NullableRecord.v.Related.v = b;
+        Assert.Equal(++expected, changes);
+
+        Data.NullableRecord.v.Related.v!.Text.v = "12";
+        Assert.Equal(expected, changes);
+
+        Data.NullableRecord.v.Related.v!.Related.v = a;
+        Assert.Equal(++expected, changes);
+
+        b.Text.v = "34";
+        Assert.Equal(expected, changes);
+
+        a.Text.v = "34";
+        Assert.Equal(++expected, changes); // React() should only be called once
+
+        Dispose();
+
+        a.Text.v = "56";
+        Assert.Equal(expected, changes);
+    }
+
+    [Fact]
+    void Branching()
+    {
+        var changes = 0;
+        var expected = 0;
+
+        Prop.Watch(this)
+            .ChainConstant(x => x.Data)
+            .Branch(
+                y => y.ChainValue(x => x.Int),
+                y => y.Branch(
+                    z => z.ChainValue(x => x.NullableString),
+                    z => z.ChainValue(x => x.NullableRecord).ChainValue(x => x.Text)
+                )
+            )
+            .Immediate()
+            .React(() => changes++)
+            .Start(this);
         
-    }
+        Assert.Equal(expected, changes);
 
-    [Fact]
-    void BranchingValues()
-    {
-    }
+        Data.Int.v = 123;
+        Assert.Equal(++expected, changes);
+        
+        Data.Int.v = 123;
+        Assert.Equal(expected, changes);
+        
+        Data.NullableString.v = "asdf";
+        Assert.Equal(++expected, changes);
 
-    [Fact]
-    void ComputedImmediate()
-    {
+        Data.NullableRecord.v = new();
+        Assert.Equal(++expected, changes);
+
+        Data.NullableRecord.v.Text.v = "zxcv";
+        Assert.Equal(++expected, changes);
+        
+        Dispose();
+        
+        Data.NullableRecord.v.Text.v = "zxcv2";
+        Assert.Equal(expected, changes);
+        
+        Data.NullableString.v = "zxcv2";
+        Assert.Equal(expected, changes);
     }
 }
