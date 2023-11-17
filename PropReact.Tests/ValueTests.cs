@@ -157,15 +157,15 @@ public class ValueTests : CompositeDisposable
             .Immediate()
             .React(() => changes++)
             .Start(this);
-        
+
         Assert.Equal(expected, changes);
 
         Data.Int.v = 123;
         Assert.Equal(++expected, changes);
-        
+
         Data.Int.v = 123;
         Assert.Equal(expected, changes);
-        
+
         Data.NullableString.v = "asdf";
         Assert.Equal(++expected, changes);
 
@@ -174,13 +174,43 @@ public class ValueTests : CompositeDisposable
 
         Data.NullableRecord.v.Text.v = "zxcv";
         Assert.Equal(++expected, changes);
-        
+
         Dispose();
-        
+
         Data.NullableRecord.v.Text.v = "zxcv2";
         Assert.Equal(expected, changes);
-        
+
         Data.NullableString.v = "zxcv2";
         Assert.Equal(expected, changes);
+    }
+
+    [Fact]
+    void NestedMutable()
+    {
+        var changes = 0;
+
+        Prop.Watch(this)
+            .ChainConstant(x => x.Data)
+            .ChainValue(x => x.Nested)
+            .ChainValue(x => x)
+            .Immediate()
+            .React(() => changes++)
+            .Start(this);
+
+        Assert.Equal(0, changes);
+
+        var val = Data.Nested.v;
+        
+        Data.Nested.v.v = true;
+        Assert.Equal(1, changes);
+
+        Data.Nested.v = new(false);
+        Assert.Equal(2, changes);
+
+        Dispose();
+
+        val.v = true;
+        val.v = false;
+        Assert.Equal(2, changes);
     }
 }

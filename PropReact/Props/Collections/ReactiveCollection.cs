@@ -1,9 +1,11 @@
 ﻿using System.Collections;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using PropReact.Props.Value;
 
 namespace PropReact.Props.Collections;
 
-public abstract class CollectionPropBase<TValue, TKey> : IKeyedCollectionProp<TValue, TKey>
+public abstract class ReactiveCollection<TValue, TKey> : PropBase<TValue>, IKeyedCollectionProp<TValue, TKey>
     where TKey : notnull
 {
     public abstract IEnumerator<TValue> GetEnumerator();
@@ -16,8 +18,8 @@ public abstract class CollectionPropBase<TValue, TKey> : IKeyedCollectionProp<TV
 
     void NotifyObservers(TKey key, TValue? oldValue, TValue? newValue)
     {
-        if (_observers is not null)
-            foreach (var propObserver in _observers)
+        if (Observers is not null)
+            foreach (var propObserver in Observers.Keys)
                 propObserver.PropChanged(oldValue, newValue);
 
         if (_keyedObservers is null) return;
@@ -28,26 +30,25 @@ public abstract class CollectionPropBase<TValue, TKey> : IKeyedCollectionProp<TV
     }
 
 
-    private HashSet<IPropObserver<TValue>>? _observers;
     private Dictionary<TKey, HashSet<IPropObserver<TValue>>>? _keyedObservers;
-
-    void IKeyedCollectionProp<TValue, TKey>.WatchAt(IPropObserver<TValue> observer, TKey key)
+    TValue? IKeyedCollectionProp<TValue, TKey>.WatchAt(IPropObserver<TValue> observer, TKey key)
     {
         _keyedObservers ??= new();
         if (!_keyedObservers.TryGetValue(key, out var set))
             _keyedObservers[key] = set = new();
 
         set.Add(observer);
+        
+        return InternalGetter(key);
     }
 
-    void IKeyedCollectionProp<TValue, TKey>.StopWatchingAt(IPropObserver<TValue> observer, TKey key)
+    TValue? IKeyedCollectionProp<TValue, TKey>.StopWatchingAt(IPropObserver<TValue> observer, TKey key)
     {
         if (_keyedObservers is not null && _keyedObservers.TryGetValue(key, out var set))
             set.Remove(observer);
-    }
 
-    void IProp<TValue>.Watch(IPropObserver<TValue> observer) => (_observers ??= new()).Add(observer);
-    void IProp<TValue>.StopWatching(IPropObserver<TValue> observer) => _observers!.Remove(observer);
+        return InternalGetter(key);
+    }
 
     protected abstract TValue? InternalGetter(TKey key);
 }

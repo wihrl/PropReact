@@ -1,17 +1,30 @@
-﻿namespace PropReact.Props;
+﻿using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
+namespace PropReact.Props;
 
 public abstract class PropBase<TValue> : IProp<TValue>
 {
-    // do not create hashset until it is actually needed
-    private HashSet<IPropObserver<TValue>>? _observers;
-    void IProp<TValue>.Watch(IPropObserver<TValue> observer) => (_observers ??= new()).Add(observer);
-    void IProp<TValue>.StopWatching(IPropObserver<TValue> observer) => _observers!.Remove(observer);
+    protected Dictionary<IPropObserver<TValue>, int>? Observers;
 
     protected void NotifyObservers(TValue? oldValue, TValue? newValue)
     {
-        if (_observers is null) return;
+        if (Observers is null) return;
 
-        foreach (var reactionsMapKey in _observers)
+        foreach (var reactionsMapKey in Observers.Keys)
             reactionsMapKey.PropChanged(oldValue, newValue);
+    }
+    
+    void IProp<TValue>.Watch(IPropObserver<TValue> observer) =>
+        CollectionsMarshal.GetValueRefOrAddDefault(Observers ??= new(), observer, out _)++;
+
+    void IProp<TValue>.StopWatching(IPropObserver<TValue> observer)
+    {
+        ref var subs = ref CollectionsMarshal.GetValueRefOrNullRef(Observers!, observer);
+        if (Unsafe.IsNullRef(ref subs))
+            return;
+        
+        if (--subs == 0)
+            Observers!.Remove(observer);
     }
 }

@@ -20,13 +20,13 @@ public struct InnerBranch : IBranchType
 
 public class ChainBuilder<TRoot, TBranchType, TValue> where TBranchType : IBranchType
 {
-    internal ChainBuilder(RootNodeSource<TRoot> rootNodeSource, ChainNode<TValue> node)
+    internal ChainBuilder(RootNode<TRoot> rootNode, ChainNode<TValue> node)
     {
-        RootNodeSource = rootNodeSource;
+        RootNode = rootNode;
         Node = node;
     }
 
-    internal RootNodeSource<TRoot> RootNodeSource { get; }
+    internal RootNode<TRoot> RootNode { get; }
     internal ChainNode<TValue> Node { get; }
 }
 
@@ -41,7 +41,7 @@ public static class ChainBuilder
         where TBranchType : IBranchType
     {
 #if DEBUG
-        if (expression?.Count(x => x == '.') != 1)
+        if (expression?.Count(x => x == '.') > 1)
             throw new ArgumentException(
                 """
                 Appending a non-constant node to a reactive chain must be done one property at a time.
@@ -50,11 +50,11 @@ public static class ChainBuilder
                 nameof(selector));
 #endif
 
-        var nextNode = new ValueNodeSource<TValue, TNext>(selector, builder.RootNodeSource);
+        var nextNode = new ValueNode<TValue, TNext>(selector, builder.RootNode);
         builder.Node.Chain(nextNode);
 
         return new(
-            builder.RootNodeSource,
+            builder.RootNode,
             nextNode
         );
     }
@@ -63,11 +63,11 @@ public static class ChainBuilder
         this ChainBuilder<TMainRoot, TBranchType, TValue> builder, Func<TValue, TNext> selector)
         where TBranchType : IBranchType
     {
-        var nextNode = new ConstantNodeSource<TValue, TNext>(selector, builder.RootNodeSource);
+        var nextNode = new ConstantNode<TValue, TNext>(selector, builder.RootNode);
         builder.Node.Chain(nextNode);
 
         return new(
-            builder.RootNodeSource,
+            builder.RootNode,
             nextNode
         );
     }
@@ -76,15 +76,14 @@ public static class ChainBuilder
 
     #region Collections
 
-    public static ChainBuilder<TMainRoot, TBranchType, TValue>
-        EnterExplicit<TMainRoot, TBranchType, TSet, TValue>(ChainBuilder<TMainRoot, TBranchType, TSet> builder)
-        where TSet : class, IEnumerable<TValue> where TBranchType : IBranchType
+    public static ChainBuilder<TMainRoot, TBranchType, TValue> EnterExplicit<TMainRoot, TBranchType, TSet, TValue>(
+        ChainBuilder<TMainRoot, TBranchType, TSet> builder) where TSet : class, IEnumerable<TValue> where TBranchType : IBranchType
     {
-        var nextNode = new CollectionNodeSource<TSet, TValue>(builder.RootNodeSource);
+        var nextNode = new CollectionNode<TSet, TValue>(builder.RootNode);
         builder.Node.Chain(nextNode);
 
         return new(
-            builder.RootNodeSource,
+            builder.RootNode,
             nextNode
         );
     }
@@ -117,11 +116,51 @@ public static class ChainBuilder
 
     #region Maps
 
+    public static ChainBuilder<TMainRoot, TBranchType, TValue> EnterAtExplicit<TMainRoot, TBranchType, TSet, TValue, TKey>(
+        ChainBuilder<TMainRoot, TBranchType, TSet> builder, TKey key)
+        where TSet : class, IKeyedCollectionProp<TValue, TKey> where TBranchType : IBranchType where TKey : notnull
+    {
+        var nextNode = new KeyNode<TSet, TValue, TKey>(builder.RootNode, key);
+        builder.Node.Chain(nextNode);
+
+        return new(
+            builder.RootNode,
+            nextNode
+        );
+    }
+
+    #region 'Type inference' aliases
+
+    public static ChainBuilder<TMainRoot, TBranchType, TValue> EnterAt<TMainRoot, TBranchType,
+        TValue, TKey>(
+        this ChainBuilder<TMainRoot, TBranchType, IKeyedCollectionProp<TValue, TKey>> builder, TKey key)
+        where TBranchType : IBranchType where TKey : notnull =>
+        EnterAtExplicit<TMainRoot, TBranchType, IKeyedCollectionProp<TValue, TKey>, TValue, TKey>(builder, key);
+
+    public static ChainBuilder<TMainRoot, TBranchType, TValue> EnterAt<TMainRoot, TBranchType,
+        TValue>(
+        this ChainBuilder<TMainRoot, TBranchType, IReactiveList<TValue>> builder, int key)
+        where TBranchType : IBranchType =>
+        EnterAtExplicit<TMainRoot, TBranchType, IReactiveList<TValue>, TValue, int>(builder, key);
+
+    public static ChainBuilder<TMainRoot, TBranchType, TValue> EnterAt<TMainRoot, TBranchType,
+        TValue>(
+        this ChainBuilder<TMainRoot, TBranchType, ReactiveList<TValue>> builder, int key)
+        where TBranchType : IBranchType =>
+        EnterAtExplicit<TMainRoot, TBranchType, ReactiveList<TValue>, TValue, int>(builder, key);
+
+
     public static ChainBuilder<TMainRoot, TBranchType, TValue> EnterAt<TMainRoot, TBranchType, TValue, TKey>(
         this ChainBuilder<TMainRoot, TBranchType, IReactiveMap<TValue, TKey>> builder, TKey key)
         where TKey : notnull where TBranchType : IBranchType =>
-        throw new NotImplementedException();
-    //builder.Enter<TMainRoot, TBranchType, IMap<TValue, TKey>, TValue>();
+        EnterAtExplicit<TMainRoot, TBranchType, IReactiveMap<TValue, TKey>, TValue, TKey>(builder, key);
+
+    public static ChainBuilder<TMainRoot, TBranchType, TValue> EnterAt<TMainRoot, TBranchType, TValue, TKey>(
+        this ChainBuilder<TMainRoot, TBranchType, ReactiveMap<TValue, TKey>> builder, TKey key)
+        where TKey : notnull where TBranchType : IBranchType =>
+        EnterAtExplicit<TMainRoot, TBranchType, ReactiveMap<TValue, TKey>, TValue, TKey>(builder, key);
+
+    #endregion
 
     #endregion
 
@@ -133,13 +172,13 @@ public static class ChainBuilder
         Func<ChainBuilder<TMainRoot, InnerBranch, TValue>, ChainBuilder<TMainRoot, InnerBranch, TNext2>> selector2)
         where TBranchType : IBranchType
     {
-        var innerBuilder = new ChainBuilder<TMainRoot, InnerBranch, TValue>(builder.RootNodeSource, builder.Node);
+        var innerBuilder = new ChainBuilder<TMainRoot, InnerBranch, TValue>(builder.RootNode, builder.Node);
 
         selector1(innerBuilder);
         selector2(innerBuilder);
 
         return new(
-            builder.RootNodeSource,
+            builder.RootNode,
             builder.Node
         );
     }
@@ -149,12 +188,12 @@ public static class ChainBuilder
     #region Reactions
 
     public static IReactionBuilder<TMainRoot> Immediate<TMainRoot, TValue>(this ChainBuilder<TMainRoot, RootBranch, TValue> builder) =>
-        new ImmediateReaction<TMainRoot>(builder.RootNodeSource);
+        new ImmediateReaction<TMainRoot>(builder.RootNode);
 
     public static IReactionBuilder<TMainRoot> Throttled<TMainRoot, TValue>(
         this ChainBuilder<TMainRoot, RootBranch, TValue> builder,
         int delay, bool runFirst = false) =>
-        new ThrottledReaction<TMainRoot>(builder.RootNodeSource) { Delay = delay, RunFirst = runFirst };
+        new ThrottledReaction<TMainRoot>(builder.RootNode) { Delay = delay, RunFirst = runFirst };
 
     #endregion
 }

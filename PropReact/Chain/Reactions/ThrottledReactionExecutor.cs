@@ -7,7 +7,7 @@ class ThrottledReaction<TRoot> : Reaction<TRoot>
     public required int Delay { get; init; }
     public required bool RunFirst { get; init; }
 
-    public ThrottledReaction(RootNodeSource<TRoot> root) : base(root)
+    public ThrottledReaction(RootNode<TRoot> root) : base(root)
     {
     }
 

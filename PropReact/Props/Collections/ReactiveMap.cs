@@ -15,7 +15,7 @@ public interface IReactiveMap<TValue, TKey> : IKeyedCollectionProp<TValue, TKey>
     bool Remove(TValue value);
 }
 
-public class ReactiveMap<TValue, TKey> : CollectionPropBase<TValue, TKey>, IReactiveMap<TValue, TKey> where TKey : notnull
+public class ReactiveMap<TValue, TKey> : ReactiveCollection<TValue, TKey>, IReactiveMap<TValue, TKey> where TKey : notnull
 {
     private readonly Dictionary<TKey, TValue> _dictionary;
     private readonly Func<TValue, TKey> _keySelector;

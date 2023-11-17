@@ -48,9 +48,9 @@ public class CollectionTests : CompositeDisposable
         expected += Data.Records.Count;
         Data.Records.Clear();
         Assert.Equal(expected, changes);
-        
+
         Dispose();
-        
+
         Data.Records.Add(new());
         Assert.Equal(expected, changes);
     }
@@ -121,9 +121,9 @@ public class CollectionTests : CompositeDisposable
 
         Data.Records[2].Rating.v = 12;
         Assert.Equal(++expected, changes);
-        
+
         Dispose();
-        
+
         Data.Records[2].Rating.v = 21;
         Assert.Equal(expected, changes);
     }
@@ -131,10 +131,80 @@ public class CollectionTests : CompositeDisposable
     [Fact]
     public void ListRepeatedValues()
     {
+        var changes = 0;
+        int expected;
+
+        Prop.Watch(this)
+            .ChainConstant(x => x.Data.Records)
+            .Enter()
+            .ChainValue(x => x.Text)
+            .Immediate()
+            .React(() => changes++)
+            .Start(this);
+
+        var record = new Record();
+
+        Data.Records.Add(record);
+        Data.Records.Add(record);
+        Assert.Equal(expected = 2, changes);
+
+        // should only trigger reactions once
+        record.Text.v = "asdf";
+        Assert.Equal(++expected, changes);
+
+        Data.Records.RemoveAt(0);
+        Assert.Equal(++expected, changes); // reactions are triggered on any change along the chain 
+
+        // one instance is still in the collection => should still trigger reactions
+        record.Text.v = "asdf2";
+        Assert.Equal(++expected, changes);
     }
 
     [Fact]
     public void ListWatchAt()
     {
+        var changes = 0;
+        int expected = 0;
+
+        Prop.Watch(this)
+            .ChainConstant(x => x.Data.Records)
+            .EnterAt(1)
+            .ChainValue(x => x.Text)
+            .Immediate()
+            .React(() => changes++)
+            .Start(this);
+
+        Assert.Equal(expected, changes);
+
+        Data.Records.Add(new());
+        Assert.Equal(expected, changes);
+        
+        Data.Records.Add(new());
+        Assert.Equal(++expected, changes);
+
+        Data.Records[0].Text.v = "asdf1";
+        Assert.Equal(expected, changes);
+        
+        Data.Records[1].Text.v = "asdf2";
+        Assert.Equal(++expected, changes);
+
+        Data.Records[0] = new();
+        Assert.Equal(expected, changes);
+
+        var record = new Record();
+        Data.Records[1] = record;
+        Assert.Equal(++expected, changes);
+        
+        Data.Records.Clear();
+        Assert.Equal(++expected, changes);
+
+        record.Text.v = "zxcv";
+        Assert.Equal(expected, changes);
+        
+        Dispose();
+        
+        Data.Records.Add(new());
+        Data.Records.Add(new());
+        Assert.Equal(expected, changes);
     }
 }

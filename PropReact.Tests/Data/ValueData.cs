@@ -9,4 +9,5 @@ public class ValueData
     public readonly Mutable<string?> NullableString = new(null);
     public readonly Mutable<Record> Record = new Record();
     public readonly Mutable<Record?> NullableRecord = new(null);
+    public readonly Mutable<Mutable<bool>> Nested = new(false);
 }

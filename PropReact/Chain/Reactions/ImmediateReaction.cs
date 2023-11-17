@@ -10,7 +10,7 @@ class ImmediateReaction<TRoot> : Reaction<TRoot>
         TriggerAsyncReactions();
     }
 
-    public ImmediateReaction(RootNodeSource<TRoot> root) : base(root)
+    public ImmediateReaction(RootNode<TRoot> root) : base(root)
     {
     }
 }

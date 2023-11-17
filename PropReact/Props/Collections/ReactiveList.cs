@@ -6,7 +6,7 @@ public interface IReactiveList<TValue> : IKeyedCollectionProp<TValue, int>, ILis
 {
 }
 
-public sealed class ReactiveList<TValue> : CollectionPropBase<TValue, int>, IReactiveList<TValue>
+public sealed class ReactiveList<TValue> : ReactiveCollection<TValue, int>, IReactiveList<TValue>
 {
     private readonly List<TValue> _list;
 
@@ -34,21 +34,16 @@ public sealed class ReactiveList<TValue> : CollectionPropBase<TValue, int>, IRea
     public bool Remove(TValue item)
     {
         var index = _list.IndexOf(item);
+        if (index < 0) return false;
 
-        if (index >= 0)
-        {
-            _list.RemoveAt(index);
-            Removed(index, item);
-            return true;
-        }
-
-        return false;
+        RemoveAt(index);
+        return true;
     }
 
     public override int Count => _list.Count;
     protected override TValue? InternalGetter(int key) => key < 0 || key >= _list.Count ? default : _list[key];
 
-    public bool IsReadOnly => ((ICollection<TValue>) _list).IsReadOnly;
+    public bool IsReadOnly => ((ICollection<TValue>)_list).IsReadOnly;
     public int IndexOf(TValue item) => _list.IndexOf(item);
 
     public void Insert(int index, TValue item)
@@ -59,9 +54,9 @@ public sealed class ReactiveList<TValue> : CollectionPropBase<TValue, int>, IRea
 
     public void RemoveAt(int index)
     {
-        var toRemove = _list[index];
+        var item = _list[index];
         _list.RemoveAt(index);
-        Removed(index, toRemove);
+        Removed(index, item);
     }
 
     public TValue this[int index]

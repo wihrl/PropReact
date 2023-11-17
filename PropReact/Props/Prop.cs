@@ -19,7 +19,7 @@ public static class Prop
                 nameof(root));
 #endif
 
-        var rootNode = new RootNodeSource<TRoot>(root);
+        var rootNode = new RootNode<TRoot>(root);
         return new(rootNode, rootNode);
     }
 }

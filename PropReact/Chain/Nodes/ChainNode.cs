@@ -9,12 +9,12 @@ abstract class ChainNode<TValue>
     protected readonly IRootNode Root;
     protected ChainNode(IRootNode root) => Root = root;
 
-    protected readonly List<ISourceOnlyChainNode<TValue>> Next = new();
-    internal void Chain(ISourceOnlyChainNode<TValue> next) => Next.Add(next);
+    protected readonly List<INotifiableChainNode<TValue>> Next = new();
+    internal void Chain(INotifiableChainNode<TValue> next) => Next.Add(next);
 }
 
 
-interface ISourceOnlyChainNode<TSource>
+interface INotifiableChainNode<TSource>
 {
-    void ChangeSource(TSource? oldValue, TSource? newValue);
+    void ChangeSource(TSource? oldSource, TSource? newSource);
 }

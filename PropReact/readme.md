@@ -33,12 +33,13 @@ todo:
 - use expression captured variables to allow for static class access and avoid having to pass this
 - autodispose
 - Prop.Make().LinkWith(allowOverride);
+- blazor component that disallows re-renders unless it was by an observation
 
 - remove navigation properties, instead allow watching collection keys in computed properties (
   x.Parent.SomeCollection[Key])
 
 current limitations:
  - manual reactive chain creation
- - no bulk updates for collections (.Clear() updates n-times)
+ - no bulk updates for collections (all changes are processed per-item, albeit without allocations)
  - no type inference for selected expressions
    - updates triggered for or changes along the chain, not just the result
