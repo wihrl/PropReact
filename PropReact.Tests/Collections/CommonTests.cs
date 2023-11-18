@@ -7,7 +7,7 @@ using Record = PropReact.Tests.Data.Record;
 
 namespace PropReact.Tests;
 
-public class CollectionTests : CompositeDisposable
+public class CommonTests : CompositeDisposable
 {
     private ListData Data { get; } = new();
 

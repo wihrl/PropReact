@@ -3,7 +3,7 @@ using PropReact.Props.Value;
 
 namespace PropReact.Props.Collections;
 
-public interface IReactiveMap<TValue, TKey> : IKeyedCollectionProp<TValue, TKey>
+public interface IReactiveMap<TValue, TKey> : IKeyedProp<TValue, TKey>
     where TKey : notnull
 {
     bool ContainsKey(TKey key);

@@ -2,7 +2,7 @@
 
 namespace PropReact.Props.Collections;
 
-public interface IReactiveList<TValue> : IKeyedCollectionProp<TValue, int>, IList<TValue>
+public interface IReactiveList<TValue> : IKeyedProp<TValue, int>, IList<TValue>
 {
 }
 

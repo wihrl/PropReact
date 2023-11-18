@@ -5,8 +5,8 @@ namespace PropReact.Chain.Nodes;
 
 sealed class ValueNode<TSource, TValue> : ChainNode<TValue>, IPropObserver<TValue>, INotifiableChainNode<TSource>
 {
-    private readonly Func<TSource, IValueProp<TValue>> _getter;
-    public ValueNode(Func<TSource, IValueProp<TValue>> getter, IRootNode root) : base(root) => _getter = getter;
+    private readonly Func<TSource, IValue<TValue>> _getter;
+    public ValueNode(Func<TSource, IValue<TValue>> getter, IRootNode root) : base(root) => _getter = getter;
 
     public void PropChanged(TValue? oldValue, TValue? newValue)
     {

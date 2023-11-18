@@ -35,7 +35,7 @@ public static class ChainBuilder
     #region Values
 
     public static ChainBuilder<TMainRoot, TBranchType, TNext> ChainValue<TMainRoot, TBranchType, TValue, TNext>(
-        this ChainBuilder<TMainRoot, TBranchType, TValue> builder, Func<TValue, IValueProp<TNext?>> selector,
+        this ChainBuilder<TMainRoot, TBranchType, TValue> builder, Func<TValue, IValue<TNext?>> selector,
         [CallerArgumentExpression(nameof(selector))]
         string? expression = null)
         where TBranchType : IBranchType
@@ -91,11 +91,15 @@ public static class ChainBuilder
 
     #region 'Type inference' aliases
 
-    public static ChainBuilder<TMainRoot, TBranchType, TValue> Enter<TMainRoot, TBranchType,
-        TValue>(
+    public static ChainBuilder<TMainRoot, TBranchType, TValue> Enter<TMainRoot, TBranchType, TValue>(
         this ChainBuilder<TMainRoot, TBranchType, IEnumerable<TValue>> builder)
         where TBranchType : IBranchType =>
         EnterExplicit<TMainRoot, TBranchType, IEnumerable<TValue>, TValue>(builder);
+    
+    public static ChainBuilder<TMainRoot, TBranchType, TValue> Enter<TMainRoot, TBranchType, TValue>(
+        this ChainBuilder<TMainRoot, TBranchType, TValue[]> builder)
+        where TBranchType : IBranchType =>
+        EnterExplicit<TMainRoot, TBranchType, TValue[], TValue>(builder);
 
     public static ChainBuilder<TMainRoot, TBranchType, TValue> Enter<TMainRoot, TBranchType, TValue>(
         this ChainBuilder<TMainRoot, TBranchType, IReactiveList<TValue>> builder) where TBranchType : IBranchType =>
@@ -109,6 +113,16 @@ public static class ChainBuilder
         this ChainBuilder<TMainRoot, TBranchType, IReactiveMap<TValue, TKey>> builder)
         where TKey : notnull where TBranchType : IBranchType =>
         EnterExplicit<TMainRoot, TBranchType, IReactiveMap<TValue, TKey>, TValue>(builder);
+    
+    public static ChainBuilder<TMainRoot, TBranchType, TValue> Enter<TMainRoot, TBranchType, TValue, TKey>(
+        this ChainBuilder<TMainRoot, TBranchType, ReactiveMap<TValue, TKey>> builder)
+        where TKey : notnull where TBranchType : IBranchType =>
+        EnterExplicit<TMainRoot, TBranchType, ReactiveMap<TValue, TKey>, TValue>(builder);
+    
+    public static ChainBuilder<TMainRoot, TBranchType, TValue> Enter<TMainRoot, TBranchType, TValue, TKey>(
+        this ChainBuilder<TMainRoot, TBranchType, IKeyedProp<TValue, TKey>> builder)
+        where TKey : notnull where TBranchType : IBranchType =>
+        EnterExplicit<TMainRoot, TBranchType, IKeyedProp<TValue, TKey>, TValue>(builder);
 
     #endregion
 
@@ -118,7 +132,7 @@ public static class ChainBuilder
 
     public static ChainBuilder<TMainRoot, TBranchType, TValue> EnterAtExplicit<TMainRoot, TBranchType, TSet, TValue, TKey>(
         ChainBuilder<TMainRoot, TBranchType, TSet> builder, TKey key)
-        where TSet : class, IKeyedCollectionProp<TValue, TKey> where TBranchType : IBranchType where TKey : notnull
+        where TSet : class, IKeyedProp<TValue, TKey> where TBranchType : IBranchType where TKey : notnull
     {
         var nextNode = new KeyNode<TSet, TValue, TKey>(builder.RootNode, key);
         builder.Node.Chain(nextNode);
@@ -133,9 +147,9 @@ public static class ChainBuilder
 
     public static ChainBuilder<TMainRoot, TBranchType, TValue> EnterAt<TMainRoot, TBranchType,
         TValue, TKey>(
-        this ChainBuilder<TMainRoot, TBranchType, IKeyedCollectionProp<TValue, TKey>> builder, TKey key)
+        this ChainBuilder<TMainRoot, TBranchType, IKeyedProp<TValue, TKey>> builder, TKey key)
         where TBranchType : IBranchType where TKey : notnull =>
-        EnterAtExplicit<TMainRoot, TBranchType, IKeyedCollectionProp<TValue, TKey>, TValue, TKey>(builder, key);
+        EnterAtExplicit<TMainRoot, TBranchType, IKeyedProp<TValue, TKey>, TValue, TKey>(builder, key);
 
     public static ChainBuilder<TMainRoot, TBranchType, TValue> EnterAt<TMainRoot, TBranchType,
         TValue>(

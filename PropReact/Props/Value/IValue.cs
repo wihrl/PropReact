@@ -1,6 +1,6 @@
 namespace PropReact.Props.Value;
 
-public interface IValueProp<out TValue> : IProp<TValue>
+public interface IValue<out TValue> : IProp<TValue>
 {
     public TValue Value { get; }
     

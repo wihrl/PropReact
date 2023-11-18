@@ -5,7 +5,7 @@ using PropReact.Props.Value;
 
 namespace PropReact.Props.Collections;
 
-public abstract class ReactiveCollection<TValue, TKey> : PropBase<TValue>, IKeyedCollectionProp<TValue, TKey>
+public abstract class ReactiveCollection<TValue, TKey> : PropBase<TValue>, IKeyedProp<TValue, TKey>
     where TKey : notnull
 {
     public abstract IEnumerator<TValue> GetEnumerator();
@@ -31,7 +31,7 @@ public abstract class ReactiveCollection<TValue, TKey> : PropBase<TValue>, IKeye
 
 
     private Dictionary<TKey, HashSet<IPropObserver<TValue>>>? _keyedObservers;
-    TValue? IKeyedCollectionProp<TValue, TKey>.WatchAt(IPropObserver<TValue> observer, TKey key)
+    TValue? IKeyedProp<TValue, TKey>.WatchAt(IPropObserver<TValue> observer, TKey key)
     {
         _keyedObservers ??= new();
         if (!_keyedObservers.TryGetValue(key, out var set))
@@ -42,7 +42,7 @@ public abstract class ReactiveCollection<TValue, TKey> : PropBase<TValue>, IKeye
         return InternalGetter(key);
     }
 
-    TValue? IKeyedCollectionProp<TValue, TKey>.StopWatchingAt(IPropObserver<TValue> observer, TKey key)
+    TValue? IKeyedProp<TValue, TKey>.StopWatchingAt(IPropObserver<TValue> observer, TKey key)
     {
         if (_keyedObservers is not null && _keyedObservers.TryGetValue(key, out var set))
             set.Remove(observer);
