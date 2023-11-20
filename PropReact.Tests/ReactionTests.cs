@@ -1,4 +1,4 @@
-﻿namespace PropReact.Tests.Value;
+﻿namespace PropReact.Tests;
 
 public class ReactionTests
 {

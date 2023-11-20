@@ -2,7 +2,7 @@
 
 namespace PropReact.Props.Collections;
 
-public interface IReactiveList<TValue> : IKeyedProp<TValue, int>, IList<TValue>
+public interface IReactiveList<TValue> : IReactiveCollection<TValue, int>, IList<TValue>
 {
 }
 
@@ -25,6 +25,7 @@ public sealed class ReactiveList<TValue> : ReactiveCollection<TValue, int>, IRea
 
     public void Clear()
     {
+        // until bulk updates are supported, items have to be deleted one at a time to ensure consistency
         while (_list.Count > 0) Remove(_list.Last());
     }
 

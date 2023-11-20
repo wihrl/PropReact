@@ -4,7 +4,7 @@ using PropReact.Props.Collections;
 namespace PropReact.Chain.Nodes;
 
 class KeyNode<TSet, TValue, TKey> : ChainNode<TValue>, INotifiableChainNode<TSet>, IPropObserver<TValue>
-    where TSet : class, IKeyedProp<TValue, TKey>
+    where TSet : class, IReactiveCollection<TValue, TKey>
 {
     private readonly TKey _key;
     public KeyNode(IRootNode root, TKey key) : base(root) => _key = key;

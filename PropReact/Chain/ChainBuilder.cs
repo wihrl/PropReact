@@ -120,9 +120,9 @@ public static class ChainBuilder
         EnterExplicit<TMainRoot, TBranchType, ReactiveMap<TValue, TKey>, TValue>(builder);
     
     public static ChainBuilder<TMainRoot, TBranchType, TValue> Enter<TMainRoot, TBranchType, TValue, TKey>(
-        this ChainBuilder<TMainRoot, TBranchType, IKeyedProp<TValue, TKey>> builder)
+        this ChainBuilder<TMainRoot, TBranchType, IReactiveCollection<TValue, TKey>> builder)
         where TKey : notnull where TBranchType : IBranchType =>
-        EnterExplicit<TMainRoot, TBranchType, IKeyedProp<TValue, TKey>, TValue>(builder);
+        EnterExplicit<TMainRoot, TBranchType, IReactiveCollection<TValue, TKey>, TValue>(builder);
 
     #endregion
 
@@ -132,7 +132,7 @@ public static class ChainBuilder
 
     public static ChainBuilder<TMainRoot, TBranchType, TValue> EnterAtExplicit<TMainRoot, TBranchType, TSet, TValue, TKey>(
         ChainBuilder<TMainRoot, TBranchType, TSet> builder, TKey key)
-        where TSet : class, IKeyedProp<TValue, TKey> where TBranchType : IBranchType where TKey : notnull
+        where TSet : class, IReactiveCollection<TValue, TKey> where TBranchType : IBranchType where TKey : notnull
     {
         var nextNode = new KeyNode<TSet, TValue, TKey>(builder.RootNode, key);
         builder.Node.Chain(nextNode);
@@ -147,9 +147,9 @@ public static class ChainBuilder
 
     public static ChainBuilder<TMainRoot, TBranchType, TValue> EnterAt<TMainRoot, TBranchType,
         TValue, TKey>(
-        this ChainBuilder<TMainRoot, TBranchType, IKeyedProp<TValue, TKey>> builder, TKey key)
+        this ChainBuilder<TMainRoot, TBranchType, IReactiveCollection<TValue, TKey>> builder, TKey key)
         where TBranchType : IBranchType where TKey : notnull =>
-        EnterAtExplicit<TMainRoot, TBranchType, IKeyedProp<TValue, TKey>, TValue, TKey>(builder, key);
+        EnterAtExplicit<TMainRoot, TBranchType, IReactiveCollection<TValue, TKey>, TValue, TKey>(builder, key);
 
     public static ChainBuilder<TMainRoot, TBranchType, TValue> EnterAt<TMainRoot, TBranchType,
         TValue>(

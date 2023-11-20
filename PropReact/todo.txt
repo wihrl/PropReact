@@ -18,3 +18,11 @@ allow watching without values Prop.Watch(x => x.1.2.3, () => {...}) - avoids all
 GetNextNode() - avoid duplicate nodes when branching based on getter
 
 transaction: StartRead(), StartWritable();
+
+reorder stuff to be consistent
+use collectionsmarshal in collections to avoid double hash
+
+conserve chain type information, then construct the getter on Start() in reverse - run "DFS", should avoid Select() issues
+type xml documentation
+
+PropConfig.TransactionMode = { Ignore, Validate, Enforce }

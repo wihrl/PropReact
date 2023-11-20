@@ -20,7 +20,7 @@ public partial class TypeTests
         public readonly IComputed<string> IComputed;
         public readonly IValue<string> IValue;
     }
-    
+
     void Values()
     {
         var builder = Prop.Watch(new ValueTypeData());
@@ -34,12 +34,12 @@ public partial class TypeTests
     {
         public readonly ReactiveList<string> ReactiveList;
         public readonly IReactiveList<string> IReactiveList;
-        
+
         public readonly ReactiveMap<string, int> ReactiveMap;
         public readonly IReactiveMap<string, int> IReactiveMap;
-        
-        public readonly IKeyedProp<string, int> IKeyedList;
-        
+
+        public readonly IReactiveCollection<string, int> IKeyedList;
+
         public readonly string[] Array;
         public readonly IEnumerable<string> IEnumerable;
     }
@@ -49,28 +49,28 @@ public partial class TypeTests
         var builder = Prop.Watch(new CollectionTypeData());
         builder.ChainConstant(x => x.ReactiveList).Enter();
         builder.ChainConstant(x => x.ReactiveList).EnterAt(1);
-        
+
         builder.ChainConstant(x => x.IReactiveList).Enter();
         builder.ChainConstant(x => x.IReactiveList).EnterAt(1);
-        
+
         builder.ChainConstant(x => x.ReactiveList).Enter();
         builder.ChainConstant(x => x.ReactiveList).EnterAt(1);
-        
+
         builder.ChainConstant(x => x.IReactiveList).Enter();
         builder.ChainConstant(x => x.IReactiveList).EnterAt(1);
-        
+
         builder.ChainConstant(x => x.IKeyedList).Enter();
         builder.ChainConstant(x => x.IKeyedList).EnterAt(1);
-        
+
         builder.ChainConstant(x => x.Array).Enter();
         builder.ChainConstant(x => x.IEnumerable).Enter();
     }
-    
+
     public void Mixed()
     {
         A root = null!;
-        
-        Prop.Watch(root)
+
+        var p1 = Prop.Watch(root)
             .ChainValue(x => x.B)
             .ChainValue(x => x.C)
             .Branch(
@@ -93,13 +93,13 @@ public partial class TypeTests
             .Immediate()
             .Compute(() => root.B.Value.C.Value.Ele.Select(x => x.Select(y => y.E1.v)), out var d0);
 
-        Prop.Watch(root)
+        var p3 = Prop.Watch(root)
             .ChainValue(x => x.B)
             .ChainValue(x => x.ListOfC)
             .Enter()
             .ChainValue(x => x.D1)
             .Immediate()
-            .React(() => {});
+            .React(() => { });
 
         var p4 = Prop.Watch(root)
             .ChainValue(x => x.B)
@@ -125,48 +125,47 @@ public partial class TypeTests
             .Immediate()
             .Compute(() => "", out var d1)
             .StartDisposable();
-#pragma warning restore CS0162 // Unreachable code detected
     }
-}
 
-partial class A
-{
-    public readonly IMutable<B> B;
-    public readonly IMutable<IEnumerable<B>> Blist;
+    class A
+    {
+        public readonly IMutable<B> B;
+        public readonly IMutable<IEnumerable<B>> Blist;
 
-    public readonly IMutable<B> PB;
-}
+        public readonly IMutable<B> PB;
+    }
 
-partial class B
-{
-    public readonly IMutable<C> C;
+    class B
+    {
+        public readonly IMutable<C> C;
 
-    public readonly IMutable<IEnumerable<C>> ListOfC;
-    public readonly IMutable<IReactiveList<IEnumerable<IReactiveMap<C, string>>>> IListOfC;
-}
+        public readonly IMutable<IEnumerable<C>> ListOfC;
+        public readonly IMutable<IReactiveList<IEnumerable<IReactiveMap<C, string>>>> IListOfC;
+    }
 
-partial class C
-{
-    public D Dd1 { get; }
+    class C
+    {
+        public D Dd1 { get; }
 
-    public readonly IMutable<D> D1;
-    public readonly IMutable<D> D2;
-    public readonly IEnumerable<D> Dl;
+        public readonly IMutable<D> D1;
+        public readonly IMutable<D> D2;
+        public readonly IEnumerable<D> Dl;
 
-    public IReactiveList<E> El { get; }
-    public IReactiveMap<E, string> Emap { get; }
-    public IReactiveList<IEnumerable<E>> Ele { get; }
-    public IEnumerable<E> Ee { get; }
-}
+        public IReactiveList<E> El { get; }
+        public IReactiveMap<E, string> Emap { get; }
+        public IReactiveList<IEnumerable<E>> Ele { get; }
+        public IEnumerable<E> Ee { get; }
+    }
 
-partial class D
-{
-    public int Value { get; set; }
-    public readonly IMutable<D> D2;
-}
+    class D
+    {
+        public int Value { get; set; }
+        public readonly IMutable<D> D2;
+    }
 
-partial class E
-{
-    public readonly string Value;
-    public readonly IMutable<E> E1;
+    class E
+    {
+        public readonly string Value;
+        public readonly IMutable<E> E1;
+    }
 }

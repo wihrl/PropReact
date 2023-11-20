@@ -1,7 +1,6 @@
 ﻿using PropReact.Chain;
 using PropReact.Props;
 using PropReact.Tests.Data;
-using PropReact.Tests.Value;
 
 namespace PropReact.Tests;
 
