@@ -13,13 +13,13 @@ public class ValueTests : CompositeDisposable
     void SingleValue()
     {
         var changes = 0;
-
+        
         Prop.Watch(this)
-            .ChainConstant(x => x.Data)
-            .ChainValue(x => x.Int)
-            .Immediate()
-            .React(() => changes++)
-            .Start(this);
+                .ChainConstant(x => x.Data)
+                .ChainValue(x => x.Int)
+                .Immediate()
+                .React(() => changes++)
+                .Start(this);
 
         Assert.Equal(0, changes);
 
@@ -200,7 +200,7 @@ public class ValueTests : CompositeDisposable
         Assert.Equal(0, changes);
 
         var val = Data.Nested.v;
-        
+
         Data.Nested.v.v = true;
         Assert.Equal(1, changes);
 

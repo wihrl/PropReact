@@ -23,4 +23,3 @@ public static class Prop
         return new(rootNode, rootNode);
     }
 }
-

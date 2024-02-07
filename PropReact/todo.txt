@@ -26,3 +26,7 @@ conserve chain type information, then construct the getter on Start() in reverse
 type xml documentation
 
 PropConfig.TransactionMode = { Ignore, Validate, Enforce }
+
+
+using static Prop;
+IProp<test> Prop = Make(); // using implicit casts

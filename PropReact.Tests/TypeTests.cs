@@ -124,7 +124,7 @@ public partial class TypeTests
             .ChainValue(x => x.C)
             .Immediate()
             .Compute(() => "", out var d1)
-            .StartDisposable();
+            .StartAsDisposable();
     }
 
     class A

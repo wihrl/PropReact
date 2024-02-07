@@ -2,7 +2,7 @@ using PropReact.Chain.Nodes;
 
 namespace PropReact.Chain.Reactions;
 
-class ImmediateReaction<TRoot> : Reaction<TRoot>
+sealed class ImmediateReaction<TRoot> : Reaction<TRoot>
 {
     protected override void Trigger()
     {

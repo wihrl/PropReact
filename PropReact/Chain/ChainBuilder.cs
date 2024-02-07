@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using PropReact.Chain.Nodes;
 using PropReact.Chain.Reactions;
+using PropReact.Props;
 using PropReact.Props.Collections;
 using PropReact.Props.Value;
 
@@ -95,7 +96,7 @@ public static class ChainBuilder
         this ChainBuilder<TMainRoot, TBranchType, IEnumerable<TValue>> builder)
         where TBranchType : IBranchType =>
         EnterExplicit<TMainRoot, TBranchType, IEnumerable<TValue>, TValue>(builder);
-    
+
     public static ChainBuilder<TMainRoot, TBranchType, TValue> Enter<TMainRoot, TBranchType, TValue>(
         this ChainBuilder<TMainRoot, TBranchType, TValue[]> builder)
         where TBranchType : IBranchType =>
@@ -113,12 +114,12 @@ public static class ChainBuilder
         this ChainBuilder<TMainRoot, TBranchType, IReactiveMap<TValue, TKey>> builder)
         where TKey : notnull where TBranchType : IBranchType =>
         EnterExplicit<TMainRoot, TBranchType, IReactiveMap<TValue, TKey>, TValue>(builder);
-    
+
     public static ChainBuilder<TMainRoot, TBranchType, TValue> Enter<TMainRoot, TBranchType, TValue, TKey>(
         this ChainBuilder<TMainRoot, TBranchType, ReactiveMap<TValue, TKey>> builder)
         where TKey : notnull where TBranchType : IBranchType =>
         EnterExplicit<TMainRoot, TBranchType, ReactiveMap<TValue, TKey>, TValue>(builder);
-    
+
     public static ChainBuilder<TMainRoot, TBranchType, TValue> Enter<TMainRoot, TBranchType, TValue, TKey>(
         this ChainBuilder<TMainRoot, TBranchType, IReactiveCollection<TValue, TKey>> builder)
         where TKey : notnull where TBranchType : IBranchType =>
@@ -205,9 +206,12 @@ public static class ChainBuilder
         new ImmediateReaction<TMainRoot>(builder.RootNode);
 
     public static IReactionBuilder<TMainRoot> Throttled<TMainRoot, TValue>(
-        this ChainBuilder<TMainRoot, RootBranch, TValue> builder,
-        int delay, bool runFirst = false) =>
-        new ThrottledReaction<TMainRoot>(builder.RootNode) { Delay = delay, RunFirst = runFirst };
+        this ChainBuilder<TMainRoot, RootBranch, TValue> builder, int delay, ThrottleMode mode = ThrottleMode.Extendable) =>
+        new ThrottledReaction<TMainRoot>(builder.RootNode)
+        {
+            Timeout = delay, Immediate = mode.HasFlag(ThrottleMode.Immediate),
+            ResetTimeoutOnTrigger = mode.HasFlag(ThrottleMode.Extendable)
+        };
 
     #endregion
 }

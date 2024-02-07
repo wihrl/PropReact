@@ -25,4 +25,5 @@ public sealed class Mutable<TValue> : ValuePropBase<TValue>, IMutable<TValue>
     }
 
     public static implicit operator Mutable<TValue>(TValue value) => new(value);
+    public static implicit operator TValue(Mutable<TValue> prop) => prop.Value;
 }

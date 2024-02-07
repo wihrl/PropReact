@@ -7,9 +7,9 @@ public interface IReactionBuilder<TRoot>
 {
     IReactionBuilder<TRoot> React(Action reaction, bool runNow = false);
     IReactionBuilder<TRoot> ReactAsync(Action<CancellationToken> action, bool runNow = false);
-    IReactionBuilder<TRoot> Compute<TValue>(Func<TValue> getter, out IDisposable disposable);
-    IReactionBuilder<TRoot> ComputeAsync<TValue>(Func<CancellationToken, Task<TValue>> getter);
-    IDisposable StartDisposable();
+    IReactionBuilder<TRoot> Compute<TValue>(Func<TValue> getter, out IComputed<TValue> prop);
+    IReactionBuilder<TRoot> ComputeAsync<TValue>(Func<CancellationToken, Task<TValue>> getter, out IComputedAsync<TValue> prop);
+    IDisposable StartAsDisposable();
     void Start(ICompositeDisposable disposable);
 }
 
@@ -40,17 +40,34 @@ abstract class Reaction<TRoot> : IReactionBuilder<TRoot>
         return this;
     }
 
-    IReactionBuilder<TRoot> IReactionBuilder<TRoot>.Compute<TValue>(Func<TValue> getter, out IDisposable disposable)
+    IReactionBuilder<TRoot> IReactionBuilder<TRoot>.Compute<TValue>(Func<TValue> getter, out IComputed<TValue> prop)
     {
-        throw new NotImplementedException();
+        var local = prop = new Computed<TValue>(getter());
+        Reactions += () => local.Set(getter());
+        return this;
     }
 
-    IReactionBuilder<TRoot> IReactionBuilder<TRoot>.ComputeAsync<TValue>(Func<CancellationToken, Task<TValue>> getter)
+    IReactionBuilder<TRoot> IReactionBuilder<TRoot>.ComputeAsync<TValue>(Func<CancellationToken, Task<TValue>> getter, out IComputedAsync<TValue> prop)
     {
-        throw new NotImplementedException();
+        var local = prop = new ComputedAsync<TValue>(default!);
+        
+        AsyncReactions += async ct =>
+        {
+            local.IncrementRunning();
+            try
+            {
+                local.Set(await getter(ct));
+            }
+            finally
+            {
+                local.DecrementRunning();
+            }
+        };
+        
+        return this;
     }
 
-    IDisposable IReactionBuilder<TRoot>.StartDisposable()
+    IDisposable IReactionBuilder<TRoot>.StartAsDisposable()
     {
         _root.Attach(Trigger);
         return _root;
@@ -58,7 +75,7 @@ abstract class Reaction<TRoot> : IReactionBuilder<TRoot>
 
     void IReactionBuilder<TRoot>.Start(ICompositeDisposable disposable)
     {
-        disposable.AddDisposable(((IReactionBuilder<TRoot>) this).StartDisposable());
+        disposable.AddDisposable(((IReactionBuilder<TRoot>)this).StartAsDisposable());
     }
 
     protected abstract void Trigger();
