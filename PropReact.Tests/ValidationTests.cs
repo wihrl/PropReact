@@ -11,14 +11,14 @@ public class ValidationTests
     [Fact]
     private void NonlocalRoot()
     {
-        Assert.Throws<ArgumentException>(() => Prop.Watch(Data));
-        Assert.Throws<ArgumentException>(() => Prop.Watch("asdf"));
+        Assert.Throws<ArgumentException>(() => Watch.From(Data));
+        Assert.Throws<ArgumentException>(() => Watch.From("asdf"));
     }
 
     [Fact]
     private void ChainedExpression()
     {
-        var builder = Prop.Watch(this);
+        var builder = Watch.From(this);
         Assert.Throws<ArgumentException>(() => builder.ChainValue(x => x.Data.Int));
     }
 }

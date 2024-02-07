@@ -15,7 +15,7 @@ public class ReactionTests : CompositeDisposable
         var counter1 = 0;
         var counter2 = 0;
 
-        Prop.Watch(this)
+        Watch.From(this)
             .ChainValue(x => x._int)
             .Immediate()
             .React(() => counter1++, true)
@@ -52,7 +52,7 @@ public class ReactionTests : CompositeDisposable
         var ready = false;
         var sw = Stopwatch.StartNew();
 
-        Prop.Watch(this)
+        Watch.From(this)
             .ChainValue(x => x._int)
             .Throttled(delay, ThrottleMode.Extendable | ThrottleMode.ImmediateExtendable)
             .React(() =>
@@ -128,7 +128,7 @@ public class ReactionTests : CompositeDisposable
         var expected = 0;
         var sw = Stopwatch.StartNew();
 
-        Prop.Watch(this)
+        Watch.From(this)
             .ChainValue(x => x._int)
             .Immediate()
             .ReactAsync(async x =>
@@ -156,7 +156,7 @@ public class ReactionTests : CompositeDisposable
         var caught = false;
         var sw = Stopwatch.StartNew();
 
-        Prop.Watch(this)
+        Watch.From(this)
             .ChainValue(x => x._int)
             .Immediate()
             .ReactAsync(async x =>

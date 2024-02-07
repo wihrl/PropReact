@@ -1,14 +1,12 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-using PropReact.Chain;
 using PropReact.Chain.Nodes;
-using PropReact.Props.Value;
 
-namespace PropReact.Props;
+namespace PropReact.Chain;
 
-public static class Prop
+public static class Watch
 {
-    public static ChainBuilder<TRoot, RootBranch, TRoot> Watch<TRoot>(
+    public static ChainBuilder<TRoot, RootBranch, TRoot> From<TRoot>(
         [NotNull] TRoot root,
         [CallerArgumentExpression(nameof(root))]
         string? rootExpression = null) where TRoot : notnull

@@ -3,12 +3,14 @@ using PropReact.Props.Value;
 
 namespace PropReact.Chain.Reactions;
 
+using AsyncAction = Func<CancellationToken, ValueTask>;
+
 public interface IReactionBuilder<TRoot>
 {
     IReactionBuilder<TRoot> React(Action reaction, bool runNow = false);
     IReactionBuilder<TRoot> ReactAsync(Func<CancellationToken, ValueTask> action, bool runNow = false);
     IReactionBuilder<TRoot> Compute<TValue>(Func<TValue> getter, out IComputed<TValue> prop);
-    IReactionBuilder<TRoot> ComputeAsync<TValue>(Func<CancellationToken, ValueTask<TValue>> getter, out IComputedAsync<TValue> prop);
+    IReactionBuilder<TRoot> ComputeAsync<TValue>(Func<CancellationToken, ValueTask<TValue>> getter, out IComputedAsync<TValue> prop, TValue defaultValue);
     IDisposable StartAsDisposable();
     void Start(ICompositeDisposable disposable);
     IReactionBuilder<TRoot> CatchAsync(Action<Exception> handler);
@@ -64,16 +66,19 @@ abstract class Reaction<TRoot> : IReactionBuilder<TRoot>, IDisposable
         return this;
     }
 
-    IReactionBuilder<TRoot> IReactionBuilder<TRoot>.ComputeAsync<TValue>(Func<CancellationToken, ValueTask<TValue>> getter, out IComputedAsync<TValue> prop)
+    IReactionBuilder<TRoot> IReactionBuilder<TRoot>.ComputeAsync<TValue>(
+        Func<CancellationToken, ValueTask<TValue>> getter,
+        out IComputedAsync<TValue> prop,
+        TValue defaultValue)
     {
-        var local = prop = new ComputedAsync<TValue>(default!);
+        var computed = prop = new ComputedAsync<TValue>(defaultValue);
 
-        AsyncReactions += async ct =>
+        AsyncAction wrapped = async ct =>
         {
-            local.IncrementRunning();
+            computed.IncrementRunning();
             try
             {
-                local.Set(await getter(ct));
+                computed.Set(await getter(ct));
             }
             catch (Exception e)
             {
@@ -81,13 +86,16 @@ abstract class Reaction<TRoot> : IReactionBuilder<TRoot>, IDisposable
             }
             finally
             {
-                local.DecrementRunning();
+                computed.DecrementRunning();
             }
         };
 
+        wrapped.Invoke(_cts.Token);
+        AsyncReactions += wrapped;
+
         return this;
     }
-    
+
     IReactionBuilder<TRoot> IReactionBuilder<TRoot>.CatchAsync(Action<Exception> handler)
     {
         AsyncExceptionHandler += handler;

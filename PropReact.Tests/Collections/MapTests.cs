@@ -22,7 +22,7 @@ public class MapTests : CompositeDisposable
         var changes = 0;
         int expected;
 
-        Prop.Watch(this)
+        Watch.From(this)
             .ChainConstant(x => x.Data.Records)
             .Enter()
             .Immediate()
@@ -63,7 +63,7 @@ public class MapTests : CompositeDisposable
         var changes = 0;
         int expected;
 
-        Prop.Watch(this)
+        Watch.From(this)
             .ChainConstant(x => x.Data)
             .ChainValue(x => x.MutableRecords)
             .Enter()
@@ -99,7 +99,7 @@ public class MapTests : CompositeDisposable
         var changes = 0;
         int expected;
 
-        Prop.Watch(this)
+        Watch.From(this)
             .ChainConstant(x => x.Data.Records)
             .Enter()
             .Branch(
@@ -140,7 +140,7 @@ public class MapTests : CompositeDisposable
         var changes = 0;
         int expected;
 
-        Prop.Watch(this)
+        Watch.From(this)
             .ChainConstant(x => x.Data.Records)
             .Enter()
             .ChainValue(x => x.Text)
@@ -172,7 +172,7 @@ public class MapTests : CompositeDisposable
 
         var guids = Enumerable.Range(0, 2).Select(x => Guid.NewGuid()).ToArray();
 
-        Prop.Watch(this)
+        Watch.From(this)
             .ChainConstant(x => x.Data.Records)
             .EnterAt(guids[1])
             .ChainValue(x => x.Text)
