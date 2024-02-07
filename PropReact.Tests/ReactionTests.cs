@@ -39,69 +39,12 @@ public class ReactionTests : CompositeDisposable
     }
 
     [Fact]
-    void Throttled()
-    {
-        const int delay = 100;
-        const int spinTimeout = delay * 50;
-        
-        var counter = 0;
-        var expected = 0;
-        var ready = false;
-        var sw = Stopwatch.StartNew();
+    void Throttled() => ThrottledInternal(false);
 
-        Prop.Watch(this)
-            .ChainValue(x => x._int)
-            .Throttled(delay)
-            .React(() =>
-            {
-                counter++;
-                ready = true;
-            })
-            .Start(this);
-
-        Assert.Equal(expected, counter);
-
-        var time = sw.ElapsedMilliseconds;
-
-        // basic
-        {
-            _int.Value++;
-
-            Assert.Equal(expected, counter);
-            SpinWait.SpinUntil(() => ready, spinTimeout);
-            ready = false;
-
-            Assert.Equal(++expected, counter);
-            CheckDelta(sw, ref time, delay);
-        }
-
-        // delay reset
-        {
-            _int.Value++;
-            Assert.Equal(expected, counter);
-
-            Thread.Sleep(delay / 2);
-            Assert.Equal(expected, counter);
-
-            _int.Value++;
-            Assert.Equal(expected, counter);
-            time = sw.ElapsedMilliseconds;
-
-            SpinWait.SpinUntil(() => ready, spinTimeout);
-            ready = false;
-            Assert.Equal(++expected, counter);
-            CheckDelta(sw, ref time, delay);
-        }
-
-        Dispose();
-
-        _int.Value++;
-        Thread.Sleep(delay * 2);
-        Assert.Equal(expected, counter);
-    }
-    
     [Fact]
-    void ThrottledImmediate()
+    void ThrottledImmediate() => ThrottledInternal(true);
+
+    void ThrottledInternal(bool immediate)
     {
         const int delay = 100;
         var counter = 0;
@@ -111,7 +54,7 @@ public class ReactionTests : CompositeDisposable
 
         Prop.Watch(this)
             .ChainValue(x => x._int)
-            .Throttled(delay, ThrottleMode.ImmediateExtendable)
+            .Throttled(delay, ThrottleMode.Extendable | ThrottleMode.ImmediateExtendable)
             .React(() =>
             {
                 counter++;
@@ -134,7 +77,7 @@ public class ReactionTests : CompositeDisposable
         // basic
         {
             TriggerInitial();
-            
+
             _int.Value++;
             Assert.Equal(expected, counter);
             SpinWait.SpinUntil(() => ready, delay * 10);
@@ -147,7 +90,7 @@ public class ReactionTests : CompositeDisposable
         // delay reset
         {
             TriggerInitial();
-            
+
             _int.Value++;
             Assert.Equal(expected, counter);
 
@@ -169,12 +112,64 @@ public class ReactionTests : CompositeDisposable
         Thread.Sleep(delay * 2);
         Assert.Equal(expected, counter);
     }
-    
+
     void CheckDelta(Stopwatch sw, ref long last, int expected, int maxDeviation = 40)
     {
         var delta = sw.ElapsedMilliseconds - last;
         Assert.True(delta <= expected + maxDeviation, $"Expected at most {expected + maxDeviation}ms, got {delta}ms");
         Assert.True(delta >= expected, $"Expected at least {expected}ms, got {delta}ms");
         last = sw.ElapsedMilliseconds;
+    }
+
+    [Fact]
+    void Async()
+    {
+        var counter = 0;
+        var expected = 0;
+        var sw = Stopwatch.StartNew();
+
+        Prop.Watch(this)
+            .ChainValue(x => x._int)
+            .Immediate()
+            .ReactAsync(async x =>
+            {
+                await Task.Delay(100, x);
+                counter++;
+            })
+            .Start(this);
+
+        Assert.Equal(expected, counter);
+
+        _int.Value++;
+        Assert.Equal(expected, counter);
+        Thread.Sleep(50);
+        Assert.Equal(expected, counter);
+        _int.Value++;
+        Assert.Equal(expected, counter);
+        Thread.Sleep(200);
+        Assert.Equal(++expected, counter);
+    }
+
+    [Fact]
+    void AsyncException()
+    {
+        var caught = false;
+        var sw = Stopwatch.StartNew();
+
+        Prop.Watch(this)
+            .ChainValue(x => x._int)
+            .Immediate()
+            .ReactAsync(async x =>
+            {
+                await Task.Yield();
+                throw new Exception();
+            })
+            .CatchAsync(x => caught = true)
+            .Start(this);
+
+        _int.Value++;
+        Thread.Sleep(100);
+
+        Assert.True(caught);
     }
 }

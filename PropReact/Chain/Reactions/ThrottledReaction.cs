@@ -9,7 +9,7 @@ sealed class ThrottledReaction<TRoot> : Reaction<TRoot>
     public required int Timeout { get; init; }
     public required bool ResetTimeoutOnTrigger { get; init; }
 
-    private object _lock = new();
+    private readonly object _lock = new();
     private long _triggerStamp;
 
     public ThrottledReaction(RootNode<TRoot> root) : base(root)
@@ -28,7 +28,7 @@ sealed class ThrottledReaction<TRoot> : Reaction<TRoot>
 
             if (_task is null)
             {
-                if (Immediate) TriggerReactions();
+                if (Immediate) RunReactions();
                 _task = StartTimeout();
             }
         }
@@ -54,6 +54,6 @@ sealed class ThrottledReaction<TRoot> : Reaction<TRoot>
         } while (ResetTimeoutOnTrigger && lastStamp != _triggerStamp);
         
         _task = null;
-        TriggerReactions();
+        RunReactions();
     }
 }
