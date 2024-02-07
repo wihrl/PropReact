@@ -4,10 +4,9 @@ using PropReact.Props.Value;
 
 namespace PropReact.Chain.Nodes;
 
-abstract class ChainNode<TValue>
+abstract class ChainNode<TValue>(IRootNode root)
 {
-    protected readonly IRootNode Root;
-    protected ChainNode(IRootNode root) => Root = root;
+    protected readonly IRootNode Root = root;
 
     protected readonly List<INotifiableChainNode<TValue>> Next = new();
     internal void Chain(INotifiableChainNode<TValue> next) => Next.Add(next);

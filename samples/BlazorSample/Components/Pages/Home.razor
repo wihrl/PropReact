@@ -1,0 +1,40 @@
+﻿@page "/"
+@implements IDisposable
+@using PropReact.Props.Value
+@using PropReact.Chain
+@using PropReact
+
+@code {
+
+    Mutable<string> _name = "username";
+    Mutable<int> _unreadMessages = 0;
+    Computed<string> _greeting = "";
+
+    readonly CompositeDisposable _disposables = new();
+
+    protected override void OnInitialized()
+    {
+        Watch.From(this)
+            .Branch(
+                x => x.ChainValue(y => y._name),
+                x => x.ChainValue(y => y._unreadMessages)
+            )
+            .Immediate()
+            .Compute(() => $"Hello, {_name.v}! You have {_unreadMessages.v} unread messages.", _greeting)
+            .React(() => InvokeAsync(StateHasChanged))
+            .Start(_disposables);
+    }
+
+    public void Dispose()
+    {
+        _disposables.Dispose();
+    }
+
+}
+
+<h1 style="font-size: 20px;">@_greeting.v</h1>
+
+<div>
+    <input type="text" @bind="_name.v" @bind:event="oninput"/>
+    <input type="number" @bind="_unreadMessages.v" @bind:event="oninput"/>
+</div>

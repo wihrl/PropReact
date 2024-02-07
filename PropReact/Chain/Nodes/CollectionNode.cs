@@ -2,13 +2,9 @@
 
 namespace PropReact.Chain.Nodes;
 
-class CollectionNode<TSet, TValue> : ChainNode<TValue>, INotifiableChainNode<TSet>, IPropObserver<TValue>
+class CollectionNode<TSet, TValue>(IRootNode root) : ChainNode<TValue>(root), INotifiableChainNode<TSet>, IPropObserver<TValue>
     where TSet : class, IEnumerable<TValue>
 {
-    public CollectionNode(IRootNode root) : base(root)
-    {
-    }
-
     // todo: same in all nodes, put to base
     public void PropChanged(TValue? oldValue, TValue? newValue)
     {

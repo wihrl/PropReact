@@ -1,11 +1,8 @@
 ﻿namespace PropReact.Chain.Nodes;
 
-class RootNode<TRoot> : ChainNode<TRoot>, IDisposable, IRootNode
+class RootNode<TRoot>(TRoot root) : ChainNode<TRoot>(null!), IDisposable, IRootNode
 {
-    private readonly TRoot _root;
     private Action? _changeCallback;
-
-    public RootNode(TRoot root) : base(null!) => _root = root;
 
     public void Attach(Action reaction)
     {
@@ -13,12 +10,12 @@ class RootNode<TRoot> : ChainNode<TRoot>, IDisposable, IRootNode
             throw new("Chain is already attached.");
         
         _changeCallback = reaction;
-        foreach (var chainNode in Next) chainNode.ChangeSource(default, _root);
+        foreach (var chainNode in Next) chainNode.ChangeSource(default, root);
     }
 
     public void Dispose()
     {
-        foreach (var chainNode in Next) chainNode.ChangeSource(_root, default);
+        foreach (var chainNode in Next) chainNode.ChangeSource(root, default);
     }
 
     public void ChainChanged() => _changeCallback?.Invoke();

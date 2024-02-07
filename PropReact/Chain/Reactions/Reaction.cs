@@ -10,7 +10,9 @@ public interface IReactionBuilder<TRoot>
     IReactionBuilder<TRoot> React(Action reaction, bool runNow = false);
     IReactionBuilder<TRoot> ReactAsync(Func<CancellationToken, ValueTask> action, bool runNow = false);
     IReactionBuilder<TRoot> Compute<TValue>(Func<TValue> getter, out IComputed<TValue> prop);
+    IReactionBuilder<TRoot> Compute<TValue>(Func<TValue> getter, IComputed<TValue> prop);
     IReactionBuilder<TRoot> ComputeAsync<TValue>(Func<CancellationToken, ValueTask<TValue>> getter, out IComputedAsync<TValue> prop, TValue defaultValue);
+    IReactionBuilder<TRoot> ComputeAsync<TValue>(Func<CancellationToken, ValueTask<TValue>> getter, IComputedAsync<TValue> prop);
     IDisposable StartAsDisposable();
     void Start(ICompositeDisposable disposable);
     IReactionBuilder<TRoot> CatchAsync(Action<Exception> handler);
@@ -60,25 +62,34 @@ abstract class Reaction<TRoot> : IReactionBuilder<TRoot>, IDisposable
 
     IReactionBuilder<TRoot> IReactionBuilder<TRoot>.Compute<TValue>(Func<TValue> getter, out IComputed<TValue> prop)
     {
-        var local = prop = new Computed<TValue>(getter());
-        Reactions += () => local.Set(getter());
+        prop = new Computed<TValue>(getter());
+        ((IReactionBuilder<TRoot>)this).Compute(getter, prop);
+        return this;
+    }
 
+    IReactionBuilder<TRoot> IReactionBuilder<TRoot>.Compute<TValue>(Func<TValue> getter, IComputed<TValue> prop)
+    {
+        Reactions += () => prop.Set(getter());
         return this;
     }
 
     IReactionBuilder<TRoot> IReactionBuilder<TRoot>.ComputeAsync<TValue>(
-        Func<CancellationToken, ValueTask<TValue>> getter,
-        out IComputedAsync<TValue> prop,
-        TValue defaultValue)
+        Func<CancellationToken, ValueTask<TValue>> getter, out IComputedAsync<TValue> prop, TValue defaultValue)
     {
-        var computed = prop = new ComputedAsync<TValue>(defaultValue);
+        prop = new ComputedAsync<TValue>(defaultValue);
+        ((IReactionBuilder<TRoot>)this).ComputeAsync(getter, prop);
+        return this;
+    }
 
+    IReactionBuilder<TRoot> IReactionBuilder<TRoot>.ComputeAsync<TValue>(
+        Func<CancellationToken, ValueTask<TValue>> getter, IComputedAsync<TValue> prop)
+    {
         AsyncAction wrapped = async ct =>
         {
-            computed.IncrementRunning();
+            prop.IncrementRunning();
             try
             {
-                computed.Set(await getter(ct));
+                prop.Set(await getter(ct));
             }
             catch (Exception e)
             {
@@ -86,7 +97,7 @@ abstract class Reaction<TRoot> : IReactionBuilder<TRoot>, IDisposable
             }
             finally
             {
-                computed.DecrementRunning();
+                prop.DecrementRunning();
             }
         };
 

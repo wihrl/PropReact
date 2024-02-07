@@ -3,11 +3,9 @@ using PropReact.Props.Value;
 
 namespace PropReact.Chain.Nodes;
 
-sealed class ValueNode<TSource, TValue> : ChainNode<TValue>, IPropObserver<TValue>, INotifiableChainNode<TSource>
+sealed class ValueNode<TSource, TValue>(Func<TSource, IValue<TValue>> getter, IRootNode root)
+    : ChainNode<TValue>(root), IPropObserver<TValue>, INotifiableChainNode<TSource>
 {
-    private readonly Func<TSource, IValue<TValue>> _getter;
-    public ValueNode(Func<TSource, IValue<TValue>> getter, IRootNode root) : base(root) => _getter = getter;
-
     public void PropChanged(TValue? oldValue, TValue? newValue)
     {
         foreach (var chainNode in Next)
@@ -20,8 +18,8 @@ sealed class ValueNode<TSource, TValue> : ChainNode<TValue>, IPropObserver<TValu
     {
         // todo: test nullability of API
 
-        var oldValue = oldSource is null ? null : _getter(oldSource);
-        var newValue = newSource is null ? null : _getter(newSource);
+        var oldValue = oldSource is null ? null : getter(oldSource);
+        var newValue = newSource is null ? null : getter(newSource);
 
         oldValue?.StopWatching(this);
         newValue?.Watch(this);

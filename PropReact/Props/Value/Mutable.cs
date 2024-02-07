@@ -1,8 +1,8 @@
 ﻿namespace PropReact.Props.Value;
 
-public sealed class Mutable<TValue> : ValuePropBase<TValue>, IMutable<TValue>
+public sealed class Mutable<TValue>(TValue initialValue) : ValuePropBase<TValue>(initialValue), IMutable<TValue>
 {
-    public TValue Value
+    public new TValue Value
     {
         get => _value;
         set
@@ -14,14 +14,10 @@ public sealed class Mutable<TValue> : ValuePropBase<TValue>, IMutable<TValue>
         }
     }
 
-    public TValue v
+    public new TValue v
     {
         get => Value;
         set => Value = value;
-    }
-
-    public Mutable(TValue initialValue) : base(initialValue)
-    {
     }
 
     public static implicit operator Mutable<TValue>(TValue value) => new(value);

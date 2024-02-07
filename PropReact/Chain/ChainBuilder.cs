@@ -42,12 +42,13 @@ public static class ChainBuilder
         where TBranchType : IBranchType
     {
 #if DEBUG
-        if (expression?.Count(x => x == '.') > 1)
+        // disallow chaining multiple properties at once except for IsRunning of async computed props
+        if (expression?.Count(x => x == '.') > 1 && !expression.Contains(nameof(IComputedAsync<object>.IsRunning)))
             throw new ArgumentException(
-                """
-                Appending a non-constant node to a reactive chain must be done one property at a time.
-                Expressions such as x => x.Prop1.Value.Prop2.Value are not allowed and should be replaced with 2 separate .Then() calls.
-                """,
+                $"""
+                 Appending a non-constant node to a reactive chain must be done one property at a time.
+                 Expressions such as x => x.Prop1.Value.Prop2.Value are not allowed and should be replaced with 2 separate .ChainValue calls.
+                 """,
                 nameof(selector));
 #endif
 

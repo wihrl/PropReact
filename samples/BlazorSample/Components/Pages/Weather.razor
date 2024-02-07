@@ -1,0 +1,105 @@
+﻿@page "/weather"
+@using PropReact.Props.Value
+@using PropReact.Chain
+@using PropReact
+@implements IDisposable
+
+<PageTitle>Weather</PageTitle>
+
+<h1>Weather</h1>
+
+<p>This component demonstrates showing data.</p>
+
+<div>
+    <label>Search</label>
+    <input type="text" @bind="_searchText.v" @bind:event="oninput"/>
+</div>
+
+@if (_forecasts.IsRunning.v)
+{
+    <p>
+        <em>Loading...</em>
+    </p>
+}
+else
+{
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Date</th>
+            <th>Temp. (C)</th>
+            <th>Temp. (F)</th>
+            <th>Summary</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var forecast in _forecasts.v)
+        {
+            <tr>
+                <td>@forecast.Date.ToShortDateString()</td>
+                <td>@forecast.TemperatureC</td>
+                <td>@forecast.TemperatureF</td>
+                <td>@forecast.Summary</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+@code {
+
+    private readonly ComputedAsync<WeatherForecast[]?> _forecasts = new(null);
+    private readonly Mutable<string> _searchText = "";
+
+    private readonly CompositeDisposable _disposables = new();
+
+    protected override void OnInitialized()
+    {
+        Watch.From(this)
+            .ChainValue(x => x._searchText)
+            .Throttled(200)
+            .ComputeAsync(LoadData, _forecasts)
+            .Start(_disposables);
+
+        Watch.From(this)
+            .Branch(
+                x => x.ChainValue(y => y._forecasts.IsRunning),
+                x => x.ChainValue(y => y._forecasts)
+            )
+            .Immediate()
+            .React(() => Console.WriteLine("IsRunning: " + _forecasts.IsRunning.v))
+            .React(() => InvokeAsync(StateHasChanged))
+            .Start(_disposables);
+    }
+
+    async ValueTask<WeatherForecast[]> LoadData(CancellationToken cancellationToken)
+    {
+        // Simulate asynchronous loading to demonstrate streaming rendering
+        await Task.Delay(500, cancellationToken);
+
+        var startDate = DateOnly.FromDateTime(DateTime.Now);
+        var summaries = new[] { "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching" };
+        return Enumerable.Range(1, 10).Select(index => new WeatherForecast
+            {
+                Date = startDate.AddDays(index),
+                TemperatureC = index,
+                Summary = summaries[index % summaries.Length]
+            })
+            .Where(x => x.Summary?.Contains(_searchText.v, StringComparison.OrdinalIgnoreCase) ?? true)
+            .ToArray();
+    }
+
+    private class WeatherForecast
+    {
+        public DateOnly Date { get; set; }
+        public int TemperatureC { get; set; }
+        public string? Summary { get; set; }
+        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    }
+
+    public void Dispose()
+    {
+        _disposables.Dispose();
+    }
+
+}

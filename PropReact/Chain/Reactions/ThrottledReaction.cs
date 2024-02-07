@@ -3,7 +3,7 @@ using PropReact.Chain.Nodes;
 
 namespace PropReact.Chain.Reactions;
 
-sealed class ThrottledReaction<TRoot> : Reaction<TRoot>
+sealed class ThrottledReaction<TRoot>(RootNode<TRoot> root) : Reaction<TRoot>(root)
 {
     public required bool Immediate { get; init; }
     public required int Timeout { get; init; }
@@ -11,10 +11,6 @@ sealed class ThrottledReaction<TRoot> : Reaction<TRoot>
 
     private readonly object _lock = new();
     private long _triggerStamp;
-
-    public ThrottledReaction(RootNode<TRoot> root) : base(root)
-    {
-    }
 
     private Task? _task;
 
