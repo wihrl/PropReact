@@ -1,4 +1,4 @@
-﻿namespace PropReact.Props;
+﻿namespace PropReact.Chain;
 
 [Flags]
 public enum ThrottleMode
