@@ -1,20 +1,33 @@
 ﻿@page "/counter"
-@rendermode InteractiveServer
+@using PropReact.Props.Value
+@inherits PropReact.Blazor.ReactiveComponent
 
 <PageTitle>Counter</PageTitle>
 
-<h1>Counter</h1>
+// todo: add description
 
-<p role="status">Current count: @currentCount</p>
+<h1>Counter</h1>
 
 <button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
 
+<input type="text" @bind="Bind(_text).Value" @bind:event="oninput"/>
+
+<p>Render count: @_renderCount</p>
+
+@for (int i = 0; i < Watch(_count); i++)
+{
+    <CounterLine Count="_count" Index="i" Text="_text"/>
+}
+
 @code {
-    private int currentCount = 0;
+    private readonly Mutable<int> _count = 0;
+    private readonly Mutable<string> _text = " numbers";
 
     private void IncrementCount()
     {
-        currentCount++;
+        _count.Value++;
     }
 
+    int _renderCount = 0;
+    protected override void OnAfterRenderInternal(bool firstRender) => _renderCount++;
 }

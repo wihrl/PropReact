@@ -1,6 +1,4 @@
-﻿using PropReact.Props.Value;
-
-namespace PropReact.Props.Collections;
+﻿namespace PropReact.Props.Collections;
 
 public interface IReactiveCollection<out TValue, in TKey> : IProp<TValue>, IEnumerable<TValue>
 {

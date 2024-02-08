@@ -1,3 +1,3 @@
 ﻿using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("OuterQuest.Reactive.Blazor")]
+[assembly: InternalsVisibleTo("PropReact.Blazor")]

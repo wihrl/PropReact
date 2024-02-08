@@ -12,7 +12,7 @@ public class ComputedTests : CompositeDisposable
     {
         IComputed<int> computed;
 
-        Watch.From(this)
+        Chain.Chain.From(this)
             .ChainValue(x => x._a)
             .Immediate()
             .Compute(() => _a.v + 1, out computed)
@@ -33,7 +33,7 @@ public class ComputedTests : CompositeDisposable
     {
         IComputedAsync<string> computed;
 
-        Watch.From(this)
+        Chain.Chain.From(this)
             .ChainValue(x => x._a)
             .Throttled(100)
             .ComputeAsync(async (x) =>

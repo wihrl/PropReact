@@ -1,20 +1,20 @@
 ﻿@page "/"
-@implements IDisposable
+@inherits PropReact.Blazor.ReactiveComponent
 @using PropReact.Props.Value
 @using PropReact.Chain
 @using PropReact
 
 @code {
 
-    Mutable<string> _name = "username";
-    Mutable<int> _unreadMessages = 0;
-    Computed<string> _greeting = "";
+    readonly Mutable<string> _name = "username";
+    readonly Mutable<int> _unreadMessages = 0;
+    readonly Computed<string> _greeting = "";
 
     readonly CompositeDisposable _disposables = new();
 
     protected override void OnInitialized()
     {
-        Watch.From(this)
+        Chain.From(this)
             .Branch(
                 x => x.ChainValue(y => y._name),
                 x => x.ChainValue(y => y._unreadMessages)
@@ -25,16 +25,20 @@
             .Start(_disposables);
     }
 
-    public void Dispose()
-    {
-        _disposables.Dispose();
-    }
 
+    int _renderCount = 0;
+    protected override void OnAfterRenderInternal(bool firstRender)
+    {
+        _renderCount++;
+        Console.WriteLine($"Render: {_renderCount}");
+    }
 }
 
 <h1 style="font-size: 20px;">@_greeting.v</h1>
 
 <div>
-    <input type="text" @bind="_name.v" @bind:event="oninput"/>
-    <input type="number" @bind="_unreadMessages.v" @bind:event="oninput"/>
+    <input type="text" @bind="Bind(_name).v" @bind:event="oninput"/>
+    <input type="number" @bind="Bind(_unreadMessages).v" @bind:event="oninput"/>
+
+    <button @onclick="() => _unreadMessages.v = 0">Mark as read</button>
 </div>

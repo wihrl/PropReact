@@ -1,5 +1,3 @@
-using System.ComponentModel;
-
 namespace PropReact.Props.Value;
 
 public interface IValue<out TValue> : IProp<TValue>

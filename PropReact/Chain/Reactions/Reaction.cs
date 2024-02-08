@@ -69,7 +69,9 @@ abstract class Reaction<TRoot> : IReactionBuilder<TRoot>, IDisposable
 
     IReactionBuilder<TRoot> IReactionBuilder<TRoot>.Compute<TValue>(Func<TValue> getter, IComputed<TValue> prop)
     {
-        Reactions += () => prop.Set(getter());
+        var setter = () => prop.Set(getter());
+        setter.Invoke();
+        Reactions += setter;
         return this;
     }
 
@@ -119,7 +121,7 @@ abstract class Reaction<TRoot> : IReactionBuilder<TRoot>, IDisposable
         return this;
     }
 
-    void IReactionBuilder<TRoot>.Start(ICompositeDisposable disposable) => disposable.AddDisposable(((IReactionBuilder<TRoot>)this).StartAsDisposable());
+    void IReactionBuilder<TRoot>.Start(ICompositeDisposable disposable) => disposable.Add(((IReactionBuilder<TRoot>)this).StartAsDisposable());
 
     protected abstract void Trigger();
 

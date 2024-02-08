@@ -1,7 +1,10 @@
 ﻿namespace PropReact.Props.Value;
 
-public class Computed<T>(T value) : ValuePropBase<T>(value), IComputed<T>
+public sealed class Computed<T>(T value) : ValuePropBase<T>(value), IComputed<T>
 {
+    public T Value => _value;
+    public T v => Value;
+
     void IComputed<T>.Set(T value) => SetAndNotify(value);
     internal void Set(T value) => SetAndNotify(value);
 

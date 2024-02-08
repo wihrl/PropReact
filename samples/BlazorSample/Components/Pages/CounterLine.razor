@@ -1,0 +1,56 @@
+﻿@using PropReact.Props.Value
+@using PropReact.Blazor
+@using PropReact.Chain
+@inherits PropReact.Blazor.ExclusiveReactiveComponent
+
+<div style="">
+    <span>@(Index + 1) / @Watch(_count) @Watch(_actualText)</span>
+
+    <div style="display:inline-flex; flex-direction:column; margin-left: 50px;">
+        <button @onclick="() => _count.v++">Increment in child</button>
+
+        <div>
+            <label>Text override:</label>
+            <input @bind="Bind(_textOverride).Value" @bind:event="oninput"/>
+        </div>
+
+    </div>
+
+    <div style="margin-left: 50px">
+        <span>Render count: @_renderCount</span>
+    </div>
+</div>
+
+@code {
+
+    [Parameter]
+    public int Index { get; set; }
+
+    [Parameter]
+    public IMutable<int> Count { set => _count.Update(value); }
+
+    [Parameter]
+    public IValue<string> Text { set => _text.Update(value); }
+
+    readonly MutableParam<int> _count = new();
+    readonly ValueParam<string> _text = new();
+
+    readonly Mutable<string?> _textOverride = new(null);
+
+    readonly Computed<string> _actualText = "";
+
+    protected override void OnInitialized()
+    {
+        Chain.From(this)
+            .Branch(
+                x => x.ChainValue(y => y._text),
+                x => x.ChainValue(y => y._textOverride)
+            )
+            .Immediate()
+            .Compute(() => string.IsNullOrEmpty(_textOverride.v) ? $"{_text.v} (default)" : $"{_textOverride.v} (override)", _actualText)
+            .Start(Disposables);
+    }
+
+    int _renderCount = 0;
+    protected override void OnAfterRenderInternal(bool firstRender) => _renderCount++;
+}

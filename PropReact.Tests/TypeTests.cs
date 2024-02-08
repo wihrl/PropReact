@@ -23,7 +23,7 @@ public partial class TypeTests
 
     void Values()
     {
-        var builder = Watch.From(new ValueTypeData());
+        var builder = Chain.Chain.From(new ValueTypeData());
         builder.ChainValue(x => x.Mutable);
         builder.ChainValue(x => x.IMutable);
         builder.ChainValue(x => x.IComputed);
@@ -46,7 +46,7 @@ public partial class TypeTests
 
     void Collections()
     {
-        var builder = Watch.From(new CollectionTypeData());
+        var builder = Chain.Chain.From(new CollectionTypeData());
         builder.ChainConstant(x => x.ReactiveList).Enter();
         builder.ChainConstant(x => x.ReactiveList).EnterAt(1);
 
@@ -70,7 +70,7 @@ public partial class TypeTests
     {
         A root = null!;
 
-        var p1 = Watch.From(root)
+        var p1 = Chain.Chain.From(root)
             .ChainValue(x => x.B)
             .ChainValue(x => x.C)
             .Branch(
@@ -83,7 +83,7 @@ public partial class TypeTests
             .Immediate()
             .React(() => { });
 
-        var p2 = Watch.From(root)
+        var p2 = Chain.Chain.From(root)
             .ChainValue(x => x.B)
             .ChainValue(x => x.C)
             .ChainConstant(x => x.Ele)
@@ -93,7 +93,7 @@ public partial class TypeTests
             .Immediate()
             .Compute(() => root.B.Value.C.Value.Ele.Select(x => x.Select(y => y.E1.v)), out var d0);
 
-        var p3 = Watch.From(root)
+        var p3 = Chain.Chain.From(root)
             .ChainValue(x => x.B)
             .ChainValue(x => x.ListOfC)
             .Enter()
@@ -101,7 +101,7 @@ public partial class TypeTests
             .Immediate()
             .React(() => { });
 
-        var p4 = Watch.From(root)
+        var p4 = Chain.Chain.From(root)
             .ChainValue(x => x.B)
             .ChainValue(x => x.IListOfC)
             .Enter()
@@ -110,7 +110,7 @@ public partial class TypeTests
             .ChainValue(x => x.D1)
             .Immediate();
 
-        var p5 = Watch.From(root)
+        var p5 = Chain.Chain.From(root)
             .ChainValue(x => x.B)
             .ChainValue(x => x.C)
             .ChainConstant(x => x.Emap)
@@ -118,7 +118,7 @@ public partial class TypeTests
             .ChainValue(x => x.E1)
             .Immediate();
 
-        var p6 = Watch.From(root)
+        var p6 = Chain.Chain.From(root)
             .ChainValue(x => x.Blist)
             .Enter()
             .ChainValue(x => x.C)

@@ -3,14 +3,14 @@ namespace PropReact;
 
 public interface ICompositeDisposable : IDisposable
 {
-    void AddDisposable(IDisposable disposable);
+    void Add(IDisposable disposable);
 }
 
 public class CompositeDisposable : ICompositeDisposable
 {
     private readonly List<IDisposable> _ownedDisposables = new();
 
-    public void AddDisposable(IDisposable disposable) => _ownedDisposables.Add(disposable);
+    public void Add(IDisposable disposable) => _ownedDisposables.Add(disposable);
 
     public void Dispose()
     {

@@ -1,7 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using PropReact.Chain.Nodes;
 using PropReact.Chain.Reactions;
-using PropReact.Props;
 using PropReact.Props.Collections;
 using PropReact.Props.Value;
 
@@ -38,17 +37,22 @@ public static class ChainBuilder
     public static ChainBuilder<TMainRoot, TBranchType, TNext> ChainValue<TMainRoot, TBranchType, TValue, TNext>(
         this ChainBuilder<TMainRoot, TBranchType, TValue> builder, Func<TValue, IValue<TNext?>> selector,
         [CallerArgumentExpression(nameof(selector))]
-        string? expression = null)
+        string expression = "")
         where TBranchType : IBranchType
     {
 #if DEBUG
         // disallow chaining multiple properties at once except for IsRunning of async computed props
-        if (expression?.Count(x => x == '.') > 1 && !expression.Contains(nameof(IComputedAsync<object>.IsRunning)))
+        // allowed: x.Prop1     => count = 1
+        // allowed: x.AsyncProp1.IsRunning => count = 2
+        // disallowed: x.Prop1.Value... => count > 2
+
+        var count = expression.Count(x => x == '.');
+        if ((count == 2 && !expression.Contains(nameof(IComputedAsync<object>.IsRunning))) || count > 2)
             throw new ArgumentException(
-                $"""
-                 Appending a non-constant node to a reactive chain must be done one property at a time.
-                 Expressions such as x => x.Prop1.Value.Prop2.Value are not allowed and should be replaced with 2 separate .ChainValue calls.
-                 """,
+                """
+                Appending a non-constant node to a reactive chain must be done one property at a time.
+                Expressions such as x => x.Prop1.Value.Prop2.Value are not allowed and should be replaced with 2 separate .ChainValue calls.
+                """,
                 nameof(selector));
 #endif
 

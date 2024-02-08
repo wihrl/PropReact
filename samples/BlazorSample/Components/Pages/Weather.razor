@@ -2,7 +2,7 @@
 @using PropReact.Props.Value
 @using PropReact.Chain
 @using PropReact
-@implements IDisposable
+@inherits PropReact.Blazor.ReactiveComponent
 
 <PageTitle>Weather</PageTitle>
 
@@ -11,11 +11,11 @@
 <p>This component demonstrates showing data.</p>
 
 <div>
-    <label>Search</label>
+    <label>Search summary</label>
     <input type="text" @bind="_searchText.v" @bind:event="oninput"/>
 </div>
 
-@if (_forecasts.IsRunning.v)
+@if (Watch(_forecasts.IsRunning))
 {
     <p>
         <em>Loading...</em>
@@ -33,7 +33,7 @@ else
         </tr>
         </thead>
         <tbody>
-        @foreach (var forecast in _forecasts.v)
+        @foreach (var forecast in Watch(_forecasts))
         {
             <tr>
                 <td>@forecast.Date.ToShortDateString()</td>
@@ -47,29 +47,23 @@ else
 }
 
 @code {
-
-    private readonly ComputedAsync<WeatherForecast[]?> _forecasts = new(null);
+    private readonly ComputedAsync<WeatherForecast[]> _forecasts = new([]);
     private readonly Mutable<string> _searchText = "";
-
-    private readonly CompositeDisposable _disposables = new();
 
     protected override void OnInitialized()
     {
-        Watch.From(this)
+        Chain.From(this)
             .ChainValue(x => x._searchText)
             .Throttled(200)
             .ComputeAsync(LoadData, _forecasts)
-            .Start(_disposables);
+            .Start(Disposables);
 
-        Watch.From(this)
-            .Branch(
-                x => x.ChainValue(y => y._forecasts.IsRunning),
-                x => x.ChainValue(y => y._forecasts)
-            )
+        Chain.From(this)
+            .ChainValue(y => y._forecasts.IsRunning)
             .Immediate()
             .React(() => Console.WriteLine("IsRunning: " + _forecasts.IsRunning.v))
             .React(() => InvokeAsync(StateHasChanged))
-            .Start(_disposables);
+            .Start(Disposables);
     }
 
     async ValueTask<WeatherForecast[]> LoadData(CancellationToken cancellationToken)
@@ -95,11 +89,6 @@ else
         public int TemperatureC { get; set; }
         public string? Summary { get; set; }
         public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-    }
-
-    public void Dispose()
-    {
-        _disposables.Dispose();
     }
 
 }

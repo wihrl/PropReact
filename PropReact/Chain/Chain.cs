@@ -4,7 +4,7 @@ using PropReact.Chain.Nodes;
 
 namespace PropReact.Chain;
 
-public static class Watch
+public static class Chain
 {
     public static ChainBuilder<TRoot, RootBranch, TRoot> From<TRoot>(
         [NotNull] TRoot root,

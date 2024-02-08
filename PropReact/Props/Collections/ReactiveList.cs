@@ -1,6 +1,4 @@
-﻿using System.Collections;
-
-namespace PropReact.Props.Collections;
+﻿namespace PropReact.Props.Collections;
 
 public interface IReactiveList<TValue> : IReactiveCollection<TValue, int>, IList<TValue>
 {

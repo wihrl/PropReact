@@ -1,7 +1,4 @@
-﻿using PropReact.Props;
-using PropReact.Props.Value;
-
-namespace PropReact.Chain.Nodes;
+﻿namespace PropReact.Chain.Nodes;
 
 class ConstantNode<TSource, TValue>(Func<TSource, TValue> getter, IRootNode root) : ChainNode<TValue>(root), INotifiableChainNode<TSource>
 {

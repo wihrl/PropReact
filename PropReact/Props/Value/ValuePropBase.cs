@@ -1,13 +1,8 @@
-﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
+﻿namespace PropReact.Props.Value;
 
-namespace PropReact.Props.Value;
-
-public abstract class ValuePropBase<TValue>(TValue initialValue) : PropBase<TValue>, IValue<TValue>
+public abstract class ValuePropBase<TValue>(TValue initialValue) : PropBase<TValue>
 {
     protected TValue _value = initialValue;
-    public TValue Value => _value;
-    public TValue v => _value;
 
     protected void SetAndNotify(TValue newValue)
     {
