@@ -1,7 +1,6 @@
-﻿using PropReact.Props;
-using PropReact.Props.Value;
+﻿using PropReact.Props.Value;
 
-namespace PropReact.Tests.Data;
+namespace PropReact.Tests.Shared;
 
 public class Record
 {

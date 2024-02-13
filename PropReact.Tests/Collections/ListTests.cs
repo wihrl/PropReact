@@ -2,7 +2,8 @@
 using PropReact.Props;
 using PropReact.Props.Collections;
 using PropReact.Props.Value;
-using Record = PropReact.Tests.Data.Record;
+using PropReact.Utils;
+using Record = PropReact.Tests.Shared.Record;
 
 namespace PropReact.Tests.Collections;
 

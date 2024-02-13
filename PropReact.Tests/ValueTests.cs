@@ -1,7 +1,8 @@
 ﻿using PropReact.Chain;
 using PropReact.Props;
-using PropReact.Tests.Data;
-using Record = PropReact.Tests.Data.Record;
+using PropReact.Tests.Shared;
+using PropReact.Utils;
+using Record = PropReact.Tests.Shared.Record;
 
 namespace PropReact.Tests;
 

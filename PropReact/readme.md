@@ -1,20 +1,24 @@
 ﻿### features:
 
-- watching simple property chains: `x => x.Prop1.Prop2.Prop3`
+- watching property chains: `x => x.Prop1.Prop2.Prop3`
     - branching: `x => x.Prop1.Prop2.Branch(y => y.Prop3a.Prop4, y => y.Prop3a)`
-- watching sets: `x => x.Prop1.SomeSet.Select(y => y.Prop3)`
-    - nesting:
-    - branching: `x => x.Branch(y => y.Prop1a.SomeSet.Select(y => y.Prop3), y => y.Prop1b)`
-- watching maps
-    - same as sets
-    - watch specific keys: `x => x.Prop1.SomeMap["foo"].Prop2`
-- very little boilerplate
-- reflection free - works great with AOT / trimming
+- collection support
+  - watching sets: `x => x.Prop1.SomeSet.Select(y => y.Prop3)`
+      - nesting:
+      - branching: `x => x.Branch(y => y.Prop1a.SomeSet.Select(y => y.Prop3), y => y.Prop1b)`
+  - watching maps (dictionaries)
+      - all of the above
+      - watch specific keys: `x => x.Prop1.SomeMap["foo"].Prop2`
+- change throttling/debounce
+- computed values
+  - async support
+- reflection free - works fine with AOT / trimming
 
 advantages over INPC:
-- completely implemented with generics - no `object` boxing
+- generally more powerful
 - better collection support
-- more source generator-friendly, hence no reflection
+- less boxing
+- eventually less boilerplate (see limitations)
 
 maybe one day:
 - arbitrary expression watching (no need for selectors)
@@ -38,10 +42,10 @@ todo:
 - remove navigation properties, instead allow watching collection keys in computed properties (
   x.Parent.SomeCollection[Key])
 
-thread safety:
 
 current limitations:
  - manual reactive chain creation
  - no bulk updates for collections (all changes are processed per-item, albeit without allocations)
  - no type inference for selected expressions
-   - updates triggered for or changes along the chain, not just the result
+ - updates triggered for or changes along the chain, not just the result
+ - thread safety is not guaranteed (excluding ComputeAsync())

@@ -1,5 +1,5 @@
 ﻿
-namespace PropReact;
+namespace PropReact.Utils;
 
 public interface ICompositeDisposable : IDisposable
 {

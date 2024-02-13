@@ -16,8 +16,6 @@ sealed class ValueNode<TSource, TValue>(Func<TSource, IValue<TValue>> getter, IR
 
     void INotifiableChainNode<TSource>.ChangeSource(TSource? oldSource, TSource? newSource)
     {
-        // todo: test nullability of API
-
         var oldValue = oldSource is null ? null : getter(oldSource);
         var newValue = newSource is null ? null : getter(newSource);
 
