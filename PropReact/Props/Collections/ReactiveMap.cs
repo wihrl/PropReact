@@ -2,18 +2,6 @@
 
 namespace PropReact.Props.Collections;
 
-// todo: maybe remove these interfaces
-public interface IReactiveMap<TValue, TKey> : IReactiveCollection<TValue, TKey>
-    where TKey : notnull
-{
-    int Count { get; }
-    bool Add(TValue value);
-    bool Remove(TValue value);
-    TValue? this[TKey key] { get; }
-    bool TryGet(TKey key, out TValue value);
-    bool ContainsKey(TKey key);
-}
-
 public class ReactiveMap<TValue, TKey> : ReactiveCollection<TValue, TKey>, IReactiveMap<TValue, TKey> where TKey : notnull
 {
     private readonly Dictionary<TKey, TValue> _dictionary;
