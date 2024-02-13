@@ -8,8 +8,7 @@ namespace PropReact.Blazor;
 
 public class ReactiveComponent : ComponentBase, IDisposable
 {
-    protected CompositeDisposable Disposables { get; } = new();
-    private bool _firstRender = true;
+    protected CompositeDisposable Disposables { get; private set; } = new();
     internal int _dependencyChanges = 1;
 
     public void Dispose()
@@ -22,27 +21,22 @@ public class ReactiveComponent : ComponentBase, IDisposable
     {
     }
 
-    protected sealed override void OnAfterRender(bool firstRender)
-    {
-        if (_firstRender) _firstRender = false;
-        OnAfterRenderInternal(firstRender);
-    }
+    // Because rendering can happen conditionally, gathering dependencies during the first render is not sufficient.
+    // Instead, each dependency must be tracked individually.
+    readonly List<object> _dependencies = new(); // List.Contains is marginally faster than HashSet.Contains for small collections
 
-    protected virtual void OnAfterRenderInternal(bool firstRender)
-    {
-    }
-    
     protected TValue Watch<TValue>(IValue<TValue> prop, [CallerArgumentExpression(nameof(prop))] string expression = "")
     {
-        if (!_firstRender) return prop.Value; // todo: handle conditionals
+        if (_dependencies.Contains(prop)) return prop.Value;
         ValidateExpression(expression);
         ObserveProp(prop);
         return prop.Value;
     }
 
-    protected IReactiveCollection<TValue, TKey> Watch<TValue, TKey>(IReactiveCollection<TValue, TKey> prop, [CallerArgumentExpression(nameof(prop))] string expression = "")
+    protected IReactiveCollection<TValue, TKey> Watch<TValue, TKey>(IReactiveCollection<TValue, TKey> prop,
+        [CallerArgumentExpression(nameof(prop))] string expression = "")
     {
-        if (!_firstRender) return prop; // todo: handle conditionals
+        if (_dependencies.Contains(prop)) return prop;
         ValidateExpression(expression);
         ObserveProp(prop);
         return prop;
@@ -50,7 +44,7 @@ public class ReactiveComponent : ComponentBase, IDisposable
 
     protected IMutable<TValue> Bind<TValue>(IMutable<TValue> prop, [CallerArgumentExpression(nameof(prop))] string expression = "")
     {
-        if (!_firstRender) return prop;
+        if (_dependencies.Contains(prop)) return prop;
         ValidateExpression(expression);
         ObserveProp(prop);
         return prop;
@@ -64,6 +58,7 @@ public class ReactiveComponent : ComponentBase, IDisposable
             InvokeAsync(StateHasChanged);
         });
         observer.Start();
+        _dependencies.Add(prop);
         Disposables.Add(observer);
     }
 
