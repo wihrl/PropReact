@@ -6,6 +6,7 @@ public sealed class ReactiveList<TValue> : ReactiveCollection<TValue, int>, IRea
 
     public ReactiveList() => _list = new();
     public ReactiveList(IEnumerable<TValue> existing) => _list = [..existing];
+    public ReactiveList(List<TValue> existing) => _list = existing;
     public ReactiveList(int capacity) => _list = new(capacity);
 
     public override IEnumerator<TValue> GetEnumerator() => _list.GetEnumerator();

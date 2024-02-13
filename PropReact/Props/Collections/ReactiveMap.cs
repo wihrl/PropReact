@@ -19,6 +19,12 @@ public class ReactiveMap<TValue, TKey> : ReactiveCollection<TValue, TKey>, IReac
         _dictionary = existing.ToDictionary(keySelector);
     }
 
+    public ReactiveMap(Func<TValue, TKey> keySelector, Dictionary<TKey, TValue> existing)
+    {
+        _keySelector = keySelector;
+        _dictionary = existing;
+    }
+
     public bool ContainsKey(TKey key) => _dictionary.ContainsKey(key);
     public bool TryGet(TKey key, out TValue value) => _dictionary.TryGetValue(key, out value!);
 
