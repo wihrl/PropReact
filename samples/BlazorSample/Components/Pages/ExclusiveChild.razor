@@ -1,0 +1,22 @@
+﻿@using PropReact.Blazor
+@using PropReact.Props.Value
+@inherits ExclusiveReactiveComponent
+
+@code {
+
+    [Parameter]
+    public IValue<string> Text { set => _text.Update(value); }
+
+    ValueParam<string> _text = new();
+
+    int _renderCount = 0;
+
+    protected override void OnAfterRenderInternal(bool firstRender)
+    {
+        _renderCount++;
+    }
+
+}
+
+<h6>@Watch(_text)</h6>
+<p>Child render count: @_renderCount</p>

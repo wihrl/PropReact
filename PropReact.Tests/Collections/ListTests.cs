@@ -212,4 +212,43 @@ public class ListTests : CompositeDisposable
         Data.Records.Add(new());
         Assert.Equal(expected, changes);
     }
+
+    [Fact]
+    public void WatchAtShift()
+    {
+        // test that removing an item before the watched index notifies about the shift
+
+        var changes = 0;
+        int expected = 0;
+
+        Chain.Chain.From(this)
+            .ChainConstant(x => x.Data.Records)
+            .EnterAt(1)
+            .Immediate()
+            .React(() => changes++)
+            .Start(this);
+
+        Assert.Equal(expected, changes);
+
+        Data.Records.Add(new());
+        Data.Records.Add(new());
+        Data.Records.Add(new());
+        Assert.Equal(++expected, changes);
+
+        Data.Records.RemoveAt(0);
+        Assert.Equal(++expected, changes);
+
+        Data.Records.RemoveAt(0);
+        Assert.Equal(++expected, changes);
+
+        Data.Records.RemoveAt(0);
+        Assert.Equal(expected, changes);
+
+        Dispose();
+
+        Data.Records.Add(new());
+        Data.Records.Add(new());
+        Data.Records.Add(new());
+        Assert.Equal(expected, changes);
+    }
 }

@@ -3,11 +3,11 @@
 @using PropReact.Chain
 @inherits PropReact.Blazor.ExclusiveReactiveComponent
 
-<div style="">
+<div style="border: 1px solid black">
     <span>@(Index + 1) / @Watch(_count) @Watch(_actualText)</span>
 
     <div style="display:inline-flex; flex-direction:column; margin-left: 50px;">
-        <button @onclick="() => _count.v++">Increment in child</button>
+        <button @onclick="() => _count.v++">Increment line count in child</button>
 
         <div>
             <label>Text override:</label>

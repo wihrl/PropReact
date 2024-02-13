@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Components;
 using PropReact.Props;
+using PropReact.Props.Collections;
 using PropReact.Props.Value;
 
 namespace PropReact.Blazor;
@@ -30,13 +31,21 @@ public class ReactiveComponent : ComponentBase, IDisposable
     protected virtual void OnAfterRenderInternal(bool firstRender)
     {
     }
-
+    
     protected TValue Watch<TValue>(IValue<TValue> prop, [CallerArgumentExpression(nameof(prop))] string expression = "")
     {
-        if (!_firstRender) return prop.Value;
+        if (!_firstRender) return prop.Value; // todo: handle conditionals
         ValidateExpression(expression);
         ObserveProp(prop);
         return prop.Value;
+    }
+
+    protected IReactiveCollection<TValue, TKey> Watch<TValue, TKey>(IReactiveCollection<TValue, TKey> prop, [CallerArgumentExpression(nameof(prop))] string expression = "")
+    {
+        if (!_firstRender) return prop; // todo: handle conditionals
+        ValidateExpression(expression);
+        ObserveProp(prop);
+        return prop;
     }
 
     protected IMutable<TValue> Bind<TValue>(IMutable<TValue> prop, [CallerArgumentExpression(nameof(prop))] string expression = "")
@@ -47,7 +56,7 @@ public class ReactiveComponent : ComponentBase, IDisposable
         return prop;
     }
 
-    private void ObserveProp<TValue>(IValue<TValue> prop)
+    private void ObserveProp<TValue>(IProp<TValue> prop)
     {
         var observer = new GenericObserver<TValue>(prop, (_, _) =>
         {

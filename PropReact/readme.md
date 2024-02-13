@@ -38,6 +38,8 @@ todo:
 - remove navigation properties, instead allow watching collection keys in computed properties (
   x.Parent.SomeCollection[Key])
 
+thread safety:
+
 current limitations:
  - manual reactive chain creation
  - no bulk updates for collections (all changes are processed per-item, albeit without allocations)

@@ -56,6 +56,12 @@ public sealed class ReactiveList<TValue> : ReactiveCollection<TValue, int>, IRea
         var item = _list[index];
         _list.RemoveAt(index);
         Removed(index, item);
+
+        // if the removed item is not the last, notify existing observers of shifted indices
+        if (index < _list.Count /* list.Count-=1 because of removal */ && KeyedObservers is not null)
+            foreach (var (key, observers) in KeyedObservers.Where(x => x.Key > index))
+            foreach (var propObserver in observers)
+                propObserver.PropChanged(InternalGetter(index), InternalGetter(index + 1));
     }
 
     public TValue this[int index]

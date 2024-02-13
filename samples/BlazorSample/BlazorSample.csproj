@@ -15,6 +15,9 @@
       <Content Update="Components\Pages\CounterLine.razor">
         <DependentUpon>Counter.razor</DependentUpon>
       </Content>
+      <Content Update="Components\Pages\ExclusiveChild.razor">
+        <DependentUpon>Exclusive.razor</DependentUpon>
+      </Content>
     </ItemGroup>
 
 </Project>

@@ -4,11 +4,14 @@
 
 <PageTitle>Counter</PageTitle>
 
-// todo: add description
-
 <h1>Counter</h1>
 
-<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+<p>
+    An example of passing props to a child component as Blazor parameters while allowing mutations
+    and computing other values by combining parent and child props.
+</p>
+
+<button class="btn btn-primary" @onclick="IncrementCount">Increment line count</button>
 
 <input type="text" @bind="Bind(_text).Value" @bind:event="oninput"/>
 

@@ -2,7 +2,7 @@
 
 namespace PropReact.Props;
 
-internal class GenericObserver<T>(IValue<T> prop, Action<T?, T?> action) : IPropObserver<T>, IDisposable
+internal class GenericObserver<T>(IProp<T> prop, Action<T?, T?> action) : IPropObserver<T>, IDisposable
 {
     public void Start() => prop.Watch(this);
 

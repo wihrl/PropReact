@@ -1,0 +1,32 @@
+﻿@page "/dots"
+@using PropReact.Props.Value
+@inherits PropReact.Blazor.ExclusiveReactiveComponent
+
+@code {
+    readonly Mutable<string> _color = new("#ff0000");
+    readonly Mutable<string> _text = new("sample text");
+
+    int _renderCount = 0;
+    
+    protected override void OnAfterRenderInternal(bool firstRender)
+    {
+        _renderCount++;
+    }
+
+}
+
+<h1>Exclusive components</h1>
+<p>
+    Exclusive components only re-render when their Watch(...) or Bind(...) dependencies change.<br/>
+    This is useful for large components, as it allows you to avoid re-rendering the entire component tree when only a small part of it has changed.<br/>
+    In this example, changing the background color of the div will not cause the h1 to re-render.
+</p>
+
+<div>
+    <input type="color" @bind="Bind(_color).Value" @bind:event="oninput"/>
+    <input type="text" @bind="Bind(_text).Value" @bind:event="oninput"/>
+    <p>Parent render count: @_renderCount</p>
+</div>
+<div style="background: @_color">
+    <ExclusiveChild Text="_text"/>
+</div>

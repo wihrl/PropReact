@@ -1,7 +1,91 @@
 ﻿@page "/collections"
+@using PropReact.Props.Collections
+@using PropReact.Props.Value
+@using PropReact.Chain
 @inherits PropReact.Blazor.ReactiveComponent
 <h3>Collections</h3>
 
+<h6>ReactiveList</h6>
+<button @onclick="AddDelayedList">Add delayed</button>
+
+<ul>
+    @foreach (var item in Watch(_list))
+    {
+        <li>
+            @item
+            <button @onclick="() => _list.Remove(item)">delete</button>
+        </li>
+    }
+</ul>
+
+<p>Item at index 5: @Watch(_atIndex5)</p>
+
+<h6>ReactiveMap</h6>
+<button @onclick="AddDelayedMap">Add delayed</button>
+
+<ul>
+    @foreach (var item in Watch(_map))
+    {
+        <li>
+            @item.Name - @item.Id
+            <button @onclick="() => _map.Remove(item)">delete</button>
+        </li>
+    }
+</ul>
+
+<p>Item with empty guid: @(Watch(_atZero) ?? "<null>")</p>
+
+
 @code {
+    readonly ReactiveList<string> _list = new();
+    readonly Computed<string?> _atIndex5 = new(null);
+
+    readonly ReactiveMap<TestItem, Guid> _map = new(x => x.Id);
+    readonly Computed<string?> _atZero = new(null);
+
+
+    private async Task AddDelayedList()
+    {
+        await Task.Delay(1000);
+        _list.Add("Item " + _list.Count);
+    }
+
+    private async Task AddDelayedMap()
+    {
+        await Task.Delay(1000);
+
+        if (_map.Count != 3)
+            _map.Add(new TestItem());
+        else
+            _map.Add(new()
+            {
+                Id = Guid.Empty,
+                Name = "empty item"
+            });
+    }
+
+    protected override void OnInitialized()
+    {
+        Chain.From(this)
+            .ChainConstant(x => x._list)
+            .EnterAt(5)
+            .Immediate()
+            .Compute(() => _list.Count > 5 ? _list[5] : null, _atIndex5)
+            .Start(Disposables);
+
+        Chain.From(this)
+            .ChainConstant(x => x._map)
+            .EnterAt(Guid.Empty)
+            .Immediate()
+            .Compute(() => _map[Guid.Empty]?.Name, _atZero)
+            .Start(Disposables);
+    }
+
+
+    class TestItem
+    {
+        public Guid Id { get; init; } = Guid.NewGuid();
+        public string Name { get; init; } = "Test";
+    }
 
 }
