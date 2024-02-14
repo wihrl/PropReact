@@ -93,32 +93,30 @@ class Foo
 
 Creating reactive chains is generally done in 3 steps:
 
-1. **Create a chain using `ChainBuilder.From(this)`**
-
+1. **Create a chain using `ChainBuilder.From(this)`**\
    ChainBuilder.From() must always be called with `this` as the first argument.
    This is to enforce local initialization and to prevent leaks.
-2. **Define dependencies**
-
+2. **Define dependencies**\
    Use `.ChainValue()`, `.ChainConstant()` in combination with `.Branch()` to declare dependencies.
-    1. `.ChainValue(x => x.Prop)`: Subscribe to a reactive property. The prop must implement `IValue`.
-
-       Chaining is not allowed. ChainValue(x => x.Prop1.Prop2) should be replaced
+    1. `.ChainValue(x => x.Prop)`: Subscribe to a reactive property. The prop must implement `IValue`.\
+       Chaining is not allowed. `.ChainValue(x => x.Prop1.Prop2)` should be replaced
        with `.ChainValue(x => x.Prop1).ChainValue(x => x.Prop2).`
     2. `.ChainConstant(x => x.SomeValue1.SomeValue2)`: Chain a constant value. If the value ever changes, the chain will
        break and
        observers will be leaked. Chaining is allowed here.
     3. `.Branch(x => ..., x => ...)`: Split the chain in two. Can be used recursively to subscribe to multiple
        properties.
-3. **Select reaction type**
-
+3. **Select reaction type**\
    `.Immediate()` or `.Throttled(...)` to specify how the reaction should be handled.
 4. **Define reactions**
+    1. `.React(...)` - execute on change
+    2. `.ReactAsync(...)` - execute on change, async with a CancellationToken\
+       *Keep in mind PropReact is not thread safe*
+    2. `.Compute(...)` - create a computed value that updates when dependencies change
+    3. `.ComputeAsync(...)` - same as above, but async
+5. **Start the chain**\
+   Call `.Start()` to start observing. The chain will be stopped when disposed.\
+   **It is important to dispose chains when they are no longer needed to prevent dangling references.**
 
-    1. `.React(...)`
-    2. `.ReactAsync(...)`
-    2. `.Compute(...)`
-    3. `.ComputeAsync(...)`
-5. **Start the chain**
-
-   `.Start()` to start observing. The chain will be stopped when disposed. **It is important to dispose chains when they
-   are no longer needed to prevent dangling references.**
+For more complex examples, including async and collection support, see tests or
+the [Blazor example](https://github.com/wihrl/PropReact/tree/main/samples/BlazorSample).
