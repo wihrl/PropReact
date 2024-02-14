@@ -52,13 +52,13 @@ else
 
     protected override void OnInitialized()
     {
-        Chain.From(this)
+        ChainBuilder.From(this)
             .ChainValue(x => x._searchText)
             .Throttled(200)
             .ComputeAsync(LoadData, _forecasts)
             .Start(Disposables);
 
-        Chain.From(this)
+        ChainBuilder.From(this)
             .ChainValue(y => y._forecasts.IsRunning)
             .Immediate()
             .React(() => Console.WriteLine("IsRunning: " + _forecasts.IsRunning.v))

@@ -23,7 +23,7 @@ public class ListTests : CompositeDisposable
         var changes = 0;
         int expected;
 
-        Chain.Chain.From(this)
+        ChainBuilder.From(this)
             .ChainConstant(x => x.Data.Records)
             .Enter()
             .Immediate()
@@ -67,7 +67,7 @@ public class ListTests : CompositeDisposable
         var changes = 0;
         int expected;
 
-        Chain.Chain.From(this)
+        ChainBuilder.From(this)
             .ChainConstant(x => x.Data)
             .ChainValue(x => x.MutableRecords)
             .Enter()
@@ -103,7 +103,7 @@ public class ListTests : CompositeDisposable
         var changes = 0;
         int expected;
 
-        Chain.Chain.From(this)
+        ChainBuilder.From(this)
             .ChainConstant(x => x.Data.Records)
             .Enter()
             .Branch(
@@ -140,7 +140,7 @@ public class ListTests : CompositeDisposable
         var changes = 0;
         int expected;
 
-        Chain.Chain.From(this)
+        ChainBuilder.From(this)
             .ChainConstant(x => x.Data.Records)
             .Enter()
             .ChainValue(x => x.Text)
@@ -172,7 +172,7 @@ public class ListTests : CompositeDisposable
         var changes = 0;
         int expected = 0;
 
-        Chain.Chain.From(this)
+        ChainBuilder.From(this)
             .ChainConstant(x => x.Data.Records)
             .EnterAt(1)
             .ChainValue(x => x.Text)
@@ -222,7 +222,7 @@ public class ListTests : CompositeDisposable
         var changes = 0;
         int expected = 0;
 
-        Chain.Chain.From(this)
+        ChainBuilder.From(this)
             .ChainConstant(x => x.Data.Records)
             .EnterAt(1)
             .Immediate()

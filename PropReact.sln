@@ -13,6 +13,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{547A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorSample", "samples\BlazorSample\BlazorSample.csproj", "{0BC1B82B-0C71-4D09-80F8-6C46492FD32B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleSample", "samples\ConsoleSample\ConsoleSample.csproj", "{DC0673E7-5FDB-4B52-8403-A68E8C3B4CFE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -38,8 +40,13 @@ Global
 		{0BC1B82B-0C71-4D09-80F8-6C46492FD32B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0BC1B82B-0C71-4D09-80F8-6C46492FD32B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0BC1B82B-0C71-4D09-80F8-6C46492FD32B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DC0673E7-5FDB-4B52-8403-A68E8C3B4CFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC0673E7-5FDB-4B52-8403-A68E8C3B4CFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC0673E7-5FDB-4B52-8403-A68E8C3B4CFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC0673E7-5FDB-4B52-8403-A68E8C3B4CFE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{0BC1B82B-0C71-4D09-80F8-6C46492FD32B} = {547ABB90-DC87-442B-99E8-96D239D47FAD}
+		{DC0673E7-5FDB-4B52-8403-A68E8C3B4CFE} = {547ABB90-DC87-442B-99E8-96D239D47FAD}
 	EndGlobalSection
 EndGlobal

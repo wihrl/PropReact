@@ -66,14 +66,14 @@
 
     protected override void OnInitialized()
     {
-        Chain.From(this)
+        ChainBuilder.From(this)
             .ChainConstant(x => x._list)
             .EnterAt(5)
             .Immediate()
             .Compute(() => _list.Count > 5 ? _list[5] : null, _atIndex5)
             .Start(Disposables);
 
-        Chain.From(this)
+        ChainBuilder.From(this)
             .ChainConstant(x => x._map)
             .EnterAt(Guid.Empty)
             .Immediate()

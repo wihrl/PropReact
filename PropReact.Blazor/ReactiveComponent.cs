@@ -77,7 +77,7 @@ public class ReactiveComponent : ComponentBase, IDisposable
             """
             Only locally defined readonly props can be watched.
             Expressions such as Prop1.Value.Prop2.Value are not allowed and should be replaced with a computed prop.
-            Example: Chain.From(this).ChainValue(x => x.Prop1).ChainValue(x => x.Prop2).Compute(...).Start(...);
+            Example: ChainBuilder.From(this).ChainValue(x => x.Prop1).ChainValue(x => x.Prop2).Compute(...).Start(...);
             """);
 #endif
     }

@@ -15,7 +15,7 @@ public class ValueTests : CompositeDisposable
     {
         var changes = 0;
         
-        Chain.Chain.From(this)
+        ChainBuilder.From(this)
                 .ChainConstant(x => x.Data)
                 .ChainValue(x => x.Int)
                 .Immediate()
@@ -47,7 +47,7 @@ public class ValueTests : CompositeDisposable
         var changes = 0;
         var expected = 1;
 
-        Chain.Chain.From(this)
+        ChainBuilder.From(this)
             .ChainConstant(x => x.Data)
             .ChainValue(x => x.NullableRecord)
             .ChainValue(x => x.Related)
@@ -101,7 +101,7 @@ public class ValueTests : CompositeDisposable
         var changes = 0;
         var expected = 1;
 
-        Chain.Chain.From(this)
+        ChainBuilder.From(this)
             .ChainConstant(x => x.Data)
             .ChainValue(x => x.NullableRecord)
             .ChainValue(x => x.Related)
@@ -146,7 +146,7 @@ public class ValueTests : CompositeDisposable
         var changes = 0;
         var expected = 0;
 
-        Chain.Chain.From(this)
+        ChainBuilder.From(this)
             .ChainConstant(x => x.Data)
             .Branch(
                 y => y.ChainValue(x => x.Int),
@@ -190,7 +190,7 @@ public class ValueTests : CompositeDisposable
     {
         var changes = 0;
 
-        Chain.Chain.From(this)
+        ChainBuilder.From(this)
             .ChainConstant(x => x.Data)
             .ChainValue(x => x.Nested)
             .ChainValue(x => x)

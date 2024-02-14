@@ -15,7 +15,7 @@
 
     protected override void OnInitialized()
     {
-        Chain.From(this)
+        ChainBuilder.From(this)
             .Branch(
                 x => x.ChainValue(y => y._name),
                 x => x.ChainValue(y => y._unreadMessages)

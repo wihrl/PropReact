@@ -11,14 +11,14 @@ public class ValidationTests
     [Fact]
     private void NonlocalRoot()
     {
-        Assert.Throws<ArgumentException>(() => Chain.Chain.From(Data));
-        Assert.Throws<ArgumentException>(() => Chain.Chain.From("asdf"));
+        Assert.Throws<ArgumentException>(() => ChainBuilder.From(Data));
+        Assert.Throws<ArgumentException>(() => ChainBuilder.From("asdf"));
     }
 
     [Fact]
     private void ChainedExpression()
     {
-        var builder = Chain.Chain.From(this);
+        var builder = ChainBuilder.From(this);
         Assert.Throws<ArgumentException>(() => builder.ChainValue(x => x.Data.Int));
     }
 }
