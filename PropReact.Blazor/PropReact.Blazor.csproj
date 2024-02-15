@@ -6,9 +6,13 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <PackageReadmeFile>readme.md</PackageReadmeFile>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
         <RepositoryUrl>https://github.com/wihrl/PropReact/</RepositoryUrl>
         <PackageId>wihrl.PropReact.Blazor</PackageId>
         <Title>wihrl.PropReact.Blazor</Title>
+        <Authors>wihrl</Authors>
+        <Description>A reactive programming framework.</Description>
+        <PackageProjectUrl>https://github.com/wihrl/PropReact/</PackageProjectUrl>
     </PropertyGroup>
 
     <ItemGroup>
@@ -21,5 +25,6 @@
 
     <ItemGroup>
         <None Include="..\readme.md" Pack="true" PackagePath="\"/>
+        <None Include="..\LICENSE" Pack="true" PackagePath="\"/>
     </ItemGroup>
 </Project>
