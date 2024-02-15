@@ -51,7 +51,7 @@ public static class ChainBuilder
     #region Values
 
     public static ChainBuilder<TMainRoot, TBranchType, TNext> ChainValue<TMainRoot, TBranchType, TValue, TNext>(
-        this ChainBuilder<TMainRoot, TBranchType, TValue> builder, Func<TValue, IValue<TNext?>> selector,
+        this ChainBuilder<TMainRoot, TBranchType, TValue> builder, Func<TValue, IValue<TNext>> selector,
         [CallerArgumentExpression(nameof(selector))]
         string expression = "")
         where TBranchType : IBranchType

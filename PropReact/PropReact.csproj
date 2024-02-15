@@ -1,9 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <LangVersion>12</LangVersion>
+        <PackageReadmeFile>readme.md</PackageReadmeFile>
+        <RepositoryUrl>https://github.com/wihrl/PropReact/</RepositoryUrl>
+        <PackageId>wihrl.PropReact</PackageId>
+        <Title>wihrl.PropReact</Title>
     </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="..\readme.md" Pack="true" PackagePath="\"/>
+    </ItemGroup>
 </Project>

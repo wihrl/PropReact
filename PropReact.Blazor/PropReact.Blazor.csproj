@@ -1,18 +1,25 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <LangVersion>12</LangVersion>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <PackageReadmeFile>readme.md</PackageReadmeFile>
+        <RepositoryUrl>https://github.com/wihrl/PropReact/</RepositoryUrl>
+        <PackageId>wihrl.PropReact.Blazor</PackageId>
+        <Title>wihrl.PropReact.Blazor</Title>
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Microsoft.AspNetCore.Components" Version="7.0.5" />
+        <PackageReference Include="Microsoft.AspNetCore.Components" Version="8.0.2"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\PropReact\PropReact.csproj" />
+        <ProjectReference Include="..\PropReact\PropReact.csproj"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <None Include="..\readme.md" Pack="true" PackagePath="\"/>
+    </ItemGroup>
 </Project>

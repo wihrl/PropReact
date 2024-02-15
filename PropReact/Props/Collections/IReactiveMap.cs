@@ -13,5 +13,4 @@ public interface IReactiveMap<TValue, TKey> : IReactiveCollection<TValue, TKey> 
     bool RemoveAt(TKey key);
     bool Remove(TValue value);
     void Clear();
-    IEnumerator<TValue> GetEnumerator();
 }
