@@ -1,6 +1,4 @@
-﻿using PropReact.Props.Value;
-
-namespace PropReact.Props;
+﻿namespace PropReact.Props;
 
 internal class GenericObserver<T>(IProp<T> prop, Action<T?, T?> action) : IPropObserver<T>, IDisposable
 {

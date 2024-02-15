@@ -1,5 +1,4 @@
 ﻿using PropReact.Chain;
-using PropReact.Props;
 using PropReact.Props.Collections;
 using PropReact.Props.Value;
 using PropReact.Utils;
@@ -171,7 +170,7 @@ public class MapTests : CompositeDisposable
         var changes = 0;
         int expected = 0;
 
-        var guids = Enumerable.Range(0, 2).Select(x => Guid.NewGuid()).ToArray();
+        var guids = Enumerable.Range(0, 2).Select(_ => Guid.NewGuid()).ToArray();
 
         ChainBuilder.From(this)
             .ChainConstant(x => x.Data.Records)

@@ -1,5 +1,4 @@
 ﻿using PropReact.Chain;
-using PropReact.Props;
 using PropReact.Tests.Shared;
 
 namespace PropReact.Tests;

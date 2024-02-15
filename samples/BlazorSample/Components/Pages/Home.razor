@@ -2,7 +2,6 @@
 @inherits PropReact.Blazor.ExclusiveReactiveComponent
 @using PropReact.Props.Value
 @using PropReact.Chain
-@using PropReact
 @using PropReact.Utils
 
 @code {
@@ -27,7 +26,7 @@
     }
 
 
-    int _renderCount = 0;
+    int _renderCount;
     protected override void OnAfterRenderInternal(bool firstRender)
     {
         _renderCount++;

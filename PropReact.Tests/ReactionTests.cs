@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using PropReact.Chain;
-using PropReact.Props;
 using PropReact.Props.Value;
 using PropReact.Utils;
 
@@ -55,7 +54,7 @@ public class ReactionTests : CompositeDisposable
 
         ChainBuilder.From(this)
             .ChainValue(x => x._int)
-            .Throttled(delay, ThrottleMode.Extendable | ThrottleMode.ImmediateExtendable)
+            .Throttled(delay, immediate ? ThrottleMode.Extendable | ThrottleMode.ImmediateExtendable : ThrottleMode.Extendable)
             .React(() =>
             {
                 counter++;
@@ -65,12 +64,13 @@ public class ReactionTests : CompositeDisposable
 
         Assert.Equal(expected, counter);
 
-        var time = sw.ElapsedMilliseconds;
+        long time;
 
         void TriggerInitial()
         {
             _int.Value++;
-            Assert.Equal(++expected, counter);
+
+            Assert.Equal(immediate ? ++expected : expected, counter);
             ready = false;
             time = sw.ElapsedMilliseconds;
         }
@@ -127,7 +127,6 @@ public class ReactionTests : CompositeDisposable
     {
         var counter = 0;
         var expected = 0;
-        var sw = Stopwatch.StartNew();
 
         ChainBuilder.From(this)
             .ChainValue(x => x._int)
@@ -155,17 +154,17 @@ public class ReactionTests : CompositeDisposable
     void AsyncException()
     {
         var caught = false;
-        var sw = Stopwatch.StartNew();
+        Stopwatch.StartNew();
 
         ChainBuilder.From(this)
             .ChainValue(x => x._int)
             .Immediate()
-            .ReactAsync(async x =>
+            .ReactAsync(async _ =>
             {
                 await Task.Yield();
-                throw new Exception();
+                throw new();
             })
-            .CatchAsync(x => caught = true)
+            .CatchAsync(_ => caught = true)
             .Start(this);
 
         _int.Value++;

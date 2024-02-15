@@ -1,9 +1,9 @@
-﻿using System.Runtime.CompilerServices;
-using PropReact.Chain;
-using PropReact.Chain.Nodes;
-using PropReact.Props;
+﻿using PropReact.Chain;
 using PropReact.Props.Collections;
 using PropReact.Props.Value;
+// ReSharper disable All
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+#pragma warning disable CS0649 // Field is never assigned to, and will always have its default value
 
 namespace PropReact.Tests;
 
@@ -11,7 +11,7 @@ namespace PropReact.Tests;
 /// Checks that "type inference" overloads compile, does not check runtime logic.
 /// This "test" can be useful when messing around with ChainBuilder generics.
 /// </summary>
-public partial class TypeTests
+public class TypeTests
 {
     class ValueTypeData
     {
@@ -70,7 +70,7 @@ public partial class TypeTests
     {
         A root = null!;
 
-        var p1 = ChainBuilder.From(root)
+        ChainBuilder.From(root)
             .ChainValue(x => x.B)
             .ChainValue(x => x.C)
             .Branch(
@@ -83,7 +83,7 @@ public partial class TypeTests
             .Immediate()
             .React(() => { });
 
-        var p2 = ChainBuilder.From(root)
+        ChainBuilder.From(root)
             .ChainValue(x => x.B)
             .ChainValue(x => x.C)
             .ChainConstant(x => x.Ele)
@@ -91,9 +91,9 @@ public partial class TypeTests
             .Enter()
             .ChainValue(x => x.E1)
             .Immediate()
-            .Compute(() => root.B.Value.C.Value.Ele.Select(x => x.Select(y => y.E1.v)), out var d0);
+            .Compute(() => root.B.Value.C.Value.Ele.Select(x => x.Select(y => y.E1.v)), out _);
 
-        var p3 = ChainBuilder.From(root)
+        ChainBuilder.From(root)
             .ChainValue(x => x.B)
             .ChainValue(x => x.ListOfC)
             .Enter()
@@ -101,7 +101,7 @@ public partial class TypeTests
             .Immediate()
             .React(() => { });
 
-        var p4 = ChainBuilder.From(root)
+        ChainBuilder.From(root)
             .ChainValue(x => x.B)
             .ChainValue(x => x.IListOfC)
             .Enter()
@@ -110,7 +110,7 @@ public partial class TypeTests
             .ChainValue(x => x.D1)
             .Immediate();
 
-        var p5 = ChainBuilder.From(root)
+        ChainBuilder.From(root)
             .ChainValue(x => x.B)
             .ChainValue(x => x.C)
             .ChainConstant(x => x.Emap)
@@ -118,12 +118,12 @@ public partial class TypeTests
             .ChainValue(x => x.E1)
             .Immediate();
 
-        var p6 = ChainBuilder.From(root)
+        ChainBuilder.From(root)
             .ChainValue(x => x.Blist)
             .Enter()
             .ChainValue(x => x.C)
             .Immediate()
-            .Compute(() => "", out var d1)
+            .Compute(() => "", out _)
             .StartAsDisposable();
     }
 

@@ -7,17 +7,9 @@ using PropReact.Props.Value;
 
 namespace PropReact.Chain;
 
-public interface IBranchType
-{
-}
-
-public struct RootBranch : IBranchType
-{
-}
-
-public struct InnerBranch : IBranchType
-{
-}
+public interface IBranchType;
+public struct RootBranch : IBranchType;
+public struct InnerBranch : IBranchType;
 
 public class ChainBuilder<TRoot, TBranchType, TValue> where TBranchType : IBranchType
 {
@@ -51,7 +43,7 @@ public static class ChainBuilder
     #region Values
 
     public static ChainBuilder<TMainRoot, TBranchType, TNext> ChainValue<TMainRoot, TBranchType, TValue, TNext>(
-        this ChainBuilder<TMainRoot, TBranchType, TValue> builder, Func<TValue, IValue<TNext>> selector,
+        this ChainBuilder<TMainRoot, TBranchType, TValue> builder, Func<TValue, IValue<TNext?>> selector,
         [CallerArgumentExpression(nameof(selector))]
         string expression = "")
         where TBranchType : IBranchType
@@ -72,7 +64,7 @@ public static class ChainBuilder
                 nameof(selector));
 #endif
 
-        var nextNode = new ValueNode<TValue, TNext>(selector, builder.RootNode);
+        var nextNode = new ValueNode<TValue, TNext>(selector!, builder.RootNode);
         builder.Node.Chain(nextNode);
 
         return new(

@@ -23,8 +23,8 @@ abstract class Reaction<TRoot> : IReactionBuilder<TRoot>, IDisposable
 {
     private event Action? Reactions;
     private event Func<CancellationToken, ValueTask>? AsyncReactions;
-    private Action<Exception>? AsyncExceptionHandler;
-
+    
+    private Action<Exception>? _asyncExceptionHandler;
     private CancellationTokenSource _cts = new();
 
     private readonly RootNode<TRoot> _root;
@@ -49,7 +49,7 @@ abstract class Reaction<TRoot> : IReactionBuilder<TRoot>, IDisposable
             }
             catch (Exception e)
             {
-                AsyncExceptionHandler?.Invoke(e);
+                _asyncExceptionHandler?.Invoke(e);
             }
         };
 
@@ -96,7 +96,7 @@ abstract class Reaction<TRoot> : IReactionBuilder<TRoot>, IDisposable
             }
             catch (Exception e)
             {
-                AsyncExceptionHandler?.Invoke(e);
+                _asyncExceptionHandler?.Invoke(e);
             }
             finally
             {
@@ -112,7 +112,7 @@ abstract class Reaction<TRoot> : IReactionBuilder<TRoot>, IDisposable
 
     IReactionBuilder<TRoot> IReactionBuilder<TRoot>.CatchAsync(Action<Exception> handler)
     {
-        AsyncExceptionHandler += handler;
+        _asyncExceptionHandler += handler;
         return this;
     }
 

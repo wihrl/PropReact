@@ -1,5 +1,4 @@
 ﻿using PropReact.Chain;
-using PropReact.Props;
 using PropReact.Props.Collections;
 using PropReact.Props.Value;
 using PropReact.Utils;
