@@ -5,7 +5,7 @@ Can be used standalone or trough a [Blazor integration](#propreactblazor).
 
 The current release is a proof of concept and is not recommended for production use.
 
-### Features:
+### Features
 
 - Change tracking
     - Property chaining: `x.Prop1.Prop2.Prop3`
@@ -23,14 +23,14 @@ The current release is a proof of concept and is not recommended for production 
     - Async support
 - Reflection free - works fine with AOT / trimming
 
-##### Advantages over INotifyPropertyChanged:
+##### Advantages over INotifyPropertyChanged
 
 - Generally more powerful
 - Better collection support
 - Less boxing
 - Eventually less boilerplate (see limitations)
 
-##### Current limitations:
+##### Current limitations
 
 - Watch chains must be created manually. The plan is to eventually automate this using source generated interceptors.
 - Thread safety is not guaranteed (excluding ComputeAsync())
@@ -39,7 +39,7 @@ The current release is a proof of concept and is not recommended for production 
 - No data automatically passed into React(...) and Computed(...), properties must be accessed directly
     - No information about which property along the chain changed
 
-#### Creating reactive properties:
+#### Creating reactive properties
 
 ```csharp
 class Foo
@@ -97,22 +97,22 @@ class Message
 }
 ```
 
-Creating reactive chains is generally done in 3 steps:
+Creating reactive chains is generally split into 5 steps:
 
-1. **Create a chain** using `ChainBuilder.From(this)`\
-   ChainBuilder.From() must always be called with `this` as the first argument.
+1. **Initialize the chain**\
+   `ChainBuilder.From(this)` must always be called with `this` as the first argument.
    This is to enforce local initialization and to prevent leaks.
 2. **Define dependencies** using a combination of the following methods:
-    - `.ChainValue(x => x.Prop)`: Subscribe to `IValue`. This will generally be `IMutable<T>` or `IComputed<T>`.\
+    - `.ChainValue(x => x.Prop)` - Subscribe to `IValue`. This will generally be `IMutable<T>` or `IComputed<T>`.\
       *Chaining is not allowed.* `.ChainValue(x => x.Prop1.Prop2)` should be replaced
       with `.ChainValue(x => x.Prop1).ChainValue(x => x.Prop2).`
 
-    - `.ChainConstant(x => x.SomeValue1.SomeValue2)`: Chain a constant value, also used for collections.\
+    - `.ChainConstant(x => x.SomeValue1.SomeValue2)` - Chain a constant value, also used for collections.\
       If the value ever changes, the chain will break and observers will be leaked. Chaining is allowed here.
-    - `Enter()`: Enter any IEnumerable\<T\>. If the type implements `IProp`, updates will also trigger on changes.
-    - `EnterAt(TKey)`: Enter at a specific key. Collection must implement `IReactiveCollection`. Both `ReactiveList`
+    - `Enter()` - Enter any IEnumerable\<T\>. If the type implements `IProp`, updates will also trigger on changes.
+    - `EnterAt(TKey)` - Enter at a specific key. Collection must implement `IReactiveCollection`. Both `ReactiveList`
       and `ReactiveMap` support this.
-    - `.Branch(x => ..., x => ...)`: Split the chain in two. Can be used recursively to subscribe to multiple
+    - `.Branch(x => ..., x => ...)` - Split the chain in two. Can be used recursively to subscribe to multiple
       properties.
 
 3. **Select reaction type**\
@@ -170,3 +170,5 @@ when they are changed and thus cannot unsubscribe from them. Instead, use a sett
     
     // ... .ChainValue(x => x._count)
 ```
+
+Take a look at [the sample project](https://github.com/wihrl/PropReact/tree/main/samples/BlazorSample) for a reference.
