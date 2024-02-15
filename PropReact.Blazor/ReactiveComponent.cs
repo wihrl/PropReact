@@ -9,7 +9,7 @@ namespace PropReact.Blazor;
 
 public class ReactiveComponent : ComponentBase, IDisposable
 {
-    protected CompositeDisposable Disposables { get; private set; } = new();
+    protected CompositeDisposable Disposables { get; } = new();
     internal int _dependencyChanges = 1;
 
     public void Dispose()

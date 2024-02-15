@@ -1,10 +1,9 @@
 ﻿# PropReact
 
-An **experimental** reactive programming framework for C# loosely inspired by Vue 3's composition API.
+An **experimental** reactive programming framework for C# loosely inspired by Vue 3's composition API.\
+Can be used standalone or trough a [Blazor integration](#propreactblazor).
 
 The current release is a proof of concept and is not recommended for production use.
-
-#### PropReact.Blazor - A Blazor component library for PropReact.
 
 ### Features:
 
@@ -38,15 +37,7 @@ The current release is a proof of concept and is not recommended for production 
 - No change aggregation
 - No bulk updates for collections (all changes are processed per-item)
 - No data automatically passed into React(...) and Computed(...), properties must be accessed directly
-  - No information about which property along the chain changed
-
-#### Reactive types overview
-| Type              | Description                                      | ChainValue() | Enter()              | EnterAt() |
-|-------------------|--------------------------------------------------|--------------|----------------------|-----------|
-| Mutable<T>        | Mutable reactive property                        | ✔️            | ✔️if T is `IEnumerable` | ❌         |
-| Computed<T>       | Read-only reactive property                      | ✔️            | ✔️if T is `IEnumerable` | ❌         |
-| ReactiveList<T>   | Reactive version of `List<T>`                      | ❌            | ✔️                    | ✔️         |
-| ReactiveMap<T, K> | Reactive `Dictionary<T, K>` but with a key selector | ❌            | ✔️                    | ✔️         |
+    - No information about which property along the chain changed
 
 #### Creating reactive properties:
 
@@ -136,5 +127,46 @@ Creating reactive chains is generally done in 3 steps:
    Call `.Start()` to start observing. The chain will be stopped when disposed.\
    **It is important to dispose chains when they are no longer needed to prevent dangling references.**
 
+| Type                | Description                                         |
+|---------------------|-----------------------------------------------------|
+| `Mutable<T>`        | Mutable reactive property                           |
+| `Computed<T>`       | Read-only reactive property                         |
+| `ReactiveList<T>`   | Reactive version of `List<T>`                       |
+| `ReactiveMap<T, K>` | Reactive `Dictionary<T, K>` but with a key selector |
+
 For more complex examples, including async and collection support, see tests or
 the [Blazor example](https://github.com/wihrl/PropReact/tree/main/samples/BlazorSample).
+
+### PropReact.Blazor
+
+#### ReactiveComponent
+
+All components using PropReact should inherit from `ReactiveComponent`.\
+This class provides `Watch()` and `Bind()` methods which can be used within the render tree to observe or bind props.\
+It also manages a `CompositeDisposable` instance for creating observation chains.
+
+```csharp
+@if(string.IsNullOrEmpty(Watch(_text)))
+{
+    <p>Please enter some text</p>   
+}
+<input @bind="Bind(_text).v"/>
+```
+
+##### ExclusiveReactiveComponent
+
+Same as `ReactiveComponent`, but re-renders *only* if dependencies change.\
+This can prevent unnecessary re-renders due to re-renders of the parent component.
+
+#### Parameters
+
+`IValue` derived props cannot be used directly as blazor parameters since PropReact has no way of knowing
+when they are changed and thus cannot unsubscribe from them. Instead, use a setter only parameter property in combination with `Value/MutableParam`.
+
+```csharp
+    [Parameter]
+    public IMutable<int> Count { set => _count.Update(value); }
+    readonly MutableParam<int> _count = new();
+    
+    // ... .ChainValue(x => x._count)
+```

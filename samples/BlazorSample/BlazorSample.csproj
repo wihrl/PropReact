@@ -18,6 +18,9 @@
       <Content Update="Components\Pages\ExclusiveChild.razor">
         <DependentUpon>Exclusive.razor</DependentUpon>
       </Content>
+      <Content Include="..\..\readme.md">
+        <Link>readme.md</Link>
+      </Content>
     </ItemGroup>
 
 </Project>
