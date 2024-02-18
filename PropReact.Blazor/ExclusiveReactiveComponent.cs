@@ -2,7 +2,7 @@
 
 /// <summary>
 /// Same as <see cref="ReactiveComponent"/>, but only renders when a dependency changes.
-/// It will not rerender if the parent component re-renders (in most cases).
+/// It will not re-render if the parent component re-renders (in most cases).
 /// </summary>
 public class ExclusiveReactiveComponent : ReactiveComponent
 {
